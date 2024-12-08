@@ -1,0 +1,176 @@
+%%============================ Compiler Directives =======================%%
+%%                                                                        %%
+% !TeX program = lualatex							    	
+% !TeX encoding = utf8
+% !TeX spellcheck = uk_UA
+%%                                                                        %%
+%%============================== Клас документа ==========================%%
+%%                                                                        %%
+\documentclass[14pt]{extarticle}
+\IfFileExists{ukrcorr.sty}{\usepackage{ukrcorr}}{}
+%%                                                                        %%
+%%========================== Мови, шрифти та кодування ===================%%
+%%                                                                        %%
+\usepackage{fontspec}
+\setsansfont{CMU Sans Serif}%{Arial}
+\setmainfont{CMU Serif}%{Times New Roman}
+\setmonofont{CMU Typewriter Text}%{Consolas}
+\defaultfontfeatures{Ligatures={TeX}}
+\usepackage[math-style=TeX]{unicode-math}
+\usepackage[english, russian, ukrainian]{babel}
+
+%%                                                                        %%
+%%============================= Геометрія сторінки =======================%%
+%%                                                                        %%
+\usepackage[%
+	a4paper,%
+	footskip=1cm,%
+	headsep=0.3cm,% 
+	top=2cm, %поле сверху
+	bottom=2cm, %поле снизу
+	left=2cm, %поле ліворуч
+	right=2cm, %поле праворуч
+    ]{geometry}                          
+%%                                                                        %%        
+%%============================== Інтерліньяж  ============================%%
+%%                                                                        %%
+\renewcommand{\baselinestretch}{1}
+%-------------------------  Подавление висячих строк  --------------------%%
+\clubpenalty =10000
+\widowpenalty=10000
+%---------------------------------Інтервали-------------------------------%%
+\setlength{\parskip}{0.5ex}%
+\setlength{\parindent}{2.5em}%
+%%                                                                        %%
+%%=========================== Математичні пакети і графіка ===============%%
+%%                                                                        %%
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{floatflt}
+%%                                                                        %%
+%%========================== Гіперпосилення (href) =======================%%
+%%                                                                        %%
+\usepackage[%colorlinks=true,
+	%urlcolor = blue, %Colour for external hyperlinks
+	%linkcolor  = malina, %Colour of internal links
+	%citecolor  = green, %Colour of citations
+	bookmarks = true,
+	bookmarksnumbered=true,
+	unicode,
+	linktoc = all,
+	hypertexnames=false,
+	pdftoolbar=false,
+	pdfpagelayout=TwoPageRight,
+	pdfauthor={Ponomarenko S.M. aka sergiokapone},
+	pdfdisplaydoctitle=true,
+	pdfencoding=auto
+	]%
+	{hyperref}
+		\makeatletter
+	\AtBeginDocument{
+	\hypersetup{
+		pdfinfo={
+		Title={\@title},
+		}
+	}
+	}
+	\makeatother 
+%%                                                                        %%
+%%============================ Заголовок та автори =======================%%
+%%                                                                        %%
+\title{}
+\author{}                                   
+%%                                                                        %%
+%%========================================================================%%
+
+
+\begin{document}
+
+Рівняння Ейнштейна
+\begin{equation}\label{Ein}
+G_{ik} = T_{ik} - \Lambda g_{ik}
+\end{equation}
+
+Згортка рівнянь \eqref{Ein}
+
+\begin{equation}\label{EinC}
+	 -R = \frac{8\pi G}{c^4} \rho c^2 - 4\Lambda
+\end{equation}
+\section*{Модель Фрідмана}
+
+
+Рівняння енергії
+\begin{equation}\label{en}
+\left({\frac {\dot {a}}{a}}\right)^{2}={\frac {8\pi G\rho }{3}}-\left({\frac {kc^{2}}{a^{2}}}\right)+{\frac {\Lambda c^{2}}{3}}
+\end{equation}
+
+Рівняння руху
+\begin{equation}\label{mot}
+\frac {\ddot {a}}{a}=-{\frac {4\pi G}{3}}\left(\rho +{\frac {3P}{c^{2}}}\right)+{\frac {\Lambda c^{2}}{3}} 
+\end{equation}
+
+Рівняння нерозривності
+\begin{equation}\label{con}
+\frac {d\rho }{dt}=-3\left({\frac {\dot {a}}{a}}\right)\left(\rho +{\frac {P}{c^{2}}}\right).
+\end{equation}
+
+\section*{Статичний випадок $\dot {a} = 0$, модель пилевидної матерії $P=0$}
+
+Рівняння енергії
+\begin{equation}\label{en1}
+0={\frac {8\pi G\rho }{3}}-\left({\frac {kc^{2}}{a^{2}}}\right)+{\frac {\Lambda c^{2}}{3}}
+\end{equation}
+
+Рівняння руху
+\begin{equation}\label{mot1}
+0=-{\frac {4\pi G}{3}}\rho +{\frac {\Lambda c^{2}}{3}} 
+\end{equation}
+
+Рівняння нерозривності
+\begin{equation}\label{con1}
+\frac {d\rho }{dt}=0.
+\end{equation}
+
+З рівняння \eqref{en1} 
+\begin{equation}\label{rho}
+	\rho=\mathrm{const}
+\end{equation}
+
+З рівняння \eqref{mot1}
+\begin{equation}\label{key}
+	\rho = \frac{\Lambda c^2}{4\pi G}
+\end{equation}
+
+З цього рівняння густина енергії матерії
+
+\begin{equation}\label{en2}
+\rho =\frac{3kc^2}{a^28\pi G} + \frac{\Lambda c^2}{8\pi G}
+\end{equation}
+
+Звідки видно, що параметр $k$ ми повинні визначати зі спостережень, іншого виходу нема, рівняння відповіді на це не дають!!!
+
+Якщо наш всесвіт плоский, то $k = 0$, тоді з \eqref{en2}
+\begin{equation}\label{en3}
+		\rho =\frac{\Lambda c^2}{8\pi G}
+\end{equation}
+
+і, логічно, з \eqref{EinC} скалярна кривизна всесвіту $R = 0$.
+
+%Для того, щоб дізнатись $k$ для Всесвіту, треба з якихось дані окремо по $\rho$ і по $\Lambda$.
+%
+%Знову ж повернемось до статичного Всесвіту. З рівняння \eqref{mot1} та  \eqref{en3} можна визначити $k$, яка в цьому випадку має дорівнювати
+%\begin{equation}\label{k}
+%	k = \frac23 \Lambda a^2
+%\end{equation}
+
+\section*{Як визначити $k$}
+
+Рівняння \eqref{mot1} і \eqref{con1}дають  $\Lambda = \mathrm{const}$. Однак рівняння \eqref{en2} стверджує, що це може бути лише за умови $k = 0$.
+
+\section*{Висновок}
+
+Статичний Всесвіт має бути з плоским!!!
+
+\end{document}
+
+

@@ -1,0 +1,492 @@
+%%============================ Compiler Directives =======================%%
+%%                                                                        %%
+% !TeX program = lualatex
+% !TeX encoding = utf8
+% !TeX spellcheck = russian-aot
+%%                                                                        %%
+%%============================== Клас документа ==========================%%
+%%                                                                        %%
+\documentclass[]{article}
+\usepackage[fontsize = 12pt]{fontsize}
+\usepackage{ifluatex}
+%%                                                                        %%
+%%========================== Мови, шрифти та кодування ===================%%
+%%
+\ifluatex                                                                        %%
+	\usepackage{fontspec}
+	\setsansfont{CMU Sans Serif}%{Arial}
+	\setmainfont{CMU Serif}%{Times New Roman}
+	\setmonofont{CMU Typewriter Text}%{Consolas}
+	\defaultfontfeatures{Ligatures={TeX}}
+	\usepackage[math-style=TeX]{unicode-math}
+\else
+	\usepackage[utf8]{inputenc}
+	\usepackage[T2A,T1]{fontenc}
+	\usepackage{amsmath}
+	%\usepackage{pscyr}
+	\usepackage{cmap}
+\fi
+\usepackage[english, russian]{babel}
+%%                                                                        %%
+%%============================= Геометрія сторінки =======================%%
+%%                                                                        %%
+\usepackage[%
+	a4paper,%
+	footskip=1cm,%
+	headsep=0.3cm,%
+	top=2cm, %поле сверху
+	bottom=2cm, %поле снизу
+	left=2cm, %поле ліворуч
+	right=2cm, %поле праворуч
+    ]{geometry}
+%%                                                                        %%
+%%============================== Інтерліньяж  ============================%%
+%%                                                                        %%
+\renewcommand{\baselinestretch}{1}
+%-------------------------  Подавление висячих строк  --------------------%%
+\clubpenalty =10000
+\widowpenalty=10000
+%---------------------------------Інтервали-------------------------------%%
+\setlength{\parskip}{0.5ex}%
+\setlength{\parindent}{2.5em}%
+%%                                                                        %%
+%%=========================== Математичні пакети і графіка ===============%%
+%%                                                                        %%
+\usepackage{tikz, pgfplots}
+\usetikzlibrary{calc}
+
+\usepackage{tcolorbox}
+%%                                                                        %%
+%%========================== Гіперпосилення (href) =======================%%
+%%                                                                        %%
+\usepackage[%colorlinks=true,
+	%urlcolor = blue, %Colour for external hyperlinks
+	%linkcolor  = malina, %Colour of internal links
+	%citecolor  = green, %Colour of citations
+	bookmarks = true,
+	bookmarksnumbered=true,
+	unicode,
+	linktoc = all,
+	hypertexnames=false,
+	pdftoolbar=false,
+	pdfpagelayout=TwoPageRight,
+	pdfauthor={Ponomarenko S.M. aka sergiokapone},
+	pdfdisplaydoctitle=true,
+	pdfencoding=auto
+	]%
+	{hyperref}
+		\makeatletter
+	\AtBeginDocument{
+	\hypersetup{
+		pdfinfo={
+		Title={\@title},
+		}
+	}
+	}
+	\makeatother
+\title{Космология}
+%\author{С.Н. Пономаренко}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Кинематика Вселенной}
+
+Однородная и изотропная Вселенная может быть описана нестационарной (т.е. зависящей от времени) метрикой специального вида (т.н. метрика Фридмана-Робертсона-Уокера)
+
+Для понимания того, как может выглядеть наша трёхмерная Вселенная (если она не плоская, конечно), там нужно <<посмотреть>> на неё с точки зрения четвёртого измерения.
+
+Допустим это четырехмерная гиперсфера радиуса $a$ (на поверхности которой мы живём и не ведаем про $x_4$):
+\begin{equation*}\label{}
+    x_1^2 + x_2^2 + x_3^3 + x_4^2 = a^2
+\end{equation*}
+
+Элемент длины на поверхности такой сферы в декартовых координатах:
+\begin{equation*}\label{}
+    dl^2 = dx_1^2 + dx_2^2 + dx_3^3 + dx_4^2.
+\end{equation*}
+
+Исключим из этого выражения <<фиктивную>> координату $x_4$:
+\begin{equation}\label{}
+    dl^2 = dx_1^2 + dx_2^2 + dx_3^3 + \frac{(x_1dx_1 + x_2dx_2 + x_3dx_3)^2}{a^2 - x_1^2 - x_2^2 - x_3^3}.
+\end{equation}
+
+Теперь введём сферические координаты $r, \theta, \phi$, откуда получим:
+\begin{equation*}\label{}
+	dl^2=  \frac{dr^2}{1-\frac{r^2}{a^2}}+r^2\left[ d\theta^2+\sin^2\theta d\phi^2\right] ,
+\end{equation*}
+
+Аналогично можно поступить для плоский и гиперболической геометрии и получить квадрат элемента длины в общем виде:
+\begin{equation*}\label{}
+	dl^2=  \frac{dr^2}{1-k\frac{r^2}{a^2}}+r^2\left[ d\theta^2+\sin^2\theta d\phi^2\right] ,
+\end{equation*}
+где постоянная $k$ определяет одну из трёх возможных глобальных топологий пространства:
+\begin{enumerate}
+\item плоское, $k=0$,
+\item постоянной положительной кривизны, $k=+1$,
+\item постоянной отрицательной кривизны, $k=-1$.
+\end{enumerate}
+
+Пространственно-временная метрика будет иметь вид:
+\begin{equation}\label{eq:FWL}
+	ds^2=c^2dt^2-\frac{dr^2}{1-\frac{r^2}{a^2}}+r^2\left[ d\theta^2+\sin^2\theta d\phi^2\right],
+\end{equation}
+
+В конформной пространственной метрике:
+\begin{equation}\label{eq:FWL_conf}
+    	ds^2=c^2dt^2-a^2(t)\left[  d\chi^2 + f^2(\chi)\left( d\theta^2+\sin^2\theta d\phi^2\right)    \right],
+\end{equation}
+где
+\begin{equation*}\label{}
+    f^2(\chi) =
+            \begin{cases}
+                \chi, \quad \text{для плоской метрики},\\
+                \sin\chi, \quad \text{для пространства положительной кривизны метрики},\\
+                \sh\chi, \quad \text{для пространства отрицательной кривизны метрики}.
+            \end{cases}
+\end{equation*}
+$a(t)$ -- Масштабный фактор, единственная зависящая от времени величина, к тому же имеет размерность расстояния. Конформная метрика интересна тем, что она похожа на статичную метрику.
+
+\subsection{Закон Хаббла и красное смещение}
+
+\begin{center}
+\begin{tikzpicture}[
+    declare function = {
+            xm(\n) = sqrt(2)*sqrt(2*pi*\n+pi+2) - 2;
+            f(\x) = sin(deg(\x*(1+0.25*\x)));
+        },
+    ]
+    \draw[color=blue, samples=500] plot[domain=3.45:15.11] (\x,{f(\x)});
+    \draw ({xm(2)}, 1) -- ++(0, 0.5) ({xm(4)}, 1) -- ++(0, 0.5);
+    \draw[latex-latex] ({xm(2)}, 1.25) -- node[above] {$\lambda_0$} ({xm(4)}, 1.25);
+    \draw ({xm(20)}, 1) -- ++(0, 0.5) ({xm(22)}, 1) -- ++(0, 0.5);
+    \draw[latex-latex] ({xm(20)}, 1.25) -- node[above] {$\lambda$} ({xm(22)}, 1.25);
+\end{tikzpicture}
+\end{center}
+С течением времени пространство расширяется, и длина волны фотона увеличивается вместе с расширением пространства. Если в момент времени $t$ испускается фотон с длиной волны $\lambda$ то уже в современный момент времени $t_0 $ он уже будет приниматься с длиной волны $\lambda_0$:
+\begin{equation}\label{}
+	\lambda_0 = \frac{a_0}{a(t)}\lambda.
+\end{equation}
+Величину, которую обозначают через $z$ ---  называют красным смещением:
+\begin{equation}\label{key}
+	\frac{a_0}{a(t)} = 1 + z(t).
+\end{equation}
+Как раз наблюдая спектры удалённых галактик определяют именно $z$.
+
+При $z \ll 1$, можно разложить $a(t)$ в ряд Тейлора
+\begin{equation*}\label{}
+	a(t) = a_0 - \dot{a} (t_0 - t)
+\end{equation*}
+и тогда
+\begin{equation*}\label{}
+	\frac{a_0}{a(t)} = 1 + z(t) = \frac{a_0}{a_0 - \dot{a}_0 (t_0 - t)} = \frac{1}{1 - \frac{\dot{a}_0}{a_0}(t_0 - t)} = 1 +  \frac{\dot{a}}{a}(t_0 - t).
+\end{equation*}
+Введём параметр Хаббла как:
+\begin{equation}\label{eq:H}
+	H_0 = \frac{\dot{a}_0}{a_0},
+\end{equation}
+и тогда При $z \ll 1$ получаем
+\begin{equation}\label{eq:low_z}
+	z(t) = H_0(t_0 - t).
+\end{equation}
+Поскольку в наших единицах $c = 1$, то $c(t_0 - t) = r$ есть расстояние между источником и приёмником света, т. е.
+\begin{equation}\label{eq:Habbl_Law}
+	z(t) = H_0r.
+\end{equation}
+Эта формула и называется законом Хаббла. По результатам Plank $H_0 = 67.8 \pm 0.9\, \frac{\text{км/с}}{\text{МПк}}$.
+Кстати $z$ есть скорость источника света, выраженная в единицах скорости света.
+
+\begin{tcolorbox}
+	Какова скорость галактики, красное смещение которой $z = 0.2$? Какое расстояние до этой галактики?
+\end{tcolorbox}
+
+\begin{tcolorbox}
+	Найти первую поправку к формуле \eqref{eq:Habbl_Law}. Выразить ее через параметр ускорения $q_0 = \frac{1}{H_0^2} \left. \frac{\ddot{a}}{a} \right|_{t = t_0} $
+\end{tcolorbox}
+
+\begin{tcolorbox}[title = Замена переменных $a \to z$. Бокс \ref{box:az}]\label{box:az}
+Часто нам будет необходима замена переменных $a \to z$.
+Поскольку $a_0/a = 1 + z$ то $da/a = -dz/(1+z)$.
+\end{tcolorbox}
+\subsection{Расстояния во Вселенной}
+
+\subsubsection{Фотометрическое расстояние}
+Фотометрическое расстояние связано с измерением яркости удалённых объектов и определением расстояния по Этой яркости.
+
+Введём понятия:
+\begin{enumerate}
+\item $L$~--- абсолютная светимость --- энергия, которую излучает объект за единицу времени [эрг/c].
+\item $J$~--- видимая яркость объекта --- плотность потока энергии принимаемая прибором [эрг/с/м$^2$].
+\end{enumerate}
+В плоской нерасширяющейся Вселенной простое соотношение между этими величинами:
+\begin{equation*}\label{}
+    J = \frac{L}{4\pi r^2},
+\end{equation*}
+где $r$ --- расстояние до источника.
+
+В расширяющейся Вселенной, расстояние $r = r_\text{ph}$~--- называется фотометрическим. Выясним, как будет зависеть $r_\text{ph}$ от красного смещения и от геометрии Вселенной.
+\begin{equation*}\label{eq:J}
+    J = \frac{L}{4\pi r_\text{ph}^2}.
+\end{equation*}
+
+На данный момент площадь сферы, на которую разошлось излучение удалённого источника с координатой $\chi$ равна:
+\begin{equation*}\label{}
+    S(\chi) = 4\pi a_0^2 f^2(\chi).
+\end{equation*}
+Это расстояние $a_0 f(\chi)$ пока не фотометрическое расстояние так как нужно учесть то, что излучение <<покраснело>> с момента излучения, а значит его энергия, которая до нас дошла уменьшилась в $1 + z$ раз, т. е. $L \to \frac{L}{1 + z}$.
+
+Кроме того, поток энергии, воспринимаемый прибором тоже уменьшается в $1 + z$ раз, т. е. $J \to \frac{J}{1 + z}$.
+
+Поэтому фотометрическое расстояние:
+\begin{equation}\label{eq:ph_dist}
+    r_\text{ph} = (1+z) a_0 f(\chi(z)),
+\end{equation}
+где имеется ввиду, что $z$~--- красное смещение источника, испустившего сигнал.
+
+Для определения $r_\text{ph} (z)$ нам нужно ещё выразить $\chi(z)$. Из метрики \eqref{eq:FWL_conf} положив $ds^2 = 0$ для света находим:
+\begin{equation*}\label{}
+    \chi = \int\limits_t^{t_0}\frac{dt}{a(t)} = \int\limits_t^{t_0} \frac{da}{H(a)a^2} \stackrel{\ref{box:az}}{=} \int\limits_0^{z} \frac{dz}{a_0 H(z)},
+\end{equation*}
+выделим последнюю формулу отдельно:
+\begin{equation}\label{eq:chi_z}
+    \chi(z) = \int\limits_0^{z} \frac{dz}{a_0 H(z)}.
+\end{equation}
+
+\subsection{Расстояние углового размера}
+
+Расстояние углового размер связано с понятием угла, под которым видны удалённые протяжённые объекты поперечное физическое расстояние  между которыми равно $l = a f(\chi) \delta\theta$:
+\begin{equation*}\label{}
+    \delta\theta = \frac{l}{r_A},
+\end{equation*}
+где $r_A$ --- расстояние углового размера.
+
+
+\begin{center}
+\begin{tikzpicture}
+    \def\p{2}
+    \draw (0,0) circle (\p) circle (\p);
+    \draw[] (0,0) -- node[right] {$r_A$} (75:\p) (0,0) -- (105:\p);
+    \draw[red, ultra thick] (0,0) ++(105:\p) arc (105:75:\p) node[above, pos=0.5, color=black] {$l$};
+    \def\p{4}
+    \draw (0,0) circle (\p) circle (\p);
+    \draw[] (0,0) --  (75:\p) (0,0) -- (105:\p);
+    \draw[red, ultra thick] (0,0) ++(105:\p) arc (105:75:\p) node[above, pos=0.5, color = black] {$a_0f(\chi)\delta\theta$};
+    \def\p{0.75}
+    \draw[] (0,0) ++(105:\p) arc (105:75:\p) node[above, pos=0.5] {$\theta$};
+\end{tikzpicture}
+\end{center}
+
+Расстояние углового размера равно
+\[
+    r_A = a f(\chi) = \frac{a_0 f(\chi)}{1 + z} = \frac{r(z)}{1 + z},
+\]
+где $r(z)$ --- расстояние до объектов с красным смещением $z$ в современную эпоху, тогда как $r_A$ --- расстояние до объектов в момент испускания света (заметим, что $f(\chi)$ --- и в момент испускания и в современную эпоху одинаковы).
+
+
+\section{Динамика Вселенной}
+
+Динамика Вселенной должна ответить на вопрос, как зависит масштабный фактор $a(t)$ от времени и чем определяется эта зависимость.
+
+\subsection{Уравнения Эйнштейна и Фридмана}
+
+Логично использовать для этого уравнения гравитационного поля Эйнштейна используя метрику \eqref{eq:FWL}.
+Уравнения Эйнштейна принимают вид:
+\begin{equation}\label{eq:Freiedman}
+	\left( \frac{\dot{a}}{a}\right) = \frac{8\pi}{3}G \rho - \frac{k}{a^2}.
+\end{equation}
+
+Это уравнение называют уравнением Фридмана; оно связывает темп расширения Вселенной (а именно, параметр Хаббла $H = \dot{a}/a$) с плотностью энергии материи $\rho$ и пространственной кривизной.
+
+Уравнение Фридмана \eqref{eq:Freiedman} содержат две неизвестные функции времени $a(t)$ и $\rho(t)$.
+Для получения дополнительного уравнения удобно рассмотреть условие ковариантного сохранения тензора энергии-импульса вещества $\nabla_{\mu} T^{\mu\nu} = 0$, которое даёт:
+\begin{equation}\label{eq:rho}
+	\dot{\rho}(t) + 3H(\rho + p) = 0.
+\end{equation}
+
+Для замыкания системы уравнений, определяющих динамику эволюции однородной изотропной Вселенной, необходимо задать ещё уравнение состояния материи:
+\begin{equation}\label{eq:state}
+	p = p(\rho).
+\end{equation}
+
+Уравнения \eqref{eq:Freiedman}, \eqref{eq:rho} и \eqref{eq:state} полностью определяют динамику расширения Вселенной.
+
+\subsection{Обезразмеренное уравнение Фридмана и критическая плотность}
+
+Проанализируем уравнение \eqref{eq:Freiedman}. Для этого поделим его на $H^2$  и запишем обезразмеренном виде:
+\begin{equation}\label{eq:1}
+	\Omega_{\rho} = 1- \Omega_{K},
+\end{equation}
+где $\Omega_{\rho} = \dfrac{8\pi G \rho}{3H^2}$ --- отражает вклад плотности Вселенной, $\Omega_{k} = \dfrac{k}{a^2H^2}$ --- вклад кривизны Вселенной.
+
+Во всей этой истории, мы еще не знаем топологию пространства, т.е. мы не знаем $k$. Поскольку
+\begin{equation*}\label{}
+	\rho = \frac{3H^2}{8\pi G} \Omega_{\rho},
+\end{equation*}
+то можно ввести понятие критической плотности, положив $\Omega_{\rho} = 1$ (тогда уравнение \eqref{eq:1} выполнится когда $\Omega_k = 0$):
+\begin{equation}\label{eq:cr}
+	\rho_c = \frac{3H^2}{8\pi G},
+\end{equation}
+т. е. критическая плотность, это такая плотность, при которой реализуется плоская Вселенная.
+
+И теперь, согласно \eqref{eq:1}  если
+\begin{itemize}
+	\item $\rho < \rho_c$ --- у нас будет Вселенная с отрицательной кривизной --- открытая Вселенная;
+	\item $\rho = \rho_c$ --- у нас будет Вселенная с нулевой кривизной --- плоская Вселенная;
+	\item $\rho > \rho_c$ --- у нас будет Вселенная с положительной кривизной --- замкнутая Вселенная.
+\end{itemize}
+
+
+\subsection{Что и как можно узнать из наблюдений?}
+
+\begin{tcolorbox}
+	Как узнать чему равна критическая плотность Вселенной?
+\end{tcolorbox}
+Ответ: узнайте параметр Хаббла и подставьте в \eqref{eq:cr}.
+
+Наблюдательные данные по определению параметра Хаббла дают оценку:
+\[
+	\rho_c = 9.31\cdot 10^{-27}
+	\, \text{кг/м${}^3$}
+\]
+Критическая плотность соответствует $5.5$ атома водорода на кубический метр.
+
+
+\begin{tcolorbox}
+	Вопрос: как узнать чему равна плотность Вселенной?
+\end{tcolorbox}
+
+Узнайте $\Omega_{\rho}$ и умножьте на критическую плотность $\rho = \rho_c \Omega_{\rho}$.
+
+\begin{tcolorbox}
+	Как узнать чему равна $\Omega_{\rho}$?
+\end{tcolorbox}
+
+По результатам WMAP
+\begin{equation}\label{}
+	0.9915 < \Omega_{\rho}^{(0)} <  1.0085,
+\end{equation}
+т.е. для $\Omega_{k}^{(0)}$ ($(0)$ --- означает <<в современную эпоху>>) из \eqref{eq:1} получается:
+\begin{equation}\label{}
+	-0.0175 < \Omega_{k}^{(0)} <  0.0085.
+\end{equation}
+Т. е. плотность во Вселенной с высокой точностью равна критической, а значит, мы живём в плоской Вселенной.
+
+\bigskip
+
+Вклады в $\Omega_{\rho}^{(0)} = \Omega_{M}^{(0)} + \Omega_\text{rad}^{(0)} + \Omega_{\Lambda}^{(0)} $:
+\begin{enumerate}
+	\item Вклад материи (включая темную и барионную) $\Omega_{M}^{(0)} = 0.31 \pm 0.01$ (барионная материя, которая входит в эту цифру $\Omega_B = 0.048 \pm 0.002$).
+	\item Вклад излучения $\Omega_\text{rad}^{(0)}$: реликтовые фотоны $\Omega_{\gamma}^{(0)} \approx 5\cdot 10^{-5}$ и нейтрино $\Omega_{\nu}^{(0)} \approx 3.5\cdot 10^{-5}$.
+	\item Вклад тёмной энергии $\Omega_{\Lambda}^{(0)} = 0.69 \pm 0.01$.
+\end{enumerate}
+
+\begin{tcolorbox}
+	Как по результатам WMAP (Plank) определили $\Omega_{\rho}$ и вклады?
+\end{tcolorbox}
+
+
+\subsection{Параметризированное уравнение Фридмана}
+
+Уравнение Фридмана \eqref{eq:Freiedman} можно записать таким образом, чтобы оно включало себя современные значения $H_{0}^2$, $\Omega$ и $a_0$:
+\begin{equation}\label{eq:Friedman_Parametric}
+	H^2 = H_0^2\left[ \Omega_{M}^{(0)} \left( \frac{a_0}{a}\right)^3 + \Omega_{\Lambda}^{(0)} + \Omega_\text{rad}^{(0)}\left( \frac{a_0}{a}\right)^4 + \Omega_{k}^{(0)} \left( \frac{a_0}{a}\right)^2  \right],
+\end{equation}
+Кстати согласно $\Lambda\mathrm{CDM}$ $\Omega_{\Lambda}^{(0)} = \Omega_{\Lambda} = \mathrm{const}$.
+
+\begin{tcolorbox}
+	При каком $z$ плотности материи и тёмной энергии совпадали?
+\end{tcolorbox}
+\begin{equation*}\label{}
+	\Omega_{M}^{(0)} \left( \frac{a_0}{a}\right)^3 = \Omega_{\Lambda}.
+\end{equation*}
+Отсюда $z = 0.3$.
+\begin{tcolorbox}
+	При каком $z$ замедленное расширение перешло в ускоренное?
+\end{tcolorbox}
+Нужно найти $\ddot{a}$ и приравнять 0.
+Из \eqref{eq:Friedman_Parametric} (эпоха доминирования радиации закончилась, а кривизной пренебрегаем):
+\begin{equation*}
+	\left( \frac{\dot{a}}{a}\right)^2 = H_0^2\left[ \Omega_{M}^{(0)} \left( \frac{a_0}{a}\right)^3 + \Omega_{\Lambda}^{(0)} \right],
+\end{equation*}
+откуда умножив слева и справа на $a$ и продифференцировав по $t$:
+\begin{equation*}
+	2\ddot{a}\dot{a} = H_0^2\left( -\Omega_{M}^{(0)}  \frac{a_0^3}{a}  + 2\Omega_{\Lambda} a \right) \dot{a}.
+\end{equation*}
+\begin{equation*}
+	1+ z = \left( \frac{2\Omega_{\Lambda}}{\Omega_{M}^{(0)}}\right)^{\kern-5pt\frac13}.
+\end{equation*}
+Откуда $z = 0.67$.
+
+\begin{tcolorbox}
+	При каком $z$ плотности радиации и материи совпадали?
+\end{tcolorbox}
+Из \eqref{eq:Friedman_Parametric} ($\Omega_{\Lambda}$ пренебрегаем):
+\begin{equation}\label{}
+	1 + z = \frac{\Omega_{M}}{\Omega_\text{rad}},
+\end{equation}
+откуда $z = 3\,600$.
+Это важный момент, поскольку до этого произошло изменение эволюции неоднородностей плотности материи. С этого момента неоднородности стали такими, что смогли образоваться галактики, скопления \ldots
+
+\subsubsection{Оценка времён}
+
+Решаем уравнение~\eqref{eq:Friedman_Parametric} относительно $z$, предварительно заменив $a_0/a = z$, $da/a = -dz/(1+z)$ и разделив переменные:
+\begin{equation}\label{eq:tz}
+ t(z) = \frac1{H_0}\int\limits_z^{\infty} \frac{dz}{(1+ z)\sqrt{\Omega_{M}^{(0)} (1 + z)^3 + \Omega_\text{rad}^{(0)}(1 + z)^4  + \Omega_{\Lambda}}}
+\end{equation}
+Этот интеграл будем брать с помощью \texttt{Wolfram Alpha}:
+{\footnotesize
+\begin{verbatim}
+    3.2e-8*(1/2.2e-18)*Integrate[1/((1 + z) Sqrt[0.31 (1 + z)^3 + 7.5e-5 (1 + z)^4 + 0.69]),
+    {z, 0, Infinity}]
+\end{verbatim}
+}
+\noindent где взят параметр Хаббла $H_0 = 2.2\cdot 10^{-18}$~1/с (в обратных секундах), а $3.2\cdot 10^{-8}$~--- коэфициент перевода из секунд в года.
+
+\begin{tcolorbox}
+    Оценить возраст Вселенной на момент перехода из стадии доминирования радиации в стадию доминирования материи.
+\end{tcolorbox}
+Положим \href{https://bit.ly/2Zv1GKE}{$z = 3\,600$}. Получим значение $t \approx 49\,000 $~лет.
+
+\begin{tcolorbox}
+    Оценить возраст Вселенной на текущий момент.
+\end{tcolorbox}
+Для оценки возраста Вселенной на текущий момент, положим \href{https://bit.ly/32wa4uw}{$z = 0$}. Получим значение $t \approx 13.75 $~млрд. лет.
+
+\begin{tcolorbox}
+    Получите зависимость возраста вселенной от $z$.
+\end{tcolorbox}
+%В формуле \eqref{eq:tz} пренебрежём временем до начала эры доминирования материи, тогда интеграл упростится до вида:
+%Этот интеграл будем брать с помощью \texttt{Wolfram Alpha}:
+%{\footnotesize
+%\begin{verbatim}
+%    3.2e-8*(1/2.2e-18)*Integrate[1/((1 + z) Sqrt[0.31 (1 + z)^3 + 0.69]),
+%    {z, 0, Infinity}]
+%\end{verbatim}
+%}
+
+\subsection{Инфляция, Большой Взрыв и проблема плоскостности}
+
+Наша Вселенная практически плоская $\Omega_{k}^{(0)} \approx 0$ согласно современным данным, но вклад кривизны убывает как $\Omega_{k} \propto 1/a^2 $, а вклад материи как $\Omega_{M} \propto 1/a^3$ и излучения  $\Omega_\text{rad} \propto 1/a^4$ , т. е. экстраполируя в раннюю эпоху $\Omega_{k}$ должен становится ещё меньшим по сравнению с $\Omega_{M}$ и $\Omega_\text{rad}$.
+
+Вывод: на ранних этапах доминировало в большей степени $\Omega_\text{rad}$ и в меньшей степени $\Omega_{M}$, а $\Omega_{k} \approx 0$ (кривизна вообще не существенна, даже если и $k \neq 0$) по прежнему.
+
+\begin{tcolorbox}
+	А откуда тогда взялись $\Omega_\text{rad}$ и $\Omega_{M}$?
+\end{tcolorbox}
+
+Скорее всего (гипотеза), было некое поле с постоянной плотностью (инфлатон):
+\begin{equation}\label{eq:inflaton}
+	\Omega_\text{inf} \approx 1,
+\end{equation}
+тогда из \eqref{eq:Friedman_Parametric} получим закон изменения $a(t)$:
+\begin{equation}\label{eq:at}
+	a \sim e^{Ht}
+\end{equation}
+где $H = 10^{37}$~1/с, т. е. характерное время удвоения размера вселенной $\tau = 1/H = 10^{-37}$~с. Это значит, что из-за такого <<катастрофического>> расширения, Вселенная <<уплощилась>>. А в конце экспоненциального расширения инфлатон распался на вещество, радиацию и оставило огарок в виде тёмной энергии ---  этот распад и называется <<Большой Взрыв>>.
+
+
+
+\end{document}
+
+

@@ -1,0 +1,145 @@
+%%============================ Compiler Directives =======================%%
+%%                                                                        %%
+% !TeX program = lualatex
+% !TeX encoding = utf8
+% !TeX spellcheck = uk_UA
+%%                                                                        %%
+%%============================== Клас документа ==========================%%
+%%                                                                        %%
+\documentclass[14pt]{extarticle}
+\IfFileExists{ukrcorr.sty}{\usepackage{ukrcorr}}{}
+%%                                                                        %%
+%%========================== Мови, шрифти та кодування ===================%%
+%%                                                                        %%
+\usepackage{fontspec}
+\setsansfont{CMU Sans Serif}%{Arial}
+\setmainfont{CMU Serif}%{Times New Roman}
+\setmonofont{CMU Typewriter Text}%{Consolas}
+\defaultfontfeatures{Ligatures={TeX}}
+\usepackage[math-style=TeX]{unicode-math}
+\usepackage[english, russian, ukrainian]{babel}
+
+%%                                                                        %%
+%%============================= Геометрія сторінки =======================%%
+%%                                                                        %%
+\usepackage[%
+	a4paper,%
+	footskip=1cm,%
+	headsep=0.3cm,%
+	top=2cm, %поле сверху
+	bottom=2cm, %поле снизу
+	left=2cm, %поле ліворуч
+	right=2cm, %поле праворуч
+    ]{geometry}
+%%                                                                        %%
+%%============================== Інтерліньяж  ============================%%
+%%                                                                        %%
+\renewcommand{\baselinestretch}{1}
+%-------------------------  Подавление висячих строк  --------------------%%
+\clubpenalty =10000
+\widowpenalty=10000
+%---------------------------------Інтервали-------------------------------%%
+\setlength{\parskip}{0.5ex}%
+\setlength{\parindent}{2.5em}%
+%%                                                                        %%
+%%=========================== Математичні пакети і графіка ===============%%
+%%                                                                        %%
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{floatflt}
+%%                                                                        %%
+%%========================== Гіперпосилення (href) =======================%%
+%%                                                                        %%
+\usepackage[%colorlinks=true,
+	%urlcolor = blue, %Colour for external hyperlinks
+	%linkcolor  = malina, %Colour of internal links
+	%citecolor  = green, %Colour of citations
+	bookmarks = true,
+	bookmarksnumbered=true,
+	unicode,
+	linktoc = all,
+	hypertexnames=false,
+	pdftoolbar=false,
+	pdfpagelayout=TwoPageRight,
+	pdfauthor={Ponomarenko S.M. aka sergiokapone},
+	pdfdisplaydoctitle=true,
+	pdfencoding=auto
+	]%
+	{hyperref}
+		\makeatletter
+	\AtBeginDocument{
+	\hypersetup{
+		pdfinfo={
+		Title={\@title},
+		}
+	}
+	}
+	\makeatother
+%%                                                                        %%
+%%============================ Заголовок та автори =======================%%
+%%                                                                        %%
+\title{}
+\author{}
+%%                                                                        %%
+%%========================================================================%%
+
+
+\begin{document}
+\begin{align*}\label{}
+    x &= R\sin\theta\cos\phi \\
+    y &= R\sin\theta\sin\phi \\
+    z &= R\cos\theta
+\end{align*}
+
+\begin{align*}\label{}
+    dx &= R(\cos\theta\cos\phi d\theta - \sin\theta\sin\phi d\phi )\\
+    dy &= R(\cos\theta\sin\phi d\theta + \sin\theta\cos\phi d\phi ) \\
+    dz &= -R\sin\theta d\theta
+\end{align*}
+
+\begin{align*}\label{}
+    dx^2 &= R^2( \cos^2\theta\cos^2\phi d\theta^2 +  \sin^2\theta\sin^2\phi d\phi^2 - 2\cos\theta\sin\theta\cos\phi\sin\phi d\theta d\phi )\\
+    dy^2 &= R^2( \cos^2\theta\sin^2\phi d\theta^2 +  \sin^2\theta\cos^2\phi d\phi^2 + 2\cos\theta\sin\theta\cos\phi\sin\phi  d\theta d\phi)\\
+\end{align*}
+
+\begin{equation*}\label{}
+    dx^2 + dy^2 = R^2(\cos^2\theta d\theta^2 + \sin^2\theta d\phi^2)
+\end{equation*}
+
+\begin{align*}\label{}
+    xdx &= R^2(\sin\theta\cos\theta\cos^2\phi d\theta - \sin^2\theta\cos\phi\sin\phi d\phi) \\
+    ydy &= R^2(\sin\theta\cos\theta\sin^2\phi d\theta + \sin^2\theta\cos\phi\sin\phi d\phi)
+\end{align*}
+
+\begin{equation*}\label{}
+    xdx + ydy = R^2\sin\theta\cos\theta d\theta
+\end{equation*}
+
+\begin{equation*}\label{}
+    dl^2 = R^2( d\theta^2 + \sin^2\theta d\phi^2 )
+\end{equation*}
+
+\begin{equation*}\label{}
+    \theta = \chi
+\end{equation*}
+
+\begin{equation*}\label{}
+    dl^2 = R^2( d\chi^2 + \sin^2\chi d\phi^2 )
+\end{equation*}
+
+\begin{equation*}\label{}
+    \int dl = 2\pi R\sin\chi
+\end{equation*}
+
+
+\begin{equation*}\label{}
+    \int dS = \int\limits_0^{2\pi} d\phi \int\limits_0^{\pi} R^2\sin\chi d\chi = 4\pi R^2
+\end{equation*}
+
+\begin{equation*}\label{}
+    \int dS = \int\limits_0^{2\pi} d\phi \int\limits_0^{\chi} R^2\sin\chi d\chi = 2\pi R^2 (1- \cos\chi) = 2\pi R^2(1 - \cos\frac{r}{R})
+\end{equation*}
+
+\end{document}
+
+
