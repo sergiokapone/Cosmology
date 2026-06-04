@@ -1,0 +1,209 @@
+% !TEX program = lualatex
+\documentclass[12pt, a4paper, openany]{book}
+
+
+\usepackage{fontspec}
+\setmainfont{Bookman Old Style}%{CMU Serif}
+
+\usepackage{titlesec}
+\assignpagestyle{\part}{empty}
+
+% ==========================================
+% 1. НАСТРОЙКА ЧАСТЕЙ (\part)
+% ==========================================
+% [display] размещает название Части под ее номером.
+% Избавление от пустой страницы происходит автоматически при переопределении.
+\titleformat{\part}[display]
+  {\normalfont\Huge\bfseries\centering} % Шрифт: крупный, жирный, по центру
+  {\partname~\thepart.}                  % Номер: "Часть I." (с точкой)
+  {20pt}                                 % Отступ между номером и названием
+  {}                                     % Код перед названием
+ [\clearpage]
+
+\titlespacing*{\part}{0pt}{50pt}{40pt}   % Отступы: слева, сверху, снизу
+
+% ==========================================
+% 2. НАСТРОЙКА ГЛАВ (\chapter)
+% ==========================================
+\titleformat{\chapter}[block]
+  {\normalfont\Large\bfseries}            % Стиль: огромный, жирный
+  {\thechapter.}                         % Номер: "1." (с точкой)
+  {0.5em}                                % Расстояние от номера до текста
+  {}
+
+\titlespacing*{\chapter}{0pt}{-20pt}{40pt}
+
+% ==========================================
+% 3. НАСТРОЙКА ПАРАГРАФОВ (\section)
+% ==========================================
+\titleformat{\section}[block]
+  {\normalfont\large\bfseries}           % Стиль: чуть меньше главы, жирный
+  {\thesection.}                         % Номер: "1.1." (с точкой)
+  {0.5em}
+  {}
+
+\titlespacing*{\section}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+% ==========================================
+% 4. НАСТРОЙКА ПОДПАРАГРАФОВ (\subsection)
+% ==========================================
+\titleformat{\subsection}[block]
+  {\normalfont\large\bfseries}           % Стиль: крупный, жирный
+  {\thesubsection.}                      % Номер: "1.1.1." (с точкой)
+  {0.5em}
+  {}
+
+\titlespacing*{\subsection}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\usepackage{csquotes}
+\usepackage[english, russian, ukrainian]{babel}
+
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=green!50!black}
+\usepackage{microtype}
+%\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{graphicx}
+\graphicspath{{pictures}}
+\usepackage{tabularray}
+\UseTblrLibrary{booktabs}
+
+\usepackage{bookmark}
+
+\definecolor{boxbg}{RGB}{245,245,250}
+\definecolor{accent}{RGB}{30,80,160}
+\definecolor{planckblue}{RGB}{31,119,180}
+\definecolor{theoryred}{RGB}{214,39,40}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{pgfplotstable}
+
+% Обов'язково підключаємо цю бібліотеку для тексту по колу
+\usetikzlibrary{decorations.text}
+
+\usepackage{indentfirst}
+
+\usepackage[backend=biber,
+            style=phys,         % або numeric / authoryear залежно від вимог
+            sorting=none,       % сортування в порядку цитування
+            maxnames=4,         % якщо авторів більше 4, скорочувати до et al.
+            eprint=true,
+            autolang=other,
+            doi=true]{biblatex}
+
+\addbibresource{references/references.bib}
+
+\newmdenv[backgroundcolor=boxbg, linecolor=accent, linewidth=1pt,
+          innerleftmargin=10pt, innerrightmargin=10pt,
+          innertopmargin=8pt, innerbottommargin=8pt]{keybox}
+
+
+\title{\bfseries Нотатки: від інфлатона до CMB}
+\author{Пономаренко С. М.}
+\date{}
+
+% ---------------------------------------------------------------
+% Planck 2018 binned TT data
+% Columns: ell  Dl[muK^2]  err_minus  err_plus
+% Source: Planck Collaboration 2018, arXiv:1807.06209
+% ---------------------------------------------------------------
+\pgfplotstableread{data/plankdata.txt}\planckdata
+
+% ---------------------------------------------------------------
+% LCDM theory curve (CAMB, Planck 2018 best-fit parameters)
+% H0=67.36, Ob h^2=0.02237, Oc h^2=0.1200,
+% tau=0.0544, As=2.1e-9, ns=0.9649
+% ---------------------------------------------------------------
+\pgfplotstableread{data/LCDM.txt}\theorydata
+
+\begin{document}
+\maketitle
+\tableofcontents
+\pagestyle{plain}
+
+
+%% --------------------------------------------------------
+\chapter*{Передмова}
+\addcontentsline{toc}{chapter}{Передмова}
+%% --------------------------------------------------------
+
+
+Цей конспект будує міст між двома точками: \emph{інфлатоном}~---
+гіпотетичним скалярним полем, яке керувало першими
+${\sim}10^{-32}$~с існування Всесвіту~--- і \emph{реліктовим випромінюванням} (CMB),
+що є найдетальнішою спостережуваною картиною того, що відбулося.
+Між цими точками лежить ланцюжок фізики, який ми будуємо
+послідовно, крок за кроком.
+
+\textbf{Частина~I. Фон.} Розділи~\ref{sec:friedmann}–\ref{sec:inflaton}
+закладають геометричну та динамічну основу: рівняння Фрідмана описують
+однорідний і ізотропний Всесвіт, що розширюється; інфлатон і його
+потенціал $V(\phi)$ пояснюють, чому це розширення на початку було
+прискореним (інфляція). Цей ідеалізований, повністю симетричний фон є
+\emph{нульовим наближенням}, на якому тримається вся подальша фізика.
+
+\textbf{Частина~II. Збурення.} Розділи~\ref{sec:metric}-\ref{sec:quantum}
+переходять від симетричного фону до реального світу. Квантові флуктуації
+інфлатона~--- неминучі за принципом невизначеності~--- стають
+\emph{насінням} усієї великомасштабної структури. Тензорні збурення
+метрики народжують первинні гравітаційні хвилі. Розділ~\ref{sec:metric}
+формалізує мову, якою описуються ці збурення: SVT-розклад і
+конформно-ньютонівське калібрування.
+
+\textbf{Частина~III. Спостереження.} Розділи~\ref{sec:reheating}–\ref{sec:pol}
+стежать за долею збурень після інфляції: розігрів перетворює поле на
+гарячу плазму; акустичні осциляції цієї плазми залишають відбиток у
+вигляді піків на спектрі CMB і масштабу BAO; поляризаційні E- і B-моди
+несуть інформацію про скалярні та тензорні збурення відповідно.
+
+\textbf{Частина~IV. Невирішені проблеми і шляхи їх пошуку.} Розділи~\ref{sec:chaotic}–\ref{sec:future_research}
+виходять за межі стандартної моделі. Телескоп JWST виявив масивні
+галактики при $z \sim 10$–$12$, існування яких важко узгодити зі
+стандартним степенево-законним первинним спектром. Ми розглядаємо
+механізм локального \emph{зламу спектра} через особливість у потенціалі
+інфлатона і формулюємо програму перевірки цієї ідеї за допомогою
+CAMB/CLASS та байєсівського аналізу (MCMC).
+
+\bigskip
+\noindent
+\textit{Передумови.} Конспект розрахований на читача, знайомого із
+загальною теорією відносності на рівні тензора Рімана і рівнянь
+Айнштайна, та з квантовою теорією поля на рівні канонічного
+квантування. Знання космології не передбачається.
+
+\newpage
+
+\part{Фон}
+\input{chapters/FromEinsteinToFridman.tex}
+\input{chapters/Inflaton.tex}
+
+\part{Збурення}
+\input{chapters/Disturbance.tex}
+\input{chapters/QuantumFluctuations.tex}
+
+\part{Спостереження}
+\input{chapters/Reheating.tex}
+\input{chapters/PlasmaHydrodynamics.tex}
+\input{chapters/ZWEffect.tex}
+\input{chapters/CMBPolarisation.tex}
+\input{chapters/ChaoticInflation.tex}
+
+\part{Невирішені проблеми і шляхи їх пошуку}
+\input{chapters/FutureResearch.tex}
+
+\part{Додатки}
+\appendix
+\input{chapters/CosmologySoftware.tex}
+\input{chapters/appendix_efolds.tex}
+
+\bookmarksetup{startatroot}
+\printbibliography[heading=bibintoc]
+
+\end{document}
