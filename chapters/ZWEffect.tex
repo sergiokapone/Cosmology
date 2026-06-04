@@ -128,7 +128,7 @@
 \centering
 \begin{tikzpicture}
 \begin{semilogxaxis} [
-    width   = \linewidth,
+    width    = \linewidth,
     height  = \linewidth,
     xlabel  = {Мультипольний момент $\ell$},
     ylabel  = {$\mathcal{D}_\ell^{TT}\ [\mu\mathrm{K}^2]$},
@@ -141,7 +141,7 @@
     xticklabels = {2, 10, 30, 100, 500, , 1500},
     % Трохи зменшуємо шрифт міток для осі Х та зміщуємо вниз, щоб сітка не заважала
     ticklabel style = {font=\footnotesize, yshift=-1pt},
-    % Твоя густа логарифмічна сітка
+    % Густа логарифмічна сітка
     minor xtick = {3,4,5,6,7,8,9,20,40,50,60,70,80,90,200,300,400,600,700,800,900,1100,1200,1300,1400,1600,1700,1800,1900,2100,2200,2300,2400},
     ytick   = {0, 1000, 2000, 3000, 4000, 5000, 6000},
     grid   = both,
@@ -192,6 +192,119 @@
 
   \end{semilogxaxis}
 \end{tikzpicture}
-\caption{Кутовий спектр потужності температурної анізотропії реліктового випромінювання за даними космічної місії \emph{Planck 2018}. Суцільна червона лінія відповідає найкращому фіту стандартної космологічної моделі $\Lambda$CDM.}
+\caption{Кутовий спектр потужності температурної анізотропії реліктового випромінювання за даними космічної місії \emph{Planck 2018}. Суцільна червона лінія відповідає найкращему фіту стандартної космологічної моделі $\Lambda$CDM. Положення першого акустичного піка ($\ell \approx 220$) жорстко фіксує кутовий розмір звукового горизонту на момент рекомбінації, виступаючи чутливим індикатором просторової кривини Космосу ($\Omega_k \approx 0$). Відносна висота парних і непарних піків відображає ефект баріонного завантаження: відношення другого піка до першого дозволяє з високою точністю обчислити фізичну густину баріонів $\Omega_b h^2$, тоді як третій пік контролює густину холодної темної матерії $\Omega_c h^2$.}
 \label{fig:cmb_tt}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width   = \linewidth,
+    height  = \linewidth,
+    xlabel  = {Мультипольний момент $\ell$},
+    ylabel  = {$\mathcal{D}_\ell^{TT}\ [\mu\mathrm{K}^2]$},
+    xmin    = 2,   xmax = 80,
+    ymin    = 650, ymax = 1150,
+    xtick   = {2, 10, 20, 30, 40, 50, 60, 70, 80},
+    ytick   = {700, 800, 900, 1000, 1100},
+    grid    = both,
+    grid style       = {line width=0.3pt, draw=gray!25},
+    major grid style = {line width=0.5pt, draw=gray!40},
+    label style      = {font=\small},
+    ticklabel style  = {font=\footnotesize},
+    legend style = {
+        at={(0.98,0.97)}, anchor=north east,
+        font=\small, fill=white, fill opacity=0.9,
+        draw=gray!60, inner sep=4pt, row sep=1pt
+    },
+    clip = true,
+]
+
+    %--- LambdaCDM Best-fit Curve ---
+    \addplot[
+        color = theoryred,
+        line width = 1.6pt,
+        smooth,
+    ] table[x=ell, y=Dl] {\theorydata};
+    \addlegendentry{$\Lambda$CDM (CAMB)}
+
+    %--- Planck 2018 data with error bars ---
+    \addplot[
+        only marks,
+        mark      = *,
+        mark size = 1.8pt,
+        color     = planckblue,
+        error bars/.cd,
+            y dir = both,
+            y explicit,
+    ] table[
+        x              = ell,
+        y              = Dl,
+        y error minus  = errm,
+        y error plus   = errp,
+    ] {\planckdata};
+    \addlegendentry{Planck\,2018}
+
+    %--- n_s = 1 horizontal reference (Harrison-Zeldovich) ---
+    % Normalised at ell=10, D_ell=819
+    \addplot[
+        domain  = 2:80,
+        samples = 200,
+        dashed,
+        line width = 1.2pt,
+        color   = gray!60,
+    ] {819};
+    \addlegendentry{$n_s = 1$ (масштабоінваріантний)}
+
+    %--- n_s = 0.9649 (Planck best-fit) ---
+    \addplot[
+        domain  = 2:80,
+        samples = 200,
+        dashed,
+        line width = 1.5pt,
+        color   = orange!90!black,
+    ] {819 * (x/10)^(0.9649 - 1)};
+    \addlegendentry{$n_s = 0.965$ (Planck\,2018)}
+
+    %--- n_s = 0.94 ---
+    \addplot[
+        domain  = 2:80,
+        samples = 200,
+        dashed,
+        line width = 1.2pt,
+        color   = teal,
+    ] {819 * (x/10)^(0.94 - 1)};
+    \addlegendentry{$n_s = 0.94$}
+
+    %--- Annotation: formula ---
+    \node[font=\small, text=orange!80!black, anchor=south west]
+        at (axis cs:3, 660)
+        {$\mathcal{D}_\ell^{TT} \propto \ell^{\,n_s - 1}$};
+
+    %--- Arrow pointing to SW plateau ---
+    \draw[->, gray!60, thin] (axis cs:6, 1100) -- (axis cs:25, 1010);
+    \node[font=\tiny, text=gray!70, anchor=south, align=center]
+        at (axis cs:10, 1110)
+        {Плато\\Закса-Вольфа};
+
+\end{axis}
+\end{tikzpicture}
+\caption{%
+    Збільшений вигляд плато Закса--Вольфа ($2 \leq \ell \lesssim 80$)
+    кутового спектра потужності $\mathcal{D}_\ell^{TT}$
+    за даними місії \emph{Planck\,2018}~\cite{planck_2018}.
+    Штрихові лінії ілюструють нахил первинного спектра
+    $\mathcal{D}_\ell^{TT} \propto \ell^{\,n_s - 1}$
+    для трьох значень спектрального індексу~$n_s$.
+    Горизонтальна лінія відповідає масштабоінваріантному спектру
+    Гарісона--Зельдовича ($n_s = 1$);
+    відхилення від неї для планківського значення
+    $n_s = 0.965 \pm 0.004$ підтверджує \emph{червоний нахил}
+    первинних скалярних збурень~--- базове передбачення
+    інфляційних моделей повільного кочення поля.
+    Усі криві нормовано в точці $\ell = 10$,
+    де $\mathcal{D}_{10}^{\Lambda\mathrm{CDM}} \approx 819\,\mu\mathrm{K}^2$.%
+}
+\label{fig:ns_tilt}
 \end{figure}
