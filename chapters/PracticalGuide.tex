@@ -1,0 +1,424 @@
+% !TeX root = ../cosmology_summary.tex
+
+%% --------------------------------------------------------
+\chapter{Практичний посібник: від даних CMB до параметрів моделі}
+\label{sec:practical}
+%% --------------------------------------------------------
+
+Цей додаток відповідає на одне питання: як людина, що прочитала
+цей конспект, може взяти реальні дані Planck і власноруч
+витягти з них космологічні параметри? Нижче~--- покроковий
+маршрут від встановлення пакетів до трикутного графіка
+posterior-розподілів.
+
+Маршрут складається з чотирьох кроків:
+\begin{enumerate}
+  \item Порахувати теоретичний спектр $C_\ell^{TT}$ за допомогою CAMB.
+  \item Завантажити дані Planck і реалізувати простий $\chi^2$-фіт вручну.
+  \item Підключити байєсівський семплер Cobaya і запустити MCMC.
+  \item Прочитати результат: posterior-розподіли і довірчі контури.
+\end{enumerate}
+
+%% --------------------------------------------------------
+\section{Крок 1. Теоретичний спектр через CAMB}
+%% --------------------------------------------------------
+
+Встановлення:
+\begin{minted}{bash}
+pip install camb
+\end{minted}
+
+Мінімальний скрипт, який рахує $\mathcal{D}_\ell^{TT}
+= \ell(\ell+1)C_\ell^{TT}/(2\pi)$ для стандартної моделі
+$\Lambda$CDM з параметрами Planck~2018:
+
+\begin{minted}{python}
+import camb
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Задаємо параметри моделі ---
+pars = camb.CAMBparams()
+pars.set_cosmology(
+    H0=67.36,          # параметр Хаббла [км/с/Мпк]
+    ombh2=0.02237,     # фізична густина баріонів Omega_b h^2
+    omch2=0.1200,      # фізична густина темної матерії Omega_c h^2
+    tau=0.0544,        # оптична глибина реіонізації
+)
+pars.InitPower.set_params(
+    As=2.1e-9,         # амплітуда первинних збурень
+    ns=0.9649,         # спектральний індекс
+)
+pars.set_for_lmax(2500)
+
+# --- Рахуємо спектр ---
+results = camb.get_results(pars)
+powers  = results.get_cmb_power_spectra(pars, CMB_unit='muK')
+Dl_TT   = powers['total'][:, 0]   # D_ell^TT [мкК^2]
+ells    = np.arange(len(Dl_TT))
+
+# --- Малюємо ---
+plt.figure(figsize=(8, 4))
+plt.plot(ells[2:], Dl_TT[2:])
+plt.xlabel(r'$\ell$')
+plt.ylabel(r'$\mathcal{D}_\ell^{TT}\ [\mu\mathrm{K}^2]$')
+plt.xscale('log')
+plt.tight_layout()
+plt.savefig('spectrum_lcdm.pdf')
+\end{minted}
+
+\noindent
+Якщо все встановлено правильно, ви отримаєте графік з трьома
+добре видимими акустичними піками~--- той самий спектр, що
+і на рис.~\ref{fig:cmb_tt}.
+
+\textit{Зауваження про одиниці.} CAMB повертає
+$\mathcal{D}_\ell = \ell(\ell+1)C_\ell/(2\pi)$ у мкК$^2$.
+Саме в цих одиницях публікуються дані Planck, тому порівняння
+пряме.
+
+%% --------------------------------------------------------
+\section{Крок 2. Дані Planck і простий $\chi^2$-фіт}
+%% --------------------------------------------------------
+
+\subsection{Завантаження даних}
+
+Офіційні дані Planck~2018 доступні на сервері \href{https://pla.esac.esa.int/}{ESA}.
+Для початку достатньо бінованих TT-даних з файлу
+\texttt{COM\_PowerSpect\_CMB-TT-binned\_R3.01.txt}
+(колонки: $\ell$, $\mathcal{D}_\ell$, $\sigma^-$, $\sigma^+$).
+
+\begin{minted}{python}
+import numpy as np
+
+data = np.loadtxt('COM_PowerSpect_CMB-TT-binned_R3.01.txt')
+ell_data  = data[:, 0]
+Dl_data   = data[:, 1]
+sigma_m   = data[:, 2]   # нижня похибка
+sigma_p   = data[:, 3]   # верхня похибка
+sigma     = 0.5 * (sigma_m + sigma_p)   # симетризована похибка
+\end{minted}
+
+\subsection{Проста $\chi^2$-статистика}
+
+Щоб зрозуміти принцип, реалізуємо наївний $\chi^2$-фіт вручну~---
+без likelihood Planck, але з правильною фізичною логікою:
+\begin{equation}\label{eq:chi2}
+  \chi^2(\theta) = \sum_\ell
+    \frac{\bigl[\mathcal{D}_\ell^{\rm data}
+               - \mathcal{D}_\ell^{\rm theory}(\theta)\bigr]^2}
+         {\sigma_\ell^2},
+\end{equation}
+де $\theta = \{H_0, \Omega_b h^2, \Omega_c h^2, \tau, A_s, n_s\}$.
+
+\begin{minted}{python}
+from scipy.optimize import minimize
+from scipy.interpolate import interp1d
+
+def get_theory(H0, ombh2, omch2, tau, As, ns):
+    """Повертає D_ell^TT на точках ell_data."""
+    pars = camb.CAMBparams()
+    pars.set_cosmology(H0=H0, ombh2=ombh2,
+                       omch2=omch2, tau=tau)
+    pars.InitPower.set_params(As=As, ns=ns)
+    pars.set_for_lmax(int(ell_data.max()) + 50)
+    results = camb.get_results(pars)
+    powers  = results.get_cmb_power_spectra(
+                  pars, CMB_unit='muK')
+    Dl_full = powers['total'][:, 0]
+    ells_full = np.arange(len(Dl_full))
+    interp = interp1d(ells_full, Dl_full,
+                      kind='linear', fill_value='extrapolate')
+    return interp(ell_data)
+
+def chi2(params):
+    H0, ombh2, omch2, tau, log_As, ns = params
+    As = np.exp(log_As) * 1e-10
+    Dl_th = get_theory(H0, ombh2, omch2, tau, As, ns)
+    return np.sum(((Dl_data - Dl_th) / sigma)**2)
+
+# Стартова точка --- значення Planck 2018
+x0 = [67.36, 0.02237, 0.1200, 0.0544, np.log(21.0), 0.9649]
+result = minimize(chi2, x0, method='Nelder-Mead',
+                  options={'maxiter': 500, 'xatol': 1e-3})
+print("Best-fit params:", result.x)
+print("chi2_min / N_dof:", result.fun / len(ell_data))
+\end{minted}
+
+\noindent
+\textit{Застереження.} Цей $\chi^2$ є наближенням: справжня
+likelihood Planck враховує некомутативність похибок і
+міжмультипольні кореляції. Для публікаційних результатів
+використовують офіційний пакет \texttt{clik} або
+\texttt{candl}. Але для розуміння принципу цього достатньо.
+
+%% --------------------------------------------------------
+\section{Крок 3. MCMC через Cobaya}
+%% --------------------------------------------------------
+
+$\chi^2$-мінімізація дає одну точку в просторі параметрів.
+MCMC дає повний posterior-розподіл~--- тобто відповідає
+на питання «наскільки добре параметр визначений?»
+
+\subsection{Що таке MCMC в двох словах}
+
+Алгоритм Метрополіса--Гастінгса будує ланцюжок точок
+$\theta_1, \theta_2, \ldots, \theta_N$ у просторі параметрів
+так, що їхня щільність пропорційна posterior-розподілу
+$P(\theta | {\rm data}) \propto \mathcal{L}({\rm data}|\theta)
+\cdot \pi(\theta)$, де $\pi(\theta)$~--- prior (попереднє
+знання про параметри). Після збіжності ланцюжка гістограма
+$\theta_i$ і є posterior.
+
+\subsection{Встановлення і конфігурація}
+
+\begin{minted}{python}
+pip install cobaya
+cobaya-install camb --packages-path ./packages
+\end{minted}
+
+Конфігурація у форматі YAML (\texttt{lcdm\_fit.yaml}):
+
+\begin{minted}{python}
+likelihood:
+  planck_2018_highl_plik.TT:
+    path: ./packages/data/planck_2018
+
+theory:
+  camb:
+    path: ./packages/code/CAMB
+
+params:
+  H0:
+    prior: {min: 60, max: 80}
+    ref:   {mean: 67.36, std: 0.5}
+    latex: H_0
+  ombh2:
+    prior: {min: 0.018, max: 0.026}
+    ref:   {mean: 0.02237, std: 0.0002}
+    latex: \Omega_b h^2
+  omch2:
+    prior: {min: 0.10, max: 0.14}
+    ref:   {mean: 0.1200, std: 0.001}
+    latex: \Omega_c h^2
+  tau:
+    prior: {min: 0.01, max: 0.12}
+    ref:   {mean: 0.0544, std: 0.007}
+    latex: \tau
+  logA:
+    prior: {min: 2.5, max: 3.5}
+    ref:   {mean: 3.044, std: 0.014}
+    drop:  true
+    latex: \ln(10^{10}A_s)
+  ns:
+    prior: {min: 0.9, max: 1.05}
+    ref:   {mean: 0.9649, std: 0.004}
+    latex: n_s
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+    latex: A_s
+
+sampler:
+  mcmc:
+    Rminus1_stop: 0.01    # критерій збіжності Gelman-Rubin
+    max_samples:  10000
+
+output: chains/lcdm
+\end{minted}
+
+Запуск:
+\begin{minted}{python}
+cobaya-run lcdm_fit.yaml
+\end{minted}
+
+\noindent
+\textit{Критерій збіжності.} Параметр \texttt{Rminus1\_stop: 0.01}
+означає критерій Гелмана--Рубіна $\hat{R} - 1 < 0.01$: якщо
+кілька паралельних ланцюжків дають однаковий розподіл,
+семплювання вважається збіжним. Типовий час на ноутбуці~---
+кілька годин для TT-likelihood.
+
+%% --------------------------------------------------------
+\section{Крок 4. Читання результату}
+%% --------------------------------------------------------
+
+\subsection{Трикутний графік (corner plot)}
+
+\begin{minted}{python}
+pip install getdist
+
+from getdist import plots, MCSamples
+import getdist.plots as gdplt
+
+# Зчитуємо chain
+samples = MCSamples(
+    root='chains/lcdm',
+    settings={'ignore_rows': 0.3}   # відкидаємо burn-in
+)
+
+# Трикутний графік для двох параметрів
+g = gdplt.get_subplot_plotter()
+g.triangle_plot(
+    [samples],
+    ['H0', 'ns', 'ombh2'],
+    filled=True,
+    contour_colors=['steelblue']
+)
+g.export('posterior_triangle.pdf')
+\end{minted}
+
+Результат~--- матриця графіків: на діагоналі маргіналізовані
+1D posterior-розподіли кожного параметра, поза діагоналлю~---
+2D контури довіри (68\% і 95\%).
+
+\subsection{Як читати posterior}
+
+\begin{itemize}
+  \item \textbf{Ширина 1D posterior}~--- це невизначеність
+        параметра: чим вужча, тим краще дані його обмежують.
+  \item \textbf{Нахил 2D контура}~--- кореляція між параметрами.
+        Класичний приклад: $H_0$ і $\Omega_m$ антикорельовані
+        через CMB~--- їхній добуток $\Omega_m h^2$ визначений
+        краще ніж кожен окремо.
+  \item \textbf{Зміщення центра}~--- якщо ваш best-fit далеко
+        від таблиці Planck~2018, перевірте likelihood і prior.
+\end{itemize}
+
+\subsection{Похідні параметри: $\Omega_m$, $\sigma_8$, $S_8$}
+
+MCMC семплює базові шість параметрів
+$\{H_0, \Omega_b h^2, \Omega_c h^2, \tau, A_s, n_s\}$.
+Але фізично цікавіші часто є \emph{похідні} параметри~---
+функції базових. Cobaya вміє рахувати їх автоматично і
+включати в chain.
+
+\textbf{Параметри матерії.} Повна густину матерії
+$\Omega_m = \Omega_b + \Omega_c$ виводиться з базових через:
+\begin{equation}
+  \Omega_m = \frac{\Omega_b h^2 + \Omega_c h^2}{(H_0/100)^2}.
+\end{equation}
+У конфігурації Cobaya:
+\begin{minted}{yaml}
+params:
+  omegam:
+    derived: >
+      lambda ombh2, omch2, H0:
+        (ombh2 + omch2) / (H0/100)**2
+    latex: \Omega_m
+  omegab:
+    derived: "lambda ombh2, H0: ombh2 / (H0/100)**2"
+    latex: \Omega_b
+\end{minted}
+
+\textbf{Параметр $\sigma_8$.} Стандартне відхилення
+флуктуацій густини матерії на масштабі $8\,h^{-1}$~Мпк~---
+це ключовий параметр для порівняння з даними слабкого
+лінзування і підрахунку скупчень. CAMB рахує його сам:
+\begin{minted}{yaml}
+params:
+  sigma8:
+    derived: true   # CAMB повертає автоматично
+    latex: \sigma_8
+\end{minted}
+
+\textbf{Параметр $S_8$.} Комбінація, яка найкраще
+вимірюється слабким лінзуванням~--- вона «ортогональна»
+до $H_0$ і тому є незалежним тестом моделі:
+\begin{equation}
+  S_8 \equiv \sigma_8\sqrt{\frac{\Omega_m}{0.3}}.
+\end{equation}
+\begin{minted}{yaml}
+params:
+  S8:
+    derived: "lambda sigma8, omegam: sigma8*(omegam/0.3)**0.5"
+    latex: S_8
+\end{minted}
+
+Після запуску MCMC всі ці параметри з'являться в chain
+і getdist покаже їхні posterior-розподіли поряд з базовими.
+Класичне питання: чи узгоджується $S_8$ з Planck і з даними
+слабкого лінзування DES/KiDS? Саме ця \emph{$S_8$-tension}
+($\sim 2$--$3\sigma$) є другою відкритою суперечністю
+$\Lambda$CDM після Hubble tension.
+
+\subsection{Модифікований спектр: зламаний первинний спектр}
+
+Щоб перевірити модель зі зламом, достатньо замінити стандартний
+первинний спектр у CAMB. Додаємо два нових параметри:
+$k_{\rm break}$~--- положення зламу, $\Delta n$~--- стрибок
+спектрального індексу:
+
+\begin{minted}{python}
+def broken_pk(k, As, ns, k_break, delta_n):
+    """Первинний спектр зі зламом."""
+    pk = As * (k / 0.05) ** (ns - 1)
+    pk[k > k_break] *= (k[k > k_break] / k_break) ** delta_n
+    return pk
+\end{minted}
+
+У конфігурації Cobaya додаємо нові параметри:
+\begin{minted}{yaml}
+params:
+  k_break:
+    prior: {min: 0.01, max: 1.0}   # [1/Мпк]
+    ref:   {mean: 0.1, std: 0.02}
+    latex: k_{\rm break}
+  delta_n:
+    prior: {min: -1.0, max: 1.0}
+    ref:   {mean: 0.0, std: 0.1}
+    latex: \Delta n
+\end{minted}
+
+Якщо posterior для $\Delta n$ зміститься від нуля більш ніж
+на $2\sigma$~--- це свідчення на користь нестандартного спектра.
+
+%% --------------------------------------------------------
+\section{Типові помилки початківця}
+%% --------------------------------------------------------
+
+\begin{enumerate}
+  \item \textbf{Забути про burn-in.} Перші $\sim 30\%$ кроків
+        ланцюжка~--- це «прогрів», їх треба відкидати
+        (\texttt{ignore\_rows: 0.3} у getdist).
+
+  \item \textbf{Занадто широкий prior.} Якщо prior охоплює
+        фізично безглузді значення ($\tau < 0$, $H_0 < 40$),
+        семплер витрачає час на нефізичні регіони. Prior має
+        відображати реальне фізичне знання.
+
+  \item \textbf{Перевіряти $\hat{R}-1$, а не тільки візуально.}
+        Красивий графік не гарантує збіжність. Cobaya виводить
+        $\hat{R}-1$ в лог~--- він має бути $< 0.01$.
+
+  \item \textbf{Неправильні одиниці в CAMB.} За замовчуванням
+        CAMB повертає $C_\ell$, не $\mathcal{D}_\ell$. Завжди
+        передавайте \texttt{CMB\_unit='muK'} і перевіряйте
+        чи ділите на $2\pi/(\ell(\ell+1))$ якщо потрібно.
+
+  \item \textbf{Порівнювати $\chi^2$, а не $\Delta\chi^2$.}
+        Абсолютне значення $\chi^2$ залежить від нормування
+        даних. Для порівняння двох моделей важливий
+        $\Delta\chi^2 = \chi^2_{\rm model} - \chi^2_{\Lambda CDM}$
+        і критерій AIC/BIC для penalізації зайвих параметрів.
+\end{enumerate}
+
+%% --------------------------------------------------------
+\section{Що читати далі}
+%% --------------------------------------------------------
+
+\begin{itemize}
+  \item \textbf{Документація CAMB:}
+        \url{https://camb.readthedocs.io}~--- повний опис
+        всіх параметрів і прикладів.
+  \item \textbf{Документація Cobaya:}
+        \url{https://cobaya.readthedocs.io}~--- включно з
+        туторіалом по Planck likelihood.
+  \item \textbf{Lesgourgues~(2011)} \cite{lesgourgues_2011}~---
+        детальний опис фізики за кодом CLASS.
+  \item \textbf{Lewis \& Bridle~(2002)} \cite{lewis_2002}~---
+        оригінальна стаття про CosmoMC, де пояснена ідея
+        MCMC для космологічних параметрів.
+  \item \textbf{Planck~2018 likelihood paper}
+        \cite{planck_2018_like}~--- як влаштована офіційна
+        likelihood і що таке \texttt{Plik}.
+\end{itemize}

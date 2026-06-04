@@ -1,9 +1,17 @@
-% !TEX program = lualatex
+% !TEX program = xelatex
 \documentclass[12pt, a4paper, openany]{book}
 
 
 \usepackage{fontspec}
-\setmainfont{Bookman Old Style}%{CMU Serif}
+%\setmainfont{Bookman Old Style}%{CMU Serif}
+
+\setmainfont{Bookman_Old_Style_Regular.ttf}[
+    Path           = {./fonts/},
+    BoldFont       = Bookman_Old_Style_Bold.ttf,
+    ItalicFont     = Bookman_Old_Style_Italic.ttf,
+    BoldItalicFont = Bookman_Old_Style_Bold_Italic.ttf
+]
+
 
 \usepackage{titlesec}
 \assignpagestyle{\part}{empty}
@@ -73,6 +81,18 @@
 \graphicspath{{pictures}}
 \usepackage{tabularray}
 \UseTblrLibrary{booktabs}
+\usepackage{minted}
+\setminted{
+    fontsize=\scriptsize,
+    bgcolor=gray!20,
+    frame=lines,
+    framesep=3mm,
+    breaklines,
+    autogobble=false,
+    obeytabs=true,
+    tabsize=4,
+    showtabs=false,
+}
 
 \usepackage{bookmark}
 
@@ -198,9 +218,13 @@ CAMB/CLASS та байєсівського аналізу (MCMC).
 \part{Невирішені проблеми і шляхи їх пошуку}
 \input{chapters/FutureResearch.tex}
 
+\part{Числові методи і аналіз даних}
+\input{chapters/CosmologySoftware.tex}
+\input{chapters/PracticalGuide.tex}
+
 \part{Додатки}
 \appendix
-\input{chapters/CosmologySoftware.tex}
+\input{chapters/Data.tex}
 \input{chapters/appendix_efolds.tex}
 
 \bookmarksetup{startatroot}
