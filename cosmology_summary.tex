@@ -130,6 +130,7 @@
 \newtcolorbox{mathbox}[1][]{
   enhanced,
   breakable,
+  parbox=false,
   colback=theoryred!5,
   sharp corners,
   colframe=theoryred,
@@ -145,13 +146,15 @@
 
 \newtcolorbox{keybox}[1][]{
   enhanced,
+  parbox=false,
   breakable,
-  sharp corners,
   colback=boxbg,
+  sharp corners,
   colframe=accent,
-  leftrule=1pt, toprule=1pt, bottomrule=1pt, rightrule=1pt,
-  left=10pt, right=10pt, top=8pt, bottom=8pt,
-  fonttitle=\small\bfseries,
+  leftrule=2pt, toprule=0pt, bottomrule=0pt, rightrule=0pt,
+  left=12pt, right=8pt, top=6pt, bottom=6pt,
+  fontupper=\footnotesize,
+  fonttitle=\small\itshape,
   colbacktitle=boxbg,
   coltitle=black,
   #1

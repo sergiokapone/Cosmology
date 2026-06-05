@@ -30,3 +30,104 @@
 \end{enumerate}
 
 Для чисельного розв'язання нестандартних динамічних систем (наприклад, для точного інтегрування рівняння Кляйна-Ґордона-Фока зі складними видами потенціалів інфлатона на етапі розігріву) зазвичай використовуються базові наукові пакети \href{https://numpy.org/}{\texttt{NumPy}} та \href{https://scipy.org/}{\texttt{SciPy}} (зокрема, модулі для розв'язання жорстких систем звичайних диференціальних рівнянь \texttt{scipy.integrate}). Візуалізація отриманих спектрів та еволюційних треків традиційно виконується за допомогою бібліотеки \href{https://matplotlib.org/}{\texttt{Matplotlib}}.
+
+
+%% --------------------------------------------------------
+\section{Спостережні дані космічних місій на GitHub}
+%% --------------------------------------------------------
+
+Сучасні космологічні дослідження неможливі без доступу до реальних
+спостережних даних. Нижче наведено ключові репозиторії, де зберігаються
+дані основних космічних місій у форматі, готовому для використання з
+фреймворками типу \texttt{Cobaya} та \texttt{MontePython}.
+
+\subsection*{Planck (2018 release, PR3/PR4)}
+
+Офіційні дані місії \emph{Planck} є золотим стандартом за посиланням на аналіз CMB.
+Репозиторії містять як спектри потужності, так і \texttt{likelihood} для
+MCMC-аналізу.
+
+\begin{itemize}
+    \item \href{https://github.com/heatherprince/planck-lite-py}{\texttt{planck-lite-py}} ---
+          Python-реалізація спрощеного \texttt{plik-lite} likelihood для
+          Planck 2015/2018. Дозволяє швидко обчислювати $\chi^2$ для
+          TT, TE, EE спектрів. \cite{prince_dunkley_2019}
+
+    \item \href{https://github.com/heatherprince/planck-low-py}{\texttt{planck-low-py}} ---
+          Стиснутий низькомультипольний ($\ell<30$) likelihood для
+          температури та $E$-мод поляризації. Оптимальний для спільних
+          аналізів із іншими експериментами. \cite{prince_low_2021}
+
+    \item \href{https://github.com/benabed/clipy}{\texttt{clipy}} ---
+          Чиста Python-реалізація офіційного Planck \texttt{clik} з
+          підтримкою \texttt{jax}. Сумісна з \texttt{plik} (високі $\ell$),
+          \texttt{simall} (низькі $\ell$ поляризації) та
+          \texttt{commander} (низькі $\ell$ температура). \cite{benabed_2025}
+
+    \item \href{https://github.com/carronj/planck_PR4_lensing}{\texttt{planck\_PR4\_lensing}} ---
+          Дані гравітаційного лінзування CMB за результатами
+          Planck PR4 (NPIPE). Включає карти збіжності лінзування
+          (TT, polarization-only, MV) та MCMC-ланцюжки. \cite{carron_2022}
+
+    \item \href{https://github.com/CobayaSampler/planck_lensing_external}{\texttt{planck\_lensing\_external}} ---
+          Приклад зовнішнього likelihood для лінзування Planck 2018,
+          сумісний з \texttt{Cobaya}.
+\end{itemize}
+
+\subsection*{CMB-S4, SPT-3G, Advanced SO}
+
+Для майбутніх та діючих експериментів існують \emph{mock} дані, які
+використовуються для прогнозування точності майбутніх вимірювань.
+
+\begin{itemize}
+    \item \href{https://github.com/sriniraghunathan/CMB_BAO_SNe_likelihoods}{\texttt{CMB\_BAO\_SNe\_likelihoods}} ---
+          \texttt{Cobaya}-сумісні \emph{mock} likelihood для спільного
+          аналізу CMB, BAO та SNe. Включає:
+          \begin{itemize}
+              \item Mock CMB дані для \textbf{SPT-3G}, \textbf{Advanced SO-Baseline},
+                    \textbf{ASO-Goal} та \textbf{CMB-S4}.
+              \item Mock SNe дані для \textbf{DES} та \textbf{LSST}.
+              \item Mock BAO дані для \textbf{DESI-DR2} та \textbf{DESI-DR3}.
+          \end{itemize}
+          Цей репозиторій є чудовим інструментом для \emph{forecasting} ---
+          оцінки того, наскільки точно майбутні місії зможуть виміряти
+          космологічні параметри. \cite{raghunathan_2025}
+\end{itemize}
+
+\subsection*{BAO та SNe дані}
+
+\begin{itemize}
+    \item \textbf{DESI} (Dark Energy Spectroscopic Instrument) ---
+          дані баріонних акустичних осциляцій доступні в репозиторіях,
+          інтегрованих у \texttt{Cobaya} (DR2, DR3).
+
+    \item \textbf{Pantheon+} --- найбільша збірка кривих блиску наднових
+          типу Ia, доступна для аналізу в \texttt{Cobaya}.
+\end{itemize}
+
+\subsection*{Вимірювання $H_0$ (Hubble tension)}
+
+Для аналізу напруженості Хаббла \texttt{Cobaya} надає вбудовані
+гауссові \texttt{likelihood} для локальних вимірювань $H_0$:
+\begin{itemize}
+    \item \texttt{H0.riess2018a}, \texttt{H0.riess2018b} --- Riess et al. 2018.
+    \item \texttt{H0.riess201903} --- Riess et al. 2019.
+    \item \texttt{H0.riess2020} --- Riess et al. 2020.
+    \item \texttt{H0.freedman2020} --- Freedman et al. 2020.
+    \item \texttt{H0.riess2020Mb} --- обмеження на абсолютну зоряну
+          величину $M_b$ (для сумісного аналізу з SNe).
+\end{itemize}
+Документацію див. у \href{https://cobaya.readthedocs.io/en/latest/likelihood_H0.html}{Cobaya docs}.
+
+\subsection*{Як отримати дані безпосередньо з коду}
+
+Більшість перелічених репозиторіїв можна клонувати безпосередньо:
+\begin{verbatim}
+git clone https://github.com/heatherprince/planck-lite-py.git
+git clone https://github.com/sriniraghunathan/CMB_BAO_SNe_likelihoods.git
+\end{verbatim}
+
+Для офіційних даних Planck (спектри, карти) використовуйте
+\href{https://pla.esac.esa.int/pla}{Planck Legacy Archive (PLA)}.
+Дані PR4 (NPIPE) також доступні через
+\href{https://data.cmb-s4.org/planck_pr4.html}{CMB-S4 Data Portal}.
