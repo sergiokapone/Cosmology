@@ -124,10 +124,38 @@
 
 \addbibresource{references/references.bib}
 
-\newmdenv[backgroundcolor=boxbg, linecolor=accent, linewidth=1pt,
-          innerleftmargin=10pt, innerrightmargin=10pt,
-          innertopmargin=8pt, innerbottommargin=8pt]{keybox}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
 
+\newtcolorbox{mathbox}[1][]{
+  enhanced,
+  breakable,
+  colback=theoryred!5,
+  sharp corners,
+  colframe=theoryred,
+  leftrule=2pt, toprule=0pt, bottomrule=0pt, rightrule=0pt,
+  left=12pt, right=8pt, top=6pt, bottom=6pt,
+  fontupper=\footnotesize,
+  fonttitle=\small\itshape,
+  colbacktitle=theoryred!5,
+  coltitle=black,
+  #1
+}
+
+
+\newtcolorbox{keybox}[1][]{
+  enhanced,
+  breakable,
+  sharp corners,
+  colback=boxbg,
+  colframe=accent,
+  leftrule=1pt, toprule=1pt, bottomrule=1pt, rightrule=1pt,
+  left=10pt, right=10pt, top=8pt, bottom=8pt,
+  fonttitle=\small\bfseries,
+  colbacktitle=boxbg,
+  coltitle=black,
+  #1
+}
 
 \title{\bfseries Нотатки: від інфлатона до CMB}
 \author{Пономаренко С. М.}
@@ -222,7 +250,7 @@ CAMB/CLASS та байєсівського аналізу (MCMC).
 \part{Невирішені проблеми і шляхи їх пошуку}
 \input{chapters/FutureResearch.tex}
 
-\part{Числові методи і аналіз даних}
+\part{Чисельні методи і аналіз даних}
 \input{chapters/CosmologySoftware.tex}
 \input{chapters/PracticalGuide.tex}
 
