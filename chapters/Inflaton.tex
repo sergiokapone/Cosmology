@@ -187,13 +187,26 @@ $\frac{d}{dt}(a^3\dot{\phi}) = a^3(\ddot{\phi} + 3H\dot{\phi})$~---
   3H\dot{\phi} \approx -V'(\phi).
 \end{equation}
 
-Завдяки атрактору~\eqref{eq:sr_attractor}, ми можемо виразити параметри slow-roll виключно через локальну геометричну форму самого потенціалу $V(\phi)$ та його похідні:
+%Завдяки атрактору~\eqref{eq:sr_attractor}, ми можемо виразити параметри slow-roll виключно через локальну геометричну форму самого потенціалу $V(\phi)$ та його похідні:
+%\begin{equation}\label{eq:slow_roll_pot}
+%  \varepsilon \approx \epsilon_V
+%  \equiv \frac{M_\mathrm{Pl}^2}{2}\left(\frac{V'}{V}\right)^2,
+%  \qquad
+%  \eta_{\mathrm{H}} \approx \eta_V
+%  \equiv M_\mathrm{Pl}^2\,\frac{V''}{V}.
+%\end{equation}
+
+Завдяки атрактору~\eqref{eq:sr_attractor}, ми можемо виразити параметри slow-roll виключно через локальну геометричну форму самого потенціалу $V(\phi)$ та його похідні. Зручно ввести безрозмірні \emph{потенціальні параметри повільного кочення}:
 \begin{equation}\label{eq:slow_roll_pot}
-  \varepsilon \approx \epsilon_V
-  \equiv \frac{M_\mathrm{Pl}^2}{2}\left(\frac{V'}{V}\right)^2,
+  \epsilon_V \equiv \frac{M_\mathrm{Pl}^2}{2}\left(\frac{V'}{V}\right)^2,
   \qquad
-  \eta_{\mathrm{H}} \approx \eta_V
-  \equiv M_\mathrm{Pl}^2\,\frac{V''}{V}.
+  \eta_V \equiv M_\mathrm{Pl}^2\,\frac{V''}{V}.
+\end{equation}
+У наближенні повільного кочення вони пов'язані з кінематичними параметрами $\varepsilon$ та $\eta_{\mathrm{H}}$ (означеними в~\eqref{eq:eps}--\eqref{eq:eta}) як:
+\begin{equation}\label{eq:eps_eta_V}
+  \varepsilon \approx \epsilon_V,
+  \qquad
+  \eta_{\mathrm{H}} \approx \epsilon_V - \frac{1}{2}\eta_V.
 \end{equation}
 
 Доведемо тотожність для $\epsilon_V$, підставивши швидкість на атракторі~\eqref{eq:sr_attractor} у вираз~\eqref{eq:epsilon_energy_ratio}:
@@ -306,3 +319,116 @@ Natural inflation \cite{freese_1990}
 сценарію з довільними початковими умовами, вона генерує ці
 неоднорідності з квантового вакууму~--- без жодного зовнішнього
 задання, як неминучий наслідок принципу невизначеності.
+
+% ============================================================
+% Задачі до розділу 2: Інфлатон і його потенціал
+\section*{Задачі}
+% ============================================================
+
+
+
+\begin{problem}{Slow-roll параметри та умова інфляції}
+Для скалярного поля $\phi$ із потенціалом $V(\phi)$ у наближенні повільного кочення:
+
+\begin{enumerate}
+    \item Використовуючи $\varepsilon = -\dot{H}/H^2$ та рівняння Фрідмана,
+          доведіть, що $\varepsilon = \dfrac{\dot{\phi}^2}{2H^2 M_{\mathrm{Pl}}^2}$.
+    \item Покажіть, що умова інфляції $\ddot{a} > 0$ еквівалентна $\varepsilon < 1$.
+    \item Виразіть $\varepsilon$ через потенціал $V(\phi)$ та його похідну $V'(\phi)$
+          у наближенні slow-roll, тобто виведіть $\epsilon_V$.
+\end{enumerate}
+\end{problem}
+
+% -------------------------------------------------------------------
+
+\begin{problem}{Рівняння атрактора та його фізичний зміст}
+Рівняння Кляйна--Ґордона для однорідного поля в розширюваному Всесвіті:
+\[
+\ddot{\phi} + 3H\dot{\phi} + V'(\phi) = 0.
+\]
+
+\begin{enumerate}
+    \item У наближенні повільного кочення нехтують членом $\ddot{\phi}$.
+          Чому це виправдано за умови $|\eta_H| \ll 1$?
+    \item Запишіть рівняння атрактора $3H\dot{\phi} \approx -V'(\phi)$.
+          Поясніть фізичну аналогію з "кулькою на схилі у в'язкому середовищі".
+    \item Використовуючи атрактор, покажіть, що $\dot{\phi}$ визначається локальним
+          нахилом потенціалу, а не початковими умовами. Чому це важливо для
+          передбачуваності інфляції?
+\end{enumerate}
+\end{problem}
+
+% -------------------------------------------------------------------
+
+\begin{problem}{Зв'язок між $\eta_H$ та $\eta_V$}
+Кінематичний параметр $\eta_H = -\ddot{\phi}/(H\dot{\phi})$ і потенціальний параметр
+$\eta_V = M_{\mathrm{Pl}}^2 V''/V$ пов'язані у наближенні slow-roll.
+
+\begin{enumerate}
+    \item Продиференціюйте рівняння атрактора $3H\dot{\phi} \approx -V'(\phi)$ за часом.
+    \item Враховуючи $\dot{H} = -\dot{\phi}^2/(2M_{\mathrm{Pl}}^2)$ та $H^2 \approx V/(3M_{\mathrm{Pl}}^2)$,
+          виведіть співвідношення:
+          \[
+          \eta_H \approx \epsilon_V - \frac{1}{2}\eta_V.
+          \]
+    \item Чому не можна стверджувати, що $\eta_H \approx \eta_V$? Наведіть контрприклад
+          (наприклад, потенціал $V(\phi) = \frac{1}{2}m^2\phi^2$).
+\end{enumerate}
+\end{problem}
+
+% -------------------------------------------------------------------
+
+\begin{problem}{Тривалість інфляції та кількість $e$-folds}
+Кількість $e$-folds інфляції визначається як $N = \int H\,dt$.
+
+\begin{enumerate}
+    \item Використовуючи $\dot{\phi} \approx -V'/(3H)$ та $H^2 \approx V/(3M_{\mathrm{Pl}}^2)$,
+          покажіть, що
+          \[
+          dN = \frac{H}{\dot{\phi}}\,d\phi \approx \frac{1}{M_{\mathrm{Pl}}^2}\frac{V}{V'}\,d\phi.
+          \]
+    \item Для потенціалу $V(\phi) = \frac{1}{2}m^2\phi^2$ обчисліть $N$ як функцію
+          початкового значення поля $\phi_{\text{start}}$ та кінцевого $\phi_{\text{end}}$.
+    \item Якщо інфляція закінчується при $\phi_{\text{end}} \sim M_{\mathrm{Pl}}$,
+          знайдіть $\phi_{\text{start}}$, необхідне для $N \approx 60$.
+\end{enumerate}
+\end{problem}
+
+% -------------------------------------------------------------------
+
+\begin{problem}{Спектральний індекс $n_s$ та його залежність від потенціалу}
+Спектральний індекс скалярних збурень у наближенні slow-roll:
+\[
+n_s - 1 = -2\epsilon_V - \eta_V.
+\]
+
+\begin{enumerate}
+    \item Для потенціалу $V(\phi) = \frac{1}{2}m^2\phi^2$ (хаотична інфляція)
+          обчисліть $\epsilon_V$, $\eta_V$ та $n_s$ як функцію $N$.
+    \item Чому така модель сьогодні вважається виключеною спостереженнями?
+          (Використайте $n_s = 0.9649 \pm 0.0042$ та $r = 16\epsilon_V$.)
+    \item Для моделі Старобінського (плато) $n_s \approx 1 - 2/N$.
+          Оцініть $n_s$ для $N = 60$ та порівняйте з даними Planck.
+\end{enumerate}
+\end{problem}
+
+% -------------------------------------------------------------------
+
+\begin{problem}
+Чи може інфляція тривати вічно? (Вічна інфляція)
+
+Квантові флуктуації інфлатона на суперхабблових масштабах можуть
+локально збільшити $\phi$, "штовхаючи" поле вгору по потенціалу.
+Класичний зсув за один $e$-fold: $|\delta\phi_{\text{class}}| \sim |\dot{\phi}|/H \approx \sqrt{2\epsilon_V} M_{\mathrm{Pl}}$.
+Квантова флуктуація за той самий час: $\delta\phi_{\text{quant}} \sim H/(2\pi)$.
+
+\begin{enumerate}
+    \item Запишіть умову "самовідтворення" інфляції ($\delta\phi_{\text{quant}} \gtrsim |\delta\phi_{\text{class}}|$)
+          через $H$ та $M_{\mathrm{Pl}}$.
+    \item Використовуючи $H^2 \approx V/(3M_{\mathrm{Pl}}^2)$, покажіть, що ця умова
+          еквівалентна $V(\phi) \gtrsim M_{\mathrm{Pl}}^4$.
+    \item Чи досягаються такі енергії в реалістичних моделях інфляції?
+          Якщо ні, то чи означає це, що вічна інфляція -- лише математична
+          можливість, а не фізична необхідність?
+\end{enumerate}
+\end{problem}

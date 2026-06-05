@@ -124,7 +124,7 @@
 
 \addbibresource{references/references.bib}
 
-\usepackage{tcolorbox}
+\usepackage[most, many]{tcolorbox}
 \tcbuselibrary{breakable, skins}
 
 \newtcolorbox{mathbox}[1][]{
@@ -156,6 +156,38 @@
   coltitle=black,
   #1
 }
+
+% Лічильник для задач
+\newcounter{problemcounter}[chapter]
+\renewcommand{\theproblemcounter}{\arabic{chapter}.\arabic{problemcounter}}
+
+% Основний стиль для задачі
+\newtcolorbox{problemcontent}[2][]{
+    breakable,
+    colback = gray!5,
+    colframe = blue!50!black,
+    coltitle = white,
+    title = {\bfseries Задача #2},
+    fonttitle = \bfseries,
+    sharp corners,
+    boxrule = 0.8pt,
+    leftrule = 3pt,
+    rightrule = 0.8pt,
+    toprule = 0.8pt,
+    bottomrule = 0.8pt,
+    before skip = 12pt,
+    after skip = 12pt,
+    #1
+}
+
+% Середовище для звичайної задачі
+\newenvironment{problem}[1]{
+    \refstepcounter{problemcounter}
+    \begin{problemcontent}{\theproblemcounter.\ #1}
+}{
+    \end{problemcontent}
+}
+
 
 \title{\bfseries Нотатки: від інфлатона до CMB}
 \author{Пономаренко С. М.}
