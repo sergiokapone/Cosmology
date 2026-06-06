@@ -1,6 +1,7 @@
 _minted*/
 *.aux
 *.synctex.gz
+*.synctex(busy)
 *.log
 *.run.xml
 *.bak*
@@ -18,6 +19,7 @@ test.pdf
 *.avi
 *.mkv
 *.vrb
+*.xdv
 books.session
 
 
