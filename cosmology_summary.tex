@@ -87,7 +87,6 @@
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{xcolor}
-\usepackage{mdframed}
 \usepackage{graphicx}
 \graphicspath{{pictures}}
 \usepackage{tabularray}
@@ -118,11 +117,16 @@
 
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
+\pgfkeys{/pgf/number format/.cd, dec sep={\,}}
 \usepackage{pgfplotstable}
 
+
+
 \usetikzlibrary{decorations.text}
+\usepackage[tikz]{bclogo} % для глаза
 
 \usepackage{indentfirst}
+
 
 \usepackage[backend=biber,
             style=phys,
@@ -325,11 +329,6 @@
 {\scshape У друкарні авторській} \\[0.1cm]
 {\small \scshape \uppercase\expandafter{\romannumeral\year}}
 
-\vspace{0.8cm}
-
-% ГРУНТОВНИЙ КОЛОНТИТУЛ УНІЗУ
-{\tiny \textsc{impensis auctoris. — typis propriis.}}
-
 \end{titlepage}
 \clearpage
 % -------------------------------------------------------
@@ -346,7 +345,7 @@
 гіпотетичним скалярним полем, яке керувало першими
 ${\sim}10^{-32}$~с існування Всесвіту~--- і \emph{реліктовим випромінюванням} (CMB),
 що є найдетальнішою спостережуваною картиною того, що відбулося.
-Між цими точками лежить ланцюжок物理, який ми будуємо
+Між цими точками лежить ланцюжок, який ми будуємо
 послідовно, крок за кроком.
 
 \textbf{Частина~I. Фон.} Розділи~\ref{sec:friedmann}–\ref{sec:inflaton}
