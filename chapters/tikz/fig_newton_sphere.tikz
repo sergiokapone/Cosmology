@@ -1,0 +1,89 @@
+% !TeX root = ../cosmology_summary.tex
+
+%% --------------------------------------------------------
+%% Рисунок: ньютонівська космологія — вирізана куля
+%% Потрібні пакети: tikz, xcolor (вже є в cosmology_summary.tex)
+%% Вставка: між абзацом "Вирізаємо кулю" і "Закон збереження"
+%% --------------------------------------------------------
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=1.1,
+    force/.style={->, >=stealth, line width=1.4pt},
+    dimline/.style={<->, >=stealth, gray!70, thin},
+    label/.style={font=\small},
+    slabel/.style={font=\scriptsize, gray!80},
+]
+
+%% --- фонові крапки (зовнішній Всесвіт) ---
+\foreach \x/\y in {
+    -3.2/2.1, -2.8/1.4, -2.5/2.6, -2.1/1.0, -1.8/2.8,
+     3.2/2.1,  2.8/1.4,  2.5/2.6,  2.1/1.0,  1.8/2.8,
+    -3.0/-1.5, -2.4/-2.2, -1.9/-1.0, -2.7/-0.7,
+     3.0/-1.5,  2.4/-2.2,  1.9/-1.0,  2.7/-0.7,
+    -3.5/0.3,  3.5/0.3,  -3.3/-0.4,  3.3/-0.4
+}{
+    \fill[gray!35] (\x,\y) circle (1.2pt);
+}
+
+%% --- зовнішня оболонка (штрихована) ---
+\draw[gray!50, dashed, line width=0.6pt] (0,0) circle (3.0);
+
+%% --- заповнення внутрішньої кулі ---
+\fill[accent!8] (0,0) circle (1.9);
+
+%% --- внутрішня куля ---
+\draw[accent, line width=1.2pt] (0,0) circle (1.9);
+
+%% --- центр мас / початок координат ---
+\node[circle, fill=black, minimum size=2pt, inner sep=0] (O) at (0,0) {};
+\node[label, left] at (O) {$O$};
+
+%% --- пробна частинка на поверхні ---
+\node[theoryred, circle, fill=theoryred, minimum size=3pt] (P) at (50:1.9) {};
+\node[label, theoryred, above=5pt] at (P) {$m$};
+
+%% --- вектор радіуса r ---
+\draw[dimline] (O) -- node[slabel, above left, pos=0.55]
+    {$r = a(t)\,r_0$} (P);
+
+%% --- сила гравітації (до центру) ---
+\draw[force, accent] (P) -- +(230:1.1)
+    node[label, anchor=north west, accent] {$F_g = -\dfrac{GmM}{r^2}$};
+
+%% --- вектор швидкості (від центру, по радіусу) ---
+\draw[force, theoryred] (P) -- +(50:0.9)
+    node[label, anchor=south west, theoryred] {$\dot{r} = H r$};
+
+%% --- маса всередині ---
+\node[label, accent!80, align=center] at (-0.3, -1)
+    {$M = \dfrac{4}{3}\pi r^3\rho$};
+
+%% --- позначення зовнішньої оболонки ---
+\draw[dimline] (O) -- node[slabel, below right, pos=0.7]
+    {$R_\text{ext}$} (310:3.0);
+
+%% --- підпис "зовнішня оболонка не діє" ---
+\node[slabel, align=center, text width=2.8cm] at (3, 3)
+    {зовнішня оболонка \\ не діє (теор.~Гауса)};
+\draw[->, gray!50, thin] (2.1, 2.15) -- (2.55, 1.5);
+
+%% --- позначення радіуса кулі ---
+\draw[dimline] (O) -- node[slabel, below, pos=0.6]
+    {$r$} (230:1.9);
+
+%% --- підпис однорідна речовина ---
+\node[slabel, accent!60] at (-1.1, 1.1) {$\rho(t)$};
+
+\end{tikzpicture}
+\caption{Ньютонівська модель однорідного Всесвіту.
+Вирізаємо уявну кулю радіусом $r = a(t)r_0$
+з однорідного середовища густиною $\rho(t)$.
+Пробна частинка $m$ на поверхні відчуває лише
+гравітацію внутрішньої маси $M$ (теорема Гауса):
+зовнішня оболонка не дає внеску.
+Закон збереження енергії $T + U = E$ для цієї
+частинки безпосередньо відтворює перше рівняння
+Фрідмана~\eqref{eq:newton_friedmann}.}
+\label{fig:newton_sphere}
+\end{figure}
