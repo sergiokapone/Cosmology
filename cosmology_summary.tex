@@ -84,7 +84,7 @@
 \usepackage{minted}
 \setminted{
     fontsize=\scriptsize,
-    bgcolor=gray!20,
+    bgcolor=gray!5,
     frame=lines,
     framesep=3mm,
     breaklines,
@@ -125,68 +125,117 @@
 \addbibresource{references/references.bib}
 
 \usepackage[most, many]{tcolorbox}
-\tcbuselibrary{breakable, skins}
 
-\newtcolorbox{mathbox}[1][]{
+\newtcolorbox{mathbox}[2][]{
   enhanced,
   breakable,
   parbox=false,
-  colback=theoryred!5,
-  sharp corners,
+  colback=theoryred!3,
   colframe=theoryred,
-  leftrule=2pt, toprule=0pt, bottomrule=0pt, rightrule=0pt,
-  left=12pt, right=8pt, top=6pt, bottom=6pt,
-  fontupper=\footnotesize,
-  fonttitle=\small\itshape,
-  colbacktitle=theoryred!5,
-  coltitle=black,
-  #1
-}
-
-
-\newtcolorbox{keybox}[1][]{
-  enhanced,
-  parbox=false,
-  breakable,
-  colback=boxbg,
   sharp corners,
-  colframe=accent,
-  leftrule=2pt, toprule=0pt, bottomrule=0pt, rightrule=0pt,
-  left=12pt, right=8pt, top=6pt, bottom=6pt,
+  boxrule=0pt,
+  left=12pt, right=12pt, top=14pt, bottom=10pt,
   fontupper=\footnotesize,
-  fonttitle=\small\itshape,
-  colbacktitle=boxbg,
-  coltitle=black,
+  fonttitle=\small\bfseries\itshape,
+  colbacktitle=theoryred!3,
+  coltitle=theoryred!80!black,
+  title={#2},
+  % Для целого бокса или первой его части на странице
+  overlay unbroken and first={
+    \draw[theoryred!60, line width=0.4pt]
+      ([xshift=2pt, yshift=-2pt]frame.north west) rectangle ([xshift=-2pt, yshift=2pt]frame.south east);
+    \draw[theoryred, line width=1.2pt]
+      ([xshift=5pt, yshift=-5pt]frame.north west) -- ([xshift=5pt, yshift=5pt]frame.south west);
+    \draw[theoryred, line width=0.8pt] ([xshift=3pt, yshift=-5pt]frame.north west) -- ([xshift=9pt, yshift=-5pt]frame.north west);
+    \draw[theoryred, line width=0.8pt] ([xshift=3pt, yshift=5pt]frame.south west) -- ([xshift=9pt, yshift=5pt]frame.south west);
+  },
+  % Исправлено: разделяем middle и last через запятую
+  overlay middle={
+    \draw[theoryred!60, line width=0.4pt] (frame.north west) -- (frame.south west);
+    \draw[theoryred!60, line width=0.4pt] (frame.north east) -- (frame.south east);
+  },
+  overlay last={
+    \draw[theoryred!60, line width=0.4pt] (frame.north west) -- (frame.south west);
+    \draw[theoryred!60, line width=0.4pt] (frame.north east) -- (frame.south east);
+  },
   #1
 }
 
-% Лічильник для задач
+\newtcolorbox{keybox}[2][]{
+  enhanced,
+  breakable,
+  parbox=false,
+  colback=boxbg,
+  colframe=accent,
+  sharp corners,
+  boxrule=0pt,
+  left=12pt, right=12pt, top=14pt, bottom=10pt,
+  fontupper=\footnotesize,
+  fonttitle=\small\bfseries\itshape,
+  colbacktitle=boxbg,
+  coltitle=accent!80!black,
+  title={#2},
+  overlay unbroken and first={
+    \draw[accent!60, line width=0.4pt]
+      ([xshift=2pt, yshift=-2pt]frame.north west) rectangle ([xshift=-2pt, yshift=2pt]frame.south east);
+    \draw[accent, line width=1.2pt]
+      ([xshift=5pt, yshift=-5pt]frame.north west) -- ([xshift=5pt, yshift=5pt]frame.south west);
+    \draw[accent, line width=0.8pt] ([xshift=3pt, yshift=-5pt]frame.north west) -- ([xshift=9pt, yshift=-5pt]frame.north west);
+    \draw[accent, line width=0.8pt] ([xshift=3pt, yshift=5pt]frame.south west) -- ([xshift=9pt, yshift=5pt]frame.south west);
+  },
+  % Исправлено и тут
+  overlay middle={
+    \draw[accent!60, line width=0.4pt] (frame.north west) -- (frame.south west);
+    \draw[accent!60, line width=0.4pt] (frame.north east) -- (frame.south east);
+  },
+  overlay last={
+    \draw[accent!60, line width=0.4pt] (frame.north west) -- (frame.south west);
+    \draw[accent!60, line width=0.4pt] (frame.north east) -- (frame.south east);
+  },
+  #1
+}
+
+% Лічильник задач
 \newcounter{problemcounter}[chapter]
 \renewcommand{\theproblemcounter}{\arabic{chapter}.\arabic{problemcounter}}
 
-% Основний стиль для задачі
 \newtcolorbox{problemcontent}[2][]{
+    enhanced,
     breakable,
-    colback = gray!5,
-    colframe = blue!50!black,
-    coltitle = white,
-    title = {\bfseries Задача #2},
-    fonttitle = \bfseries,
+    parbox=false,
+    colback=gray!3,            % Ледь помітне тонування під стару картку
+    boxrule=0pt,
     sharp corners,
-    boxrule = 0.8pt,
-    leftrule = 3pt,
-    rightrule = 0.8pt,
-    toprule = 0.8pt,
-    bottomrule = 0.8pt,
-    before skip = 12pt,
-    after skip = 12pt,
+    % Збільшуємо лівий відступ, щоб текст не налізав на маркер зліва
+    left=22pt, right=10pt, top=8pt, bottom=8pt,
+    before skip=14pt, after skip=14pt,
+    fontupper=\footnotesize,
+    colbacktitle=gray!3,
+    title={},
+    attach title to upper,
+    % Оформлення лівого поля через TikZ для цілого або першого боксу
+    overlay unbroken and first={
+        % Тонка вінтажна вісь зліва
+        \draw[black!40, line width=0.5pt] ([xshift=12pt, yshift=-4pt]frame.north west) -- ([xshift=12pt, yshift=4pt]frame.south west);
+        % Витончена міні-плашка для номера задачі
+        \node[draw=black, fill=white, line width=0.6pt, inner sep=3pt, font=\scriptsize\bfseries\itshape, anchor=north]
+            at ([xshift=5pt, yshift=-8pt]frame.north west) {№ #2};
+    },
+    % Розділяємо middle та last на окремі ключі
+    overlay middle={
+        \draw[black!40, line width=0.5pt] ([xshift=12pt]frame.north west) -- ([xshift=12pt]frame.south west);
+    },
+    overlay last={
+        \draw[black!40, line width=0.5pt] ([xshift=12pt]frame.north west) -- ([xshift=12pt]frame.south west);
+    },
     #1
 }
 
-% Середовище для звичайної задачі
+% Середовище для задачі (назва автоматично стає гарним початком абзацу)
 \newenvironment{problem}[1]{
     \refstepcounter{problemcounter}
-    \begin{problemcontent}{\theproblemcounter.\ #1}
+    \begin{problemcontent}{\theproblemcounter}
+    {\bfseries\itshape #1}
 }{
     \end{problemcontent}
 }
@@ -267,32 +316,43 @@ CAMB/CLASS та байєсівського аналізу (MCMC).
 
 \newpage
 
+%% --------------------------------------------------------
 \part{Фон}
-\input{chapters/FromEinsteinToFridman.tex}
-\input{chapters/Inflaton.tex}
+%% --------------------------------------------------------
+\input{chapters/01_friedmann}
+\input{chapters/02_inflaton}
 
+%% --------------------------------------------------------
 \part{Збурення}
-\input{chapters/Disturbance.tex}
-\input{chapters/QuantumFluctuations.tex}
+%% --------------------------------------------------------
+\input{chapters/03_metric_perturbations}
+\input{chapters/04_quantum_fluctuations}
 
+%% --------------------------------------------------------
 \part{Спостереження}
-\input{chapters/Reheating.tex}
-\input{chapters/PlasmaHydrodynamics.tex}
-\input{chapters/ZWEffect.tex}
-\input{chapters/CMBPolarisation.tex}
-\input{chapters/ChaoticInflation.tex}
+%% --------------------------------------------------------
+\input{chapters/05_reheating}
+\input{chapters/06_plasma_acoustics}
+\input{chapters/07_sachs_wolfe}
+\input{chapters/08_cmb_polarisation}
+\input{chapters/09_chaotic_inflation}
 
-\part{Невирішені проблеми і шляхи їх пошуку}
-\input{chapters/FutureResearch.tex}
+%% --------------------------------------------------------
+\part{Невирішені проблеми}
+%% --------------------------------------------------------
+\input{chapters/10_future_research}
 
-\part{Чисельні методи і аналіз даних}
-\input{chapters/CosmologySoftware.tex}
-\input{chapters/PracticalGuide.tex}
+%% --------------------------------------------------------
+\part{Чисельні методи}
+%% --------------------------------------------------------
+\input{chapters/11_software}
+\input{chapters/12_practical_guide}
 
-\part{Додатки}
+%% --------------------------------------------------------
 \appendix
-\input{chapters/Data.tex}
-\input{chapters/appendix_efolds.tex}
+%% --------------------------------------------------------
+\input{chapters/app_a_data}
+\input{chapters/app_b_efolds}
 
 \bookmarksetup{startatroot}
 \printbibliography[heading=bibintoc]
