@@ -243,102 +243,94 @@
 \pgfplotstableread{data/plankdata.txt}\planckdata
 \pgfplotstableread{data/LCDM.txt}\theorydata
 
+
 % ==========================================
 % ПОЧАТОК ДОКУМЕНТА ТА СТРУКТУРИ
 % ==========================================
 \begin{document}
 
-% --- КАНОНІЧНА СТАРОВИННА ТИТУЛЬНА СТОРІНКА ---
 \begin{titlepage}
+\pagecolor[RGB]{252,250,242}
+\color[RGB]{45,38,28}
+
+\centering
+%\linespread{1.15}\selectfont
+
+% СТАРИЙ КОЛОНТИТУЛ (як у стародруках)
+{\scshape\footnotesize \textsc{In nomine scientiae}}
+
+\vspace*{1cm}
+
+% АВТОР (капітель з великим відступом)
+{\scshape\Large Пономаренко С. М.}
+
+\vspace{1.5cm}
+
+% ВІНЬЄТКА — СТАРОДРУКІВСЬКА ЗІРКА
+    \begingroup
     \centering
-    \linespread{1.1}\selectfont
+    \raisebox{-0.5ex}{\Large{\textdaggerdbl}} \hrulefill \hspace{0.2cm} \raisebox{-0.5ex}{\large{\textleaf}} \hspace{0.2cm} \hrulefill \raisebox{-0.5ex}{\Large{\textdaggerdbl}}
+    \endgroup
 
-    \vspace*{0.5cm}
-    % Верхня академічна частина (строга університетська капітель)
-    {\scshape\large Національний технічний університет України \\[0.15cm]
-    «Київський політехнічний інститут імені Ігоря Сікорського»} \\[0.4cm]
-    {\large Фізико-технічний інститут} \\[0.15cm]
-    {\small Кафедра прикладної фізики} \\
+\vspace*{0.5cm}
 
-    \vfill
+% НАЗВА (розбита на три рядки, як у старих фоліантах)
+\begingroup
+\color{red}
+{\Huge\bfseries ВІД ІНФЛАТОНА ДО CMB}\\[0.6cm]
+{\color{black}\Large $\ast$ \quad $\ast$ \quad $\ast$}\\[0.6cm]
+{\Large\scshape Космологічні нотатки}
+\endgroup
 
-    % Велична подвійна рамка (Товста + Тонка лінія друкарського верстата)
-    \rule{\textwidth}{1.6pt} \\[0.2cm]
-    \rule{\textwidth}{0.6pt} \\[0.6cm]
+\vspace{0.5cm}
 
-    % НАЗВА КНИГИ (Великий, канонічний Bookman)
-    {\Huge\bfseries Нотатки: від інфлатона до CMB} \\[0.6cm]
+% ВІНЬЄТКА (та сама)
+    \begingroup
+    \centering
+    \raisebox{-0.5ex}{\Large{\textdaggerdbl}} \hrulefill \hspace{0.2cm} \raisebox{-0.5ex}{\large{\textleaf}} \hspace{0.2cm} \hrulefill \raisebox{-0.5ex}{\Large{\textdaggerdbl}}
+    \endgroup
 
-    \rule{\textwidth}{0.6pt} \\[0.2cm]
-    \rule{\textwidth}{1.6pt} \\
+\vspace{1cm}
 
-    \vfill
+% ГРАВЮРА (з тінню або без — вирішувати тобі)
+\begin{minipage}{0.55\textwidth}
+\centering
+\includegraphics[width=\textwidth]{Modern_flagmarion}
+\end{minipage}
 
-% --- ЦЕНТРАЛЬНИЙ БЛОК: ГРАВЮРА ФЛАММАРІОНА ---
-    % Картинка центрована, а невелика тонка рамка підкреслює ретро-ефект
-    \begin{minipage}{0.55\textwidth}
-        \centering
-        \vspace*{0.2cm}
-        \label{fig:flammarion_title}
-        \includegraphics[width=\textwidth]{Modern_flagmarion}
-        \vspace*{0.2cm}
-    \end{minipage}
+\vspace{1cm}
 
-%    % --- СТИЛІЗОВАНА АСТРОНОМІЧНА ГРАВЮРА (ВИПРАВЛЕНИЙ TIKZ) ---
-%    \begin{tikzpicture}[scale=0.75, every node/.style={transform shape}]
-%        % Зовнішнє градусне коло
-%        \draw[line width=0.8pt, darkgraylink] (0,0) circle (2.8cm);
-%        \draw[line width=0.4pt, darkgraylink] (0,0) circle (2.6cm);
-%        \draw[line width=0.4pt, dashed, darkgraylink] (0,0) circle (2.1cm);
-%
-%        % Напрямки осей та вимірювальні промені
-%        \foreach \a in {0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330} {
-%            \draw[line width=0.3pt, darkgraylink!60] (\a:2.6cm) -- (\a:2.8cm);
-%        }
-%        \draw[line width=0.4pt, darkgraylink!50] (-3.2,0) -- (3.2,0);
-%        \draw[line width=0.4pt, darkgraylink!50] (0,-3.2) -- (0,3.2);
-%
-%        % Внутрішні орбіти (еліпси)
-%        \draw[line width=0.5pt, darkgraylink, rotate=15] (0,0) ellipse (1.6cm and 0.9cm);
-%        \draw[line width=0.5pt, darkgraylink, rotate=-30] (0,0) ellipse (2.2cm and 1.2cm);
-%
-%        % Сонце в центрі (символ Інфляції / початку Всесвіту)
-%        \draw[line width=0.6pt, fill=white, darkgraylink] (0,0) circle (0.35cm);
-%        \foreach \a in {0, 45, 90, 135, 180, 225, 270, 315} {
-%            \draw[line width=0.5pt, darkgraylink] (\a:0.35cm) -- (\a:0.65cm);
-%        }
-%
-%        % Планети на орбітах (тепер через правильні node)
-%        \node[draw, fill=white, circle, inner sep=1.2pt, line width=0.5pt, darkgraylink] at (15:1.6cm) {};
-%        \node[draw, fill=white, circle, inner sep=1.5pt, line width=0.5pt, darkgraylink] at (-30:2.2cm) {};
-%    \end{tikzpicture}
+% АНОТАЦІЯ (з відступом, як у старих передмовах)
+\begin{minipage}{0.8\textwidth}
+\small\itshape
+\setlength{\parindent}{0.5cm}%
+Систематизовані нотатки з теоретичної космології, що охоплюють
+фізику раннього Всесвіту, динаміку скалярного інфлатонного поля,
+генерацію первинних космологічних збурень та їхній відбиток
+на анізотропії реліктового випромінювання (CMB).
+\end{minipage}
 
-    \vfill
+\vfill
 
-    % АВТОР
-    {\Large\scshape Пономаренко С. М.} \\
+% ЛАТИНСЬКИЙ ДЕВІЗ (з орнаментом)
+{\scshape\small Ex nihilo ad sidera}
 
-    \vfill
+\vspace{0.3cm}
 
-    % Ромбовидна анотація старої школи для ідеального заповнення простору
-    \begin{minipage}{0.8\textwidth}
-        \centering\small\itshape
-        Систематизовані нотатки з теоретичної космології, що охоплюють
-        фізику раннього Всесвіту, динаміку скалярного інфлатонного поля,
-        генерацію первинних космологічних збурень та їхній відбиток
-        на анізотропії реліктового випромінювання (CMB).
-    \end{minipage}
+% ДЕКОРАТИВНА ЛІНІЯ (старовинна — з крапками)
+{\large $\cdot$ \hrulefill $\cdot$ \hrulefill $\cdot$} \\[0.2cm]
 
-    \vfill\vfill
+% ВИДАВНИЧИЙ БЛОК (як у львівських/київських стародруків)
+{\scshape Київ} \\[0.1cm]
+{\scshape У друкарні авторській} \\[0.1cm]
+{\small \scshape \uppercase\expandafter{\romannumeral\year}}
 
-    % Нижній видавничий блок
-    \rule{4cm}{0.5pt} \\[0.3cm]
-    {\large\scshape Київ} \\[0.15cm]
-    {\small 2026}
+\vspace{0.8cm}
 
-    \vspace*{0.5cm}
+% ГРУНТОВНИЙ КОЛОНТИТУЛ УНІЗУ
+{\tiny \textsc{impensis auctoris. — typis propriis.}}
+
 \end{titlepage}
-
 \clearpage
 % -------------------------------------------------------
 
