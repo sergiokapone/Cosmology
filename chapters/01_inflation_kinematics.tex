@@ -1,0 +1,462 @@
+% !TeX root = ../Cosmology.tex
+
+%% --------------------------------------------------------
+\chapter{Кінематика інфляції}
+\label{sec:inflation_kinematics}
+%% --------------------------------------------------------
+
+У попередньому розділі ми сформулювали три фундаментальні проблеми
+стандартної космології: плоскості, горизонту і первинних збурень.
+Цей розділ показує, як усі три вирішуються \emph{кінематично}~---
+без залучення конкретної мікрофізичної моделі~---
+якщо припустити, що до гарячої стадії Великого вибуху існувала
+коротка епоха прискореного розширення: \textbf{інфляція}.
+Мікрофізику~--- що саме рухає інфляцію~--- буде розглянуто в наступному
+розділі.
+
+\medskip\noindent
+\textbf{Логічна карта розділу}
+\begin{center}
+	\begin{tikzpicture}[roadmap]
+		\node[box] (prob) {3 проблеми $\Lambda$CDM};
+		\node[box, right=of prob] (kin) {Інфляція: $\ddot{a} > 0$};
+		\node[box, above right=0.3cm and 0.8cm of kin] (hor) {Горизонт};
+		\node[box, below right=0.3cm and 0.8cm of kin] (flat) {Плоскість};
+		\node[box, right=4.5cm of kin, fill=red!5, draw=red!70!black]
+		(efolds) {$N \gtrsim 60$};
+		\draw[arrow] (prob) -- (kin);
+		\draw[arrow] (kin) -- (hor);
+		\draw[arrow] (kin) -- (flat);
+		\draw[arrow] (hor) -- (efolds);
+		\draw[arrow] (flat) -- (efolds);
+		\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of prob, align=center]
+		{плоскість, горизонт, збурення};
+		\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of kin, align=center]
+		{конформний час $\eta < 0$};
+		\node[font=\scriptsize, gray, below=0.1cm of efolds] {необхідна тривалість};
+	\end{tikzpicture}
+\end{center}
+
+%% --------------------------------------------------------
+\section{Конформний час під час інфляції і горизонт Хаббла}
+\label{sec:conformal_inflation}
+%% --------------------------------------------------------
+
+Ключ до розуміння інфляції~--- конформний час $\eta$.
+Нагадаємо (§\,\ref{sec:horizon}): під час інфляції
+$a(t) = a_i e^{H_{\text{Inf}} t}$ при $H_{\text{Inf}} \approx \mathrm{const}$,
+тому:
+\begin{equation}\label{eq:eta_inflation}
+	\eta(t) = \int_{-\infty}^{t}\frac{dt'}{a_i e^{H_{\text{Inf}} t'}}
+	= -\frac{1}{a(t)H_{\text{Inf}}} = -\frac{1}{\mathcal{H}}.
+\end{equation}
+Вся інфляційна епоха відповідає $\eta \in (-\infty, 0)$,
+а конформний горизонт Хаббла:
+\begin{equation}\label{eq:conformal_horizon}
+	\mathcal{H}^{-1} = \frac{1}{a H_{\text{Inf}}} = -\eta
+\end{equation}
+\emph{спадає} з часом~--- саме це є кінематичним визначенням інфляції.
+Фізично: масштаби виходять за горизонт швидше, ніж встигають
+обмінятись сигналами.
+
+На рисунку~\ref{fig:conformal_inflation} та в подальших викладках
+ми позначаємо $\eta_{\text{Init}}$ конформний час у момент,
+коли найбільший спостережуваний сьогодні масштаб перетнув горизонт.
+Це скінченне число, яке і визначає $\Delta\eta_{\text{Inf}}$.
+
+Введемо позначення для ключових моментів конформного часу (рис.~\ref{fig:conformal_inflation}):
+\begin{align*}
+	\eta_\text{Init}   & \to -\infty                    \\
+	\eta_\text{End}    & = 0 \quad \text{--- кінець інфляції} \\
+	\eta_r             & > 0 \quad \text{--- розігрів,}                                                         \\
+	\eta_0             & > \eta_r \quad \text{--- сьогодні.}
+\end{align*}
+Конформні інтервали двох епох:
+\begin{equation}\label{eq:conformal_intervals}
+	\Delta\eta_{\text{Inf}} \equiv \eta_{\text{End}} - \eta_{\text{Init}}, \qquad
+	\Delta\eta_{\text{Bb}}  \equiv \eta_0 - \eta_{\text{End}}.
+\end{equation}
+
+%---------------------------------------------------------
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[
+    point/.style      = {circle, fill=red, inner sep=1.5pt},
+    label_text/.style = {font=\scriptsize, align=center},
+    arrow_line/.style = {-{Stealth}, thick},
+]
+
+% =============================================================
+% ПАРАМЕТРИ — міняй тільки тут
+% =============================================================
+\def\etaInit{-6}   % η_Init (відносно η_End ≡ 0)
+\def\etaEnd {0}      % η_End  ≡ 0 (вісь y)
+\def\etaR   {1.8}    % η_r  (рекомбінація)
+\def\etaZero{5.0}    % η_0  (сьогодні)
+\def\yMax   {4.2}    % верхня межа осі y
+\def\axisExt{0.5}    % виступ осей за межі
+
+% Нормування кривих (підбираються один раз)
+\def\scaleA {0.55}   % нахил a∝η після інфляції
+\def\scaleH {0.90}   % нахил H⁻¹∝η після інфляції
+\def\scaleAi{0.55}   % нормування гіперболи a під час інфляції
+
+% =============================================================
+% ОСІ
+% =============================================================
+\draw[arrow_line]
+    ({\etaInit - \axisExt}, 0) -- ({\etaZero + \axisExt}, 0)
+    node[right] {$\eta$};
+
+\draw[arrow_line]
+    (0, -0.3) -- (0, {\yMax + \axisExt})
+    node[above, font=\small] {};
+
+% Підписи функцій біля осі y
+\node[theoryred, font=\small, left=4pt] at (0, \yMax) {$a(\eta)$};
+\node[accent,    font=\small, right=4pt] at (0, \yMax) {$\mathcal{H}^{-1}(\eta)$};
+
+% =============================================================
+% КЛЮЧОВІ ВУЗЛИ НА ОСІ η
+% =============================================================
+\node[point, label=above:{$\eta_{\text{Init}}$}] (nInit) at (\etaInit, 0) {};
+\node[point, label=above:{$\eta_{\text{End}}$}] (nEnd) at (\etaEnd, 0) {};
+\node[point, label=above:{$\eta_r$}]  (nR)    at (\etaR,    0) {};
+\node[point, label=above:{$\eta_0$}]  (nZero) at (\etaZero, 0) {};
+
+% =============================================================
+% КРИВІ — ІНФЛЯЦІЙНА ЕПОХА  η ∈ [η_Init, η_End)
+%   a(η)        = scaleAi / (0.15 - η)   → гіпербола, ↑ при η→0⁻
+%   H⁻¹(η)     = scaleH  * (-η)          → лінійна,  ↓ при η→0⁻
+% =============================================================
+\draw[theoryred, thick, domain={\etaInit}:{-0.05}, samples=120]
+    plot (\x, {\scaleAi / (0.15 - \x)});
+
+\draw[accent, thick, domain={\etaInit}:{-0.05}, samples=80]
+    plot (\x, {\scaleH * (-\x)});
+
+% =============================================================
+% КРИВІ — ПОСТ-ІНФЛЯЦІЙНА ЕПОХА  η ∈ (η_End, η_0]
+%   a(η)    ∝ η  (радіаційна)
+%   H⁻¹(η) ∝ η  (зростає, різний нахил)
+% =============================================================
+\draw[theoryred, thick, domain={0.05}:{\etaZero}, samples=80]
+    plot (\x, {\scaleA * \x});
+
+\draw[accent, thick, domain={0.05}:{\etaZero}, samples=80]
+    plot (\x, {\scaleH * \x});
+
+% =============================================================
+% КОНФОРМНІ ІНТЕРВАЛИ (рівень \yMax - 0.3)
+% =============================================================
+\pgfmathsetmacro{\arrowY}{- 0.6}
+
+\draw[<->, thick, green!50!black]
+    ({\etaInit + 0.1}, \arrowY) -- ({\etaEnd - 0.1}, \arrowY);
+\node[font=\footnotesize, green!50!black, above] at ({(\etaInit)/2}, \arrowY)
+    {$\Delta\eta_{\text{Inf}}$};
+
+\draw[<->, thick, green!50!black]
+    ({\etaEnd + 0.1}, \arrowY) -- ({\etaZero - 0.1}, \arrowY);
+\node[font=\footnotesize, green!50!black, above] at ({(\etaR + \etaZero)/2}, \arrowY)
+    {$\Delta\eta_{\text{Bb}}$};
+
+% =============================================================
+% ЛЕГЕНДА (прив'язана до nEnd + зсув)
+% =============================================================
+\pgfmathsetmacro{\legX}{\etaR + 2}
+\pgfmathsetmacro{\legYa}{\yMax - 0.5}
+\pgfmathsetmacro{\legYb}{\yMax - 0.85}
+
+\draw[theoryred, thick] (\legX, \legYa) -- ({\legX + 0.8}, \legYa)
+    node[right, black, font=\scriptsize] {$a(\eta)$};
+\draw[accent,    thick] (\legX, \legYb) -- ({\legX + 0.8}, \legYb)
+    node[right, black, font=\scriptsize] {$\mathcal{H}^{-1}(\eta)$};
+
+% =============================================================
+% ПІДПИСИ ПОДІЙ ЗНИЗУ
+% =============================================================
+\node[label_text, below=1.5cm of nInit] (descInit)
+    {Початок інфляції\\(механізм~--- відкрите питання)};
+\draw[arrow_line] (descInit.north) -- (nInit);
+
+\node[label_text, below=1cm of nEnd] (descEnd)
+    {кінець інфляції,\\гарячий Великий вибух};
+\draw[arrow_line] (descEnd.north) -- (nEnd);
+
+\node[label_text, below=0.6cm of nR]    (descR)    {Рекомбінація};
+\draw[arrow_line] (descR.north) -- (nR);
+
+\node[label_text, below=1cm of nZero] (descZero) {Наш час};
+\draw[arrow_line] (descZero.north) -- (nZero);
+
+% =============================================================
+% РАМКА: умова вирішення проблеми горизонту
+% =============================================================
+%\node[draw=red!70!black, rounded corners=3pt, fill=red!5,
+%      font=\small\bfseries, text=red!70!black, align=center,
+%      anchor=north west] at ({\etaInit}, {\yMax + \axisExt - 0.05})
+%    {$\Delta\eta_{\text{Inf}} \gg \Delta\eta_{\text{Bb}}$\\
+%     \footnotesize вирішення проблеми горизонту};
+
+\end{tikzpicture}
+\caption{Еволюція масштабного фактора $a(\eta)$ (червона)
+    та конформного горизонту Хаббла $\mathcal{H}^{-1} = (aH)^{-1}$
+    (синя) у конформному часі. Вісь~$y$ проходить через
+    $\eta_{\text{End}}$. Під час інфляції $a$ зростає,
+    але $\mathcal{H}^{-1}$ \emph{спадає}~--- масштаби виходять
+    за горизонт і «замерзають». Після інфляції обидві величини
+    зростають і заморожені масштаби повертаються в горизонт.}
+\label{fig:conformal_inflation}
+\end{figure}
+%---------------------------------------------------------
+
+%% --------------------------------------------------------
+\section{Проблема горизонту і умова її вирішення}
+\label{sec:horizon_problem}
+%% --------------------------------------------------------
+
+\textbf{Нагадування проблеми.}
+CMB є однорідним з точністю $10^{-5}$ по всьому небу.
+Але в стандартній гарячій космології без інфляції ділянки неба,
+розділені більше ніж $\sim 2^\circ$, ніколи не перебували
+у причинному контакті: їхні горизонти частинок на момент
+рекомбінації не перетиналися. Звідки тоді однакова температура?
+
+\textbf{Розв'язання через конформний час.}
+Горизонт частинок~--- це максимальна відстань, з якої
+міг прийти сигнал від початку Всесвіту до моменту $\eta$:
+\begin{equation*}
+	l_H(\eta) = a(\eta)\int_{\eta_{\text{Init}}}^{\eta} d\eta'
+	= a(\eta)\,(\eta - \eta_{\text{Init}}).
+\end{equation*}
+Розмір горизонту на кінці інфляції $\eta_{\text{End}}$,
+\emph{розтягнутий} до сьогоднішнього розміру:
+\begin{equation}\label{eq:horizon_today}
+	l_{H,\text{End}}(\eta_0) = a_0\,(\eta_{\text{End}} - \eta_{\text{Init}})
+	= a_0\,\Delta\eta_{\text{Inf}}.
+\end{equation}
+Розмір нашої спостережуваної Всесвіту сьогодні:
+\begin{equation}\label{eq:observable_universe}
+	l_{H,0} = a_0\,(\eta_0 - \eta_{\text{End}}) = a_0\,\Delta\eta_{\text{Bb}}.
+\end{equation}
+Щоб весь спостережуваний Всесвіт поміщався всередині одного
+причинно-зв'я\-за\-ного регіону з часів інфляції, потрібно:
+\begin{equation}\label{eq:horizon_condition}
+	\boxed{l_{H,\text{End}}(\eta_0) \gg l_{H,0}
+		\quad\Leftrightarrow\quad
+		\Delta\eta_{\text{Inf}} \gg \Delta\eta_{\text{Bb}}.}
+\end{equation}
+Тобто конформний інтервал інфляції має бути набагато більшим
+за весь пост-інфляційний конформний час.
+
+\textbf{Чи виконується умова~\eqref{eq:horizon_condition}?}
+Обчислимо відношення. Для експоненціальної інфляції $a(t) = a_i e^{H_{\text{Inf}} t}$:
+\begin{equation*}
+	\Delta\eta_{\text{Inf}}
+	= \int_{t_{\text{Init}}}^{t_{\text{End}}} \frac{dt}{a_i e^{H_{\text{Inf}} t}}
+	= \frac{1}{H_{\text{Inf}} a_i}\left(e^{-H_{\text{Inf}}t_{\text{Init}}}
+	  - e^{-H_{\text{Inf}}t_{\text{End}}}\right)
+	\approx \frac{1}{H_{\text{Inf}} a_{\text{Init}}},
+\end{equation*}
+де останній крок використовує те, що підінтегральна функція
+$e^{-H_{\text{Inf}}t}$ \emph{спадає}: внесок нижньої межі
+$e^{-H_{\text{Inf}}t_{\text{Init}}}$ переважає над верхньою
+$e^{-H_{\text{Inf}}t_{\text{End}}} = e^{-N} e^{-H_{\text{Inf}}t_{\text{Init}}} \ll e^{-H_{\text{Inf}}t_{\text{Init}}}$.
+Пост-інфляційний інтервал оцінюється як $\Delta\eta_{\text{Bb}} \sim 1/(a_0 H_0)$. Тоді:
+\begin{equation}\label{eq:horizon_ratio}
+	\frac{\Delta\eta_{\text{Inf}}}{\Delta\eta_{\text{Bb}}} \sim e^N \cdot \frac{a_0 H_0}{a_{\text{End}} H_{\text{Inf}}} \gg 1.
+\end{equation}
+
+Щоб визначити необхідну тривалість інфляції ($N \equiv \ln(a_{\text{End}}/a_{\text{Init}})$),
+врахуємо зв'язок масштабів через температуру.
+Використовуючи закон червоного зміщення ($a \sim 1/T$),
+отримуємо $\frac{a_{\text{End}}}{a_0} \sim \frac{T_0}{T_{\text{reh}}}$.
+Підставляючи це в умову $\frac{\Delta\eta_{\text{Inf}}}{\Delta\eta_{\text{Bb}}} \gg 1$, маємо:
+\begin{equation*}
+	\frac{a_{\text{End}}}{a_{\text{Init}}} \gg \frac{T_0}{H_0} \cdot \frac{H_{\text{Inf}}}{T_{\text{reh}}}.
+\end{equation*}
+Логарифмуючи цей вираз, знаходимо нижню межу для кількості $e$-foldів:
+\begin{equation*}
+	N \gg \ln \left( \frac{T_0}{H_0} \right) + \ln \left( \frac{H_{\text{Inf}}}{T_{\text{reh}}} \right).
+\end{equation*}
+
+Щоб отримати числову оцінку, потрібно знати $H_{\text{Inf}}$.
+За порядком величини природно вважати, що максимально можливий
+масштаб інфляції --- планківський: $H_{\text{Inf}} \lesssim M_{\text{Pl}}$.
+Це не сувора межа, а розумна верхня оцінка: якби $H_{\text{Inf}}$ було
+набагато меншим, то й $N$ було б більшим, що лише посилює виконання
+умов. Тому для оцінки мінімально необхідного $N$ ми можемо взяти
+$H_{\text{Inf}} \sim M_{\text{Pl}}$.
+
+Тоді:
+\begin{equation*}
+	N \gg 67 + \ln\left(\frac{M_{\text{Pl}}}{T_{\text{reh}}}\right).
+\end{equation*}
+
+Для типових значень $T_{\text{reh}} \sim 10^{15}$~GeV маємо
+$\ln(M_{\text{Pl}}/T_{\text{reh}}) \approx -4.6$, звідки $N \gg 62.4$,
+тобто $N \gtrsim 60$.
+
+\begin{keybox}{Залежність від температури розігріву}
+	Оцінка $N$ чутливо залежить від $T_{\text{reh}}$:
+	\begin{itemize}
+		\item Високий розігрів ($T_{\text{reh}} \sim 10^{15}$~GeV):
+		      $\ln(M_{\text{Pl}}/T_{\text{reh}}) \approx -4.6$,
+		      $N \gtrsim 62$.
+		\item Типовий діапазон ($T_{\text{reh}} \sim 10^{13}$~GeV):
+		      $\ln(M_{\text{Pl}}/T_{\text{reh}}) \approx -7.8$,
+		      $N \gtrsim 59$.
+		\item Низький розігрів ($T_{\text{reh}} \sim 10^3$~GeV):
+		      $\ln(M_{\text{Pl}}/T_{\text{reh}}) \approx -34.5$,
+		      $N \gtrsim 33$.
+	\end{itemize}
+	Оскільки більшість реалістичних моделей тяжіють до високих
+	масштабів енергій ($10^{13}$--$10^{15}$~GeV),
+	у космології як стандартне базове значення приймають
+	$N \gtrsim 55$--$65$.
+\end{keybox}
+
+Таким чином, у природних сценаріях інфляції вимога $N \gtrsim 60$
+гарантовано вирішує проблему горизонту.
+
+%% --------------------------------------------------------
+\section{Проблема плоскості і мінімальна кількість $e$-foldів}
+\label{sec:flatness_efolds}
+%% --------------------------------------------------------
+
+З розділу~\ref{subsec:flatness_paradox} нагадаємо, що під час інфляції
+($w \approx -1$) відхилення від плоскості \emph{спадає}:
+\begin{equation*}
+	|\Omega_{\text{tot}} - 1| = \frac{k}{a^2 H^2} \propto e^{-2H_{\text{Inf}} t}.
+\end{equation*}
+Після $N$ $e$-foldів початкове відхилення $|\Omega - 1|_i \sim 1$
+пригнічується до:
+\begin{equation*}
+	|\Omega_{\text{tot}} - 1|_{\text{End}} \approx e^{-2N}.
+\end{equation*}
+Щоб сьогодні мати $|\Omega_k| < 0.005$, враховуючи, що після інфляції
+відхилення \emph{зростає} як $a^2$ (§\,\ref{subsec:flatness_paradox}),
+отримуємо умову:
+\begin{equation}\label{eq:flatness_efolds}
+	e^{-2N} \cdot \left(\frac{a_0}{a_{\text{End}}}\right)^2 \lesssim 0.005.
+\end{equation}
+Підставляючи $a_0/a_{\text{End}} = T_{\text{reh}}/T_0$
+(із закону збереження ентропії $a \propto 1/T$) і
+$T_{\text{reh}} \sim 10^{15}$~GeV, $T_0 \sim 10^{-4}$~eV, знаходимо:
+\begin{equation*}
+	\frac{a_0}{a_{\text{End}}} \sim \frac{10^{15}\,\text{GeV}}{10^{-13}\,\text{GeV}}
+	= 10^{28} \approx e^{64},
+\end{equation*}
+тому умова~\eqref{eq:flatness_efolds} дає:
+\begin{equation}\label{eq:N_min}
+	\boxed{N \gtrsim 60.}
+\end{equation}
+
+%% --------------------------------------------------------
+\section{Проблема первинних збурень}
+\label{sec:primordial_perturbations_bridge}
+%% --------------------------------------------------------
+
+\textbf{Нагадування проблеми.}
+Модель $\Lambda$CDM приймає початковий спектр флуктуацій густини
+як феноменологічний вхідний параметр ($A_s \approx 2.1\times10^{-9}$,
+$n_s \approx 0.965$). Але \enquote{звідки} взялися ці флуктуації
+і чому спектр майже степеневий~--- стандартна космологія мовчить.
+
+\textbf{Роль інфляції.}
+Кінематика інфляції створює необхідні умови для генерації збурень:
+експоненціальне розтягнення простору перетворює мікроскопічні квантові
+флуктуації в макроскопічні неоднорідності. Однак сам механізм
+народження збурень потребує залучення мікрофізики~---
+квантової теорії поля інфлатона. Це буде детально розглянуто
+в розділі~\ref{sec:quantum}. Тут лише зазначимо, що інфляція
+не лише вирішує проблеми горизонту і плоскості, а й забезпечує
+природне походження первинних неоднорідностей~--- головне
+джерело великомасштабної структури Всесвіту.
+
+%% --------------------------------------------------------
+\section{Місток: від кінематики до мікрофізики}
+\label{sec:kinematics_bridge}
+%% --------------------------------------------------------
+
+Ми встановили, що інфляція \emph{кінематично} вирішує проблеми
+горизонту і плоскості за умови $N \gtrsim 60$, а також створює
+умови для генерації первинних збурень.
+Але залишається відкритим питання: \emph{що} фізично рухає інфляцію?
+
+Прискорене розширення $\ddot{a} > 0$ вимагає (з другого рівняння
+Фрідмана~\eqref{eq:F2}):
+\begin{equation*}
+	\rho + \frac{3p}{c^2} < 0 \quad\Rightarrow\quad w < -\frac{1}{3}.
+\end{equation*}
+Жодна відома форма звичайної матерії не задовольняє цю умову.
+Тому вводять \textbf{інфлатон}~--- скалярне поле $\phi$ з потенціалом
+$V(\phi)$, яке при повільному скоченні вздовж пологого схилу
+забезпечує $w \approx -1$.
+Динаміці інфлатона присвячений наступний розділ.
+
+			Інфляція --- це кінематичний механізм, який при $N \gtrsim 60$:
+			\begin{enumerate}
+				\item розв'язує проблему горизонту ($\Delta\eta_{\text{Inf}} \gg \Delta\eta_{\text{Bb}}$),
+				\item розв'язує проблему плоскості (експоненціальне пригнічення $\Omega_k$),
+				\item створює умови для генерації первинних збурень.
+			\end{enumerate}
+			Мікрофізична реалізація вимагає скалярного поля --- інфлатона.
+
+%% --------------------------------------------------------
+\section*{Задачі}
+\addcontentsline{toc}{section}{Задачі}
+%% --------------------------------------------------------
+
+\begin{problem}{Конформний час під час інфляції}
+	Показати, що для де-Сіттерівського розширення
+	$a(\eta) = -1/(H_{\text{Inf}}\eta)$ при $\eta \in (-\infty, 0)$.
+	Перевірити, що $\mathcal{H} = a H_{\text{Inf}} = -1/\eta$.
+
+	\textit{Вказівка:} підставте $a(t) = a_i e^{H_{\text{Inf}}t}$
+	у визначення конформного часу $d\eta = dt/a(t)$ і проінтегруйте.
+	Нормування обрати так, щоб $\eta \to 0^-$ при $t \to +\infty$.
+
+	\textit{Відповідь:} $\eta = -\frac{1}{a(t)H_{\text{Inf}}}$,
+	звідки $a(\eta) = -\frac{1}{H_{\text{Inf}}\eta}$
+	і $\mathcal{H} \equiv \frac{a'}{a} = -\frac{1}{\eta} = aH_{\text{Inf}}$.
+\end{problem}
+
+% -------------------------------------------------------------------
+
+\begin{problem}{Мінімальна кількість $e$-foldів}
+	Оцінити мінімальне $N$ з умови, що горизонт частинок на кінці
+	інфляції, розтягнутий до сьогодні, перевищує розмір
+	спостережуваного Всесвіту $c/H_0$.
+	Використати $T_{\text{rh}} \sim 10^{15}$~GeV і $T_0 \sim 10^{-4}$~eV.
+\end{problem}
+
+% -------------------------------------------------------------------
+
+\begin{problem}{Проблема горизонту без інфляції}
+	Оцінити кут на небі, що відповідає горизонту частинок на момент
+	рекомбінації ($z_* \approx 1100$) у стандартній космології без інфляції.
+	Порівняти з кутовим розміром однорідної ділянки CMB.
+
+	\textit{Вказівка:} фізичний розмір горизонту на рекомбінації
+	$l_H(z_*) \approx c/H(z_*)$, де $H(z_*) \approx H_0\,\Omega_m^{1/2}(1+z_*)^{3/2}$.
+	Кутовий розмір~--- це $\theta \approx l_H(z_*)/d_A(z_*)$,
+	де $d_A(z_*) \approx c/H_0 \cdot 2/(1+z_*)^{1/2}$.
+
+	\textit{Відповідь:} $\theta \approx \Omega_m^{1/2}/(1+z_*)^{1/2} \approx 1.7^\circ$~---
+	саме стільки охоплює один причинно-зв'язаний патч на карті CMB.
+	Оскільки таких патчів $\sim (180^\circ/1.7^\circ)^2 \sim 10^4$,
+	виникає питання: чому всі вони мають однакову температуру?
+\end{problem}
+
+% -------------------------------------------------------------------
+
+\begin{problem}{Об'єднана умова на $N$ з плоскості}
+	Використовуючи вирази для еволюції $|\Omega_{\text{tot}}-1|$ під час
+	інфляції ($\propto e^{-2N}$) та після ($\propto a^2$),
+	отримайте умову на $N$ з вимоги $|\Omega_k(t_0)| < 0.005$.
+	Оцініть мінімальне $N$ для $T_{\text{reh}} = 10^{15}$~GeV та $T_{\text{reh}} = 10^3$~GeV.
+	\textit{Відповідь:} $N \gtrsim 60$ для високого розігріву,
+	$N \gtrsim 30$ для низького.
+\end{problem}
