@@ -70,7 +70,7 @@
 \usepackage[english, russian, ukrainian]{babel}
 
 \usepackage{geometry}
-\geometry{margin=2.5cm}
+\geometry{margin=2cm}
 
 \usepackage[psdextra]{hyperref}
 
@@ -123,6 +123,33 @@
 
 
 \usetikzlibrary{decorations.text}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric}
+
+\tikzset{
+    roadmap/.style={
+        node distance=0.9cm,
+        every node/.style={font=\small},
+        box/.style={
+            rectangle,
+            draw=brown!60!black,
+            fill=yellow!15,
+            rounded corners=2pt,
+            minimum width=2.2cm,
+            minimum height=0.8cm,
+            align=center,
+            thick,
+            double,
+            double distance=1pt,
+            drop shadow={shadow xshift=1pt, shadow yshift=-1pt, opacity=0.4}
+        },
+        arrow/.style={
+            -{Stealth[length=2.5mm]},
+            draw=brown!50!black,
+            line width=0.4mm
+        }
+    }
+}
+
 \usepackage[tikz]{bclogo} % для глаза
 
 \usepackage{indentfirst}

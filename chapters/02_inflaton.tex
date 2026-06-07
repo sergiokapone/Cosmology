@@ -22,11 +22,34 @@
 Всесвіт є крихітною та сильно вирівняною областю набагато більшого
 початкового об'єму.
 
-\medskip
-\noindent\textbf{Логічна карта розділу:}
-$V(\phi) \;\longrightarrow\; \varepsilon,\,\eta_V \;\longrightarrow\;
-a(t) \sim e^{Ht} \;\longrightarrow\; \mathcal{P}_{\mathcal{R}}(k,n_s,r)
-\;\longrightarrow\; \text{розігрів}$.
+%\medskip
+%\noindent\textbf{Логічна карта розділу:}
+%$V(\phi) \;\longrightarrow\; \varepsilon,\,\eta_V \;\longrightarrow\;
+%a(t) \sim e^{Ht} \;\longrightarrow\; \mathcal{P}_{\mathcal{R}}(k,n_s,r)
+%\;\longrightarrow\; \text{розігрів}$.
+\begin{center}
+\begin{tikzpicture}[roadmap]
+
+\node[box] (V) {$V(\phi)$};
+\node[box, right=of V] (params) {$\varepsilon,\eta_V$};
+\node[box, right=of params] (expansion) {$a\sim e^{Ht}$};
+\node[box, right=of expansion] (spectrum) {$n_s,r$};
+\node[box, right=of spectrum, fill=red!5, draw=red!70!black] (reheat) {Розігрів};
+
+\draw[arrow] (V) -- (params);
+\draw[arrow] (params) -- (expansion);
+\draw[arrow] (expansion) -- (spectrum);
+\draw[arrow] (spectrum) -- (reheat);
+
+% Підписи зверху
+\node[font=\tiny, gray, above=0.1cm of V] {Двигун};
+\node[font=\tiny, gray, above=0.1cm of params] {Slow-roll};
+\node[font=\tiny, gray, above=0.1cm of expansion] {Розширення};
+\node[font=\tiny, gray, above=0.1cm of spectrum] {Спостереження};
+\node[font=\tiny, gray, above=0.1cm of reheat] {Естафета};
+
+\end{tikzpicture}
+\end{center}
 
 \medskip
 \noindent\textbf{Крок 1: $V(\phi)$~--- двигун інфляції.}
@@ -463,6 +486,26 @@ n_s - 1 = -2\epsilon_V - \eta_V.
 \end{problem}
 
 % -------------------------------------------------------------------
+
+\begin{problem}{Чому поле Хіггса не може бути інфлатоном?}
+Потенціал Хіггса Стандартної моделі має вигляд
+\[
+V(h) = \frac{\lambda}{4}\left(h^2 - v^2\right)^2,
+\]
+де $v \approx 246$~GeV --- вакуумне очікуване значення, $\lambda \approx 0.13$,
+а $M_{\mathrm{Pl}} \approx 2.4 \times 10^{18}$~GeV.
+
+\begin{enumerate}
+    \item При $h \gg v$ спростіть потенціал до вигляду $V(h) \approx \frac{\lambda}{4}h^4$.
+    \item Використовуючи визначення $\epsilon_V = \dfrac{M_{\mathrm{Pl}}^2}{2}\left(\dfrac{V'}{V}\right)^2$,
+          обчисліть $\epsilon_V$ як функцію $h$.
+    \item Якщо інфляція відбувається при $h \sim M_{\mathrm{Pl}}$, то яке значення має $\epsilon_V$?
+          Чи виконується умова інфляції $\epsilon_V < 1$? Зробіть висновок, чи може стандартне
+          поле Хіггса виступати в ролі інфлатона.
+    \item Відомо, що додавання до дії члена $\xi h^2 R$ (не мінімальний зв'язок із гравітацією)
+          може зробити поле Хіггса придатним для інфляції. Чому цей член змінює ситуацію?
+\end{enumerate}
+\end{problem}
 
 %\begin{problem}{Чи може інфляція тривати вічно? (Вічна інфляція)}
 %

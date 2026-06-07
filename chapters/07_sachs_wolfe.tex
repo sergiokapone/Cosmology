@@ -22,6 +22,76 @@
 \label{fig:planck_map}
 \end{figure}
 
+\medskip
+\noindent\textbf{Логічна карта розділу}
+
+% ------------------------------
+% Логічна карта розділу 7 (ефект Закса-Вольфа)
+% ------------------------------
+\begin{center}
+\begin{tikzpicture}[roadmap]
+
+\node[box] (Theta) {$\Theta_0(\eta_{\text{rec}})$};
+\node[box, right=of Theta] (Phi) {$\Phi$};
+\node[box, right=of Phi] (SW) {SW ефект};
+\node[box, right=of SW] (harm) {Гармоніки};
+\node[box, right=of harm, fill=red!5, draw=red!70!black] (Dl) {$\mathcal{D}_\ell^{TT}$};
+
+\draw[arrow] (Theta) -- (Phi);
+\draw[arrow] (Phi) -- (SW);
+\draw[arrow] (SW) -- (harm);
+\draw[arrow] (harm) -- (Dl);
+
+% Підписи зверху
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of Theta, align=center] {Заморожені\\ коливання};
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of Phi, align=center] {Гравітаційний\\потенціал};
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of SW, align=center] {Червоне\\зміщення};
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of harm, align=center] {Розклад за $Y_{\ell m}$};
+\node[font=\tiny\bfseries, text=red!70!black, above=0.1cm of Dl, align=center] {Кутовий спектр};
+
+% Пояснення знизу
+\node[font=\scriptsize, gray, below=0.1cm of Theta, align=center] {акустичні\\осциляції};
+\node[font=\scriptsize, gray, below=0.1cm of Phi] {від $R_k$};
+\node[font=\scriptsize, gray, below=0.1cm of SW] {$\Theta_0 + \Phi$};
+\node[font=\scriptsize, gray, below=0.1cm of harm] {$a_{\ell m}$};
+\node[font=\scriptsize, gray, below=0.1cm of Dl] {піки, плато};
+
+\end{tikzpicture}
+\end{center}
+
+\medskip
+\noindent\textbf{Крок 1: $\Theta_0$ та $\Phi$ на поверхні останнього розсіяння.}
+Після рекомбінації ($z \approx 1100$) фотони вільно летять до нас.
+Їхня температура модулюється двома ефектами: внутрішньою
+температурною флуктуацією $\Theta_0$ (акустичні осциляції) та
+гравітаційним червоним зміщенням $\Phi$ при виході з потенціальних ям.
+
+\medskip
+\noindent\textbf{Крок 2: ефект Закса-Вольфа.}
+Комбінація $(\Theta_0 + \Phi)_{\text{rec}}$ є калібрувально-інваріантною
+і безпосередньо визначає температурну анізотропію на поверхні
+останнього розсіяння. На супергоризонтних масштабах вона дає
+плато; на субхабблових — акустичні піки.
+
+\medskip
+\noindent\textbf{Крок 3: проекція на небесну сферу.}
+Розкладаємо карту $\delta T/T(\theta,\phi)$ за сферичними
+гармоніками $Y_{\ell m}(\theta,\phi)$. Коефіцієнти $a_{\ell m}$
+містять інформацію про всі масштаби.
+
+\medskip
+\noindent\textbf{Крок 4: кутовий спектр потужності.}
+Усереднення за $m$ дає $C_\ell = \langle |a_{\ell m}|^2 \rangle$ —
+статистичну характеристику, інваріантну відносно орієнтації.
+Масштабований спектр $\mathcal{D}_\ell = \ell(\ell+1)C_\ell/(2\pi)$
+візуально виділяє акустичні піки.
+
+\medskip
+\noindent\textbf{Крок 5: баріонне завантаження.}
+Параметр $R = 3\rho_b/4\rho_\gamma$ асиметризує піки:
+непарні піки підсилюються відносно парних, що дозволяє
+виміряти $\Omega_b h^2$.
+
 З погляду релятивістської кінетичної теорії, повна варіація температури у заданому напрямку $\hat{\mathbf{n}}$ описується калібровочно-інваріантним рівнянням, що враховує як внутрішні властивості плазми, так і геометрію простору-часу \cite{hu_sugiyama_1995}:
 \begin{equation}\label{eq:cmb_sources_combined}
   \frac{\delta T}{T}(\hat{\mathbf{n}}) = \left( \Theta_0 + \Phi \right)_{\mathrm{rec}} + \left( \hat{\mathbf{n}} \cdot \mathbf{v}_b \right)_{\mathrm{rec}} + 2 \int_{\eta_{\mathrm{rec}}}^{\eta_0} \frac{\partial \Phi}{\partial \eta} \, d\eta,

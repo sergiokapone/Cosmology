@@ -9,7 +9,7 @@
 інфляції порушується ($\varepsilon \to 1$) і прискорене
 розширення припиняється. Але Всесвіт у цей момент
 перебуває у парадоксальному стані: він розширився в
-$e^{50}$--$e^{60}$ разів, охолов майже до абсолютного нуля
+$e^{50} - e^{60}$ разів, охолов майже до абсолютного нуля
 і є практично порожнім~--- вся енергія зосереджена у
 вигляді однорідних класичних коливань поля $\phi$ навколо
 мінімуму. Жодної плазми, жодних часток Стандартної моделі.
@@ -23,6 +23,39 @@ $e^{50}$--$e^{60}$ разів, охолов майже до абсолютног
 резонанс за лічені осциляції перекачує енергію з поля у
 частинки, а потім повільний \textbf{пертурбативний розпад},
 де залишки інфлатона розпадаються і система термалізується.
+
+\medskip
+\noindent
+\textbf{Логічна карта розділу}
+% ------------------------------
+% Логічна карта розділу 5 (розігрів)
+% ------------------------------
+\begin{center}
+\begin{tikzpicture}[roadmap]
+
+\node[box] (osc) {$\phi(t) \approx \Phi_0\sin(mt)$};
+\node[box, right=of osc] (pre) {Пре-розігрів};
+\node[box, right=of pre] (pert) {Розпад};
+\node[box, right=of pert, fill=red!5, draw=red!70!black] (therm) {Термалізація};
+
+\draw[arrow] (osc) -- (pre);
+\draw[arrow] (pre) -- (pert);
+\draw[arrow] (pert) -- (therm);
+
+% Підписи зверху (одним рядком з переносом)
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of osc, align=center] {Осциляції\\ інфлатона};
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of pre, align=center] {Параметричний\\ резонанс};
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of pert, align=center] {Пертурбативний\\ ($\Gamma_\phi$)};
+\node[font=\tiny\bfseries, text=red!70!black, above=0.1cm of therm, align=center] {Гаряча плазма};
+
+% Пояснення знизу
+\node[font=\scriptsize, gray, below=0.1cm of osc] {$\rho_\phi \propto a^{-3}$};
+\node[font=\scriptsize, gray, below=0.1cm of pre] {$N_k \propto e^{2\mu_k mt}$};
+\node[font=\scriptsize, gray, below=0.1cm of pert] {$H \sim \Gamma_\phi$};
+\node[font=\scriptsize, gray, below=0.1cm of therm] {$T_{\mathrm{rh}} \sim \sqrt{M_{\mathrm{Pl}}\Gamma_\phi}$};
+
+\end{tikzpicture}
+\end{center}
 
 %%% --------------------------------------------------------
 %\section{Прерозігрів та параметричний резонанс}

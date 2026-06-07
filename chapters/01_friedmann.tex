@@ -20,6 +20,42 @@ $d(t) = a(t)\,d_0/a(t_0)$.
 Нормуємо $a(t_0) \equiv 1$: тоді $a < 1$ означає минуле
 (Всесвіт менший), $a > 1$~--- майбутнє.
 
+\medskip\noindent%
+\textbf{Логічна карта розділу}
+% ------------------------------
+% Логічна карта розділу 1 (фонова космологія)
+% ------------------------------
+\begin{center}
+\begin{tikzpicture}[roadmap]
+
+\node[box] (FLRW) {Метрика FLRW};
+\node[box, right=of FLRW] (Friedmann) {Рівняння\\ Фрідмана};
+\node[box, right=of Friedmann] (EOS) {Рівняння\\ стану};
+\node[box, right=of EOS] (LCDM) {$\Lambda$CDM};
+\node[box, right=of LCDM, fill=red!5, draw=red!70!black] (problems) {Проблеми};
+
+\draw[arrow] (FLRW) -- (Friedmann);
+\draw[arrow] (Friedmann) -- (EOS);
+\draw[arrow] (EOS) -- (LCDM);
+\draw[arrow] (LCDM) -- (problems);
+
+% Підписи зверху
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of FLRW, align=center] {Однорідність\\ та ізотропія};
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of Friedmann, align=center] {Динаміка $a(t)$};
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of EOS, align=center] {$w = p/(\rho c^2)$};
+\node[font=\tiny\bfseries, text=blue!70!black, above=0.1cm of LCDM, align=center] {Плоский\\ Всесвіт};
+\node[font=\tiny\bfseries, text=red!70!black, above=0.1cm of problems, align=center] {Що не так?};
+
+% Пояснення знизу
+\node[font=\scriptsize, gray, below=0.1cm of FLRW] {$ds^2 = -c^2dt^2 + a^2\delta_{ij}dx^idx^j$};
+\node[font=\scriptsize, gray, below=0.1cm of Friedmann] {$H^2 = \frac{8\pi G}{3}\rho$};
+\node[font=\scriptsize, gray, below=0.1cm of EOS] {$\rho \propto a^{-3(1+w)}$};
+\node[font=\scriptsize, gray, below=0.1cm of LCDM] {$\Omega_m + \Omega_\Lambda = 1$};
+\node[font=\scriptsize, gray, below=0.1cm of problems, align=center] {плоскість, \\горизонт, збурення};
+
+\end{tikzpicture}
+\end{center}
+
 Метрика FLRW у \emph{космологічному (власному) часі}~$t$ для загального випадку
 тривимірного простору з постійною кривизною $k = \pm 1, 0$ записується як:
 \begin{equation}\label{eq:FLRW_general}
@@ -33,8 +69,8 @@ $d(t) = a(t)\,d_0/a(t_0)$.
 Підставляючи метричний тензор у рівняння Айнштайна
 $G_{\mu\nu} + \Lambda g_{\mu\nu} = \dfrac{8\pi G}{c^4}\,T_{\mu\nu}$ та моделюючи космічний
 субстрат як \textbf{ідеальну гідродинамічну рідину}, ми задаємо тензор
-енергії-імпульсу у \textbf{сопутній системі відліку}%
-\footnote{Сопутня система відліку~--- це система спостерігача, який
+енергії-імпульсу у \textbf{супутній системі відліку}%
+\footnote{Супутня система відліку~--- це система спостерігача, який
   «пливе» разом із космологічним розширенням, тобто має нульову пекулярну
   швидкість. У такій системі речовина локально перебуває у спокої, і
   тензор $T^{\mu}{}_\nu$ набуває діагонального вигляду.}
