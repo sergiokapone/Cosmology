@@ -275,6 +275,32 @@
 \pgfplotstableread{data/LCDM.txt}\theorydata
 
 
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+% Очищаем всё
+\fancyhf{}
+
+% Чётные страницы (слева) — название главы
+\fancyhead[LE]{\nouppercase{\leftmark}}
+
+
+% Нечётные страницы (справа) — название раздела
+\fancyhead[RO]{\nouppercase{\rightmark}}
+
+% Номер страницы внизу по центру
+\fancyfoot[C]{\thepage}
+
+% Убираем заглавные буквы (чтобы было как в тексте)
+%\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+%\renewcommand{\sectionmark}[1]{\markright{#1}}
+
+% Линия сверху
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Чтобы избежать предупреждения LaTeX
+\setlength{\headheight}{14.5pt}
+
 % ==========================================
 % ПОЧАТОК ДОКУМЕНТА ТА СТРУКТУРИ
 % ==========================================
@@ -361,7 +387,7 @@
 % -------------------------------------------------------
 
 \tableofcontents
-\pagestyle{plain}
+%\pagestyle{plain}
 
 %% --------------------------------------------------------
 \chapter*{Передмова}
@@ -432,18 +458,17 @@ CAMB/CLASS та байєсівського аналізу (MCMC).
 \input{chapters/06_plasma_acoustics}
 \input{chapters/07_sachs_wolfe}
 \input{chapters/08_cmb_polarisation}
-\input{chapters/09_chaotic_inflation}
 
 %% --------------------------------------------------------
 \part{Невирішені проблеми}
 %% --------------------------------------------------------
-\input{chapters/10_future_research}
+\input{chapters/09_future_research}
 
 %% --------------------------------------------------------
 \part{Чисельні методи}
 %% --------------------------------------------------------
-\input{chapters/11_software}
-\input{chapters/12_practical_guide}
+\input{chapters/10_software}
+\input{chapters/11_practical_guide}
 
 %% --------------------------------------------------------
 \appendix
