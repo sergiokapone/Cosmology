@@ -39,6 +39,41 @@ h1 {
   font-size: 13px;
 }
 .btn:hover { background: #2a2a3e; }
+.info {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-left: 3px solid #378ADD;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #b0aea6;
+}
+.info h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8e6de;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+.info .formula {
+  font-family: 'Georgia', serif;
+  font-size: 14px;
+  color: #c8e4ff;
+  background: rgba(55,138,221,0.08);
+  border-radius: 5px;
+  padding: 6px 12px;
+  margin: 6px 0;
+  display: inline-block;
+}
+.info .cols {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.info .col { flex: 1; min-width: 220px; }
 .panels {
   display: flex;
   gap: 20px;
@@ -47,7 +82,7 @@ h1 {
 .panel { flex: 1; }
 canvas {
   display: block;
-  width:75%;
+  width: 100%;
   border-radius: 8px;
 }
 .cap {
@@ -73,6 +108,29 @@ canvas {
 </div>
 
 <button class="btn" onclick="randomize()">Нові центри</button>
+
+<div class="info">
+  <h2>Що таке BAO і як рахується r<sub>s</sub>?</h2>
+  <div class="cols">
+    <div class="col">
+      <b style="color:#e8e6de">Фізична ідея.</b> У ранньому Всесвіті баріонно-фотонна плазма була пов'язана тиском випромінювання. Флуктуації густини породжували акустичні хвилі зі швидкістю звуку <i>c<sub>s</sub></i>. Після рекомбінації (~380 000 років) хвилі «замерзли» на характерному радіусі — <b style="color:#c8e4ff">звуковому горизонті r<sub>s</sub></b>. Галактики й досі кластеризовані з перевагою саме на цій відстані.
+    </div>
+    <div class="col">
+      <b style="color:#e8e6de">Звуковий горизонт:</b><br>
+      <span class="formula">r<sub>s</sub> = ∫₀<sup>z*</sup> c<sub>s</sub>(z) / H(z) · dz</span><br>
+      <i>z*</i> ≈ 1090 — червоний зсув рекомбінації, <i>H(z)</i> — параметр Хаббла.<br>
+      <span class="formula">c<sub>s</sub> = c / √(3(1 + R<sub>b</sub>))</span><br>
+      <i>R<sub>b</sub></i> = 3ρ<sub>b</sub>/4ρ<sub>γ</sub> — баріони/фотони. У ΛCDM: <b style="color:#c8e4ff">r<sub>s</sub> ≈ 147 Мпк</b>.
+    </div>
+    <div class="col">
+      <b style="color:#e8e6de">Кореляційна функція:</b><br>
+      <span class="formula">ξ(r) = DD(r) / RR(r) − 1</span><br>
+      <i>DD(r)</i> — реальні пари на відстані <i>r</i>,<br>
+      <i>RR(r)</i> — очікувана кількість для рівномірного розподілу (~r у 2D).<br>
+      BAO пік — горб на <i>ξ(r)</i> при <i>r = r<sub>s</sub></i>.
+    </div>
+  </div>
+</div>
 
 <div class="panels">
   <div class="panel">
