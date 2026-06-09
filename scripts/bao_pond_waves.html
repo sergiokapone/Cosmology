@@ -157,6 +157,10 @@ canvas {
   супутні координати
   <span class="hint">(точки нерухомі, тільки кола ростуть)</span>
 </label>
+<label class="check-row">
+  <input type="checkbox" id="modesCheck">
+  показувати графік акустичних мод
+</label>
 
 <div class="panels">
   <div class="panel">
@@ -168,6 +172,11 @@ canvas {
     <p class="cap">кількість пар галактик на відстані r — горб це BAO пік</p>
   </div>
 </div>
+<div id="modesPanel" style="margin-top: 20px; display: none;">
+  <canvas id="modesCanvas" style="display:block; width:100%; border-radius:8px;"></canvas>
+  <p class="cap">еволюція акустичних мод Θ₀(η) = δ_γ/4 у конформному часі — амплітуда в момент η<sub>rec</sub> формує піки CMB</p>
+</div>
+
 
 <script>
 const SIZE = 560;
@@ -402,7 +411,121 @@ function resetSim() {
   randomize();
 }
 
-function draw() { drawPond(); drawCorr(); }
+
+function drawModes() {
+  const canvas = document.getElementById('modesCanvas');
+  const W = canvas.parentElement.clientWidth || 1120;
+  const H = Math.round(W * 0.22);
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, W, H);
+
+  const padL = 52, padR = 40, padT = 24, padB = 36;
+  const gW = W - padL - padR;
+  const gH = H - padT - padB;
+
+  // grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 0.5;
+  [-1, 0, 1].forEach(v => {
+    const y = padT + gH * (1 - (v + 1) / 2);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + gW, y); ctx.stroke();
+  });
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(x => {
+    const px = padL + x / 1.15 * gW;
+    ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, padT + gH); ctx.stroke();
+  });
+
+  // zero line
+  const zeroY = padT + gH * 0.5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(padL, zeroY); ctx.lineTo(padL + gW, zeroY); ctx.stroke();
+
+  // η_rec line — відповідає поточному tNow нормованому
+  const etaRec = 1.0;
+  const etaNow = Math.min(tNow / 105, 1.0); // зупиняємось на η_rec=1.0
+  const recX = padL + etaNow / 1.15 * gW;
+  ctx.strokeStyle = '#E24B4A';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(recX, padT); ctx.lineTo(recX, padT + gH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#E24B4A';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'left';
+  ctx.fillText('η = ' + etaNow.toFixed(2), recX + 4, padT + 11);
+
+  // modes
+  const modes = [
+    { n: 1, color: '#5B9CF6', label: 'k₁: 1-й пік' },
+    { n: 2, color: '#F6A35B', label: 'k₂: 2-й пік' },
+    { n: 3, color: '#6FCF8A', label: 'k₃: 3-й пік' },
+  ];
+
+  modes.forEach(m => {
+    ctx.strokeStyle = m.color;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    const steps = 300;
+    for (let i = 0; i <= steps; i++) {
+      const eta = i / steps * 1.15;
+      const val = Math.cos(m.n * Math.PI * eta);
+      const px = padL + eta / 1.15 * gW;
+      const py = padT + gH * (1 - (val + 1) / 2);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // dot at current eta
+    const valNow = Math.cos(m.n * Math.PI * etaNow);
+    const dotX = recX;
+    const dotY = padT + gH * (1 - (valNow + 1) / 2);
+    ctx.beginPath();
+    ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
+    ctx.fillStyle = m.color;
+    ctx.fill();
+  });
+
+  // axis labels
+  ctx.fillStyle = '#888';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(x => {
+    const label = x === 1.0 ? 'η_rec' : x.toString();
+    ctx.fillText(label, padL + x / 1.15 * gW, padT + gH + 14);
+  });
+  ctx.fillText('конформний час η', padL + gW / 2, padT + gH + 30);
+
+  ctx.textAlign = 'right';
+  [[-1,'−1'],[0,'0'],[1,'1']].forEach(([v, lbl]) => {
+    const y = padT + gH * (1 - (v + 1) / 2);
+    ctx.fillText(lbl, padL - 6, y + 4);
+  });
+
+  // legend
+  modes.forEach((m, i) => {
+    const lx = padL + gW - 120;
+    const ly = padT + 14 + i * 16;
+    ctx.strokeStyle = m.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 18, ly); ctx.stroke();
+    ctx.fillStyle = '#aaa';
+    ctx.font = '11px system-ui';
+    ctx.textAlign = 'left';
+    ctx.fillText(m.label, lx + 22, ly + 4);
+  });
+
+  // border
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(padL, padT, gW, gH);
+}
+
+function draw() { drawPond(); drawCorr(); drawModes(); }
 
 document.getElementById('nSrc').addEventListener('input', function () {
   nSrc = +this.value;
@@ -414,6 +537,10 @@ document.getElementById('tSlider').addEventListener('input', function () {
   document.getElementById('tVal').textContent = tNow;
   draw();
 });
+document.getElementById('modesCheck').addEventListener('change', function() {
+  document.getElementById('modesPanel').style.display = this.checked ? 'block' : 'none';
+});
+
 document.getElementById('comovingCheck').addEventListener('change', function() {
   comovingMode = this.checked;
   resetSim();
