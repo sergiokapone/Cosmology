@@ -146,7 +146,7 @@ canvas {
 </div>
 <div class="ctrl">
   <label>Час</label>
-  <input type="range" id="tSlider" min="5" max="140" value="60" step="1">
+  <input type="range" id="tSlider" min="5" max="200" value="60" step="1">
   <span class="val" id="tVal">60</span>
 </div>
 
@@ -180,8 +180,10 @@ let comovingMode = false;
 function scaleA(t) { return Math.sqrt(t / T0); }
 
 // Акустичний радіус — лінійний (швидко і наочно), як раніше
+const R_SOUND = 147; // звуковий горизонт в пікселях — заморозка кілець
+
 function acousticRadius(t) {
-  return 1.4 * t;
+  return Math.min(1.4 * t, R_SOUND);
 }
 
 function waveAmp(r_phys, t) {
