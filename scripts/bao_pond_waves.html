@@ -151,6 +151,7 @@ canvas {
 </div>
 
 <button class="btn" onclick="randomize()">Нові центри</button>
+<button class="btn" onclick="resetSim()">Reset</button>
 <label class="check-row">
   <input type="checkbox" id="comovingCheck">
   супутні координати
@@ -392,6 +393,13 @@ function drawCorr() {
   ctx.restore();
 }
 
+function resetSim() {
+  tNow = 60;
+  document.getElementById('tSlider').value = 60;
+  document.getElementById('tVal').textContent = 60;
+  randomize();
+}
+
 function draw() { drawPond(); drawCorr(); }
 
 document.getElementById('nSrc').addEventListener('input', function () {
@@ -406,7 +414,7 @@ document.getElementById('tSlider').addEventListener('input', function () {
 });
 document.getElementById('comovingCheck').addEventListener('change', function() {
   comovingMode = this.checked;
-  draw();
+  resetSim();
 });
 
 randomize();
