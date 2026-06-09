@@ -397,16 +397,15 @@ function draw() { drawPond(); drawCorr(); }
 document.getElementById('nSrc').addEventListener('input', function () {
   nSrc = +this.value;
   document.getElementById('nSrcVal').textContent = nSrc;
-  document.getElementById('comovingCheck').addEventListener('change', function() {
-  comovingMode = this.checked;
-  draw();
-});
-
-randomize();
+  randomize();
 });
 document.getElementById('tSlider').addEventListener('input', function () {
   tNow = +this.value;
   document.getElementById('tVal').textContent = tNow;
+  draw();
+});
+document.getElementById('comovingCheck').addEventListener('change', function() {
+  comovingMode = this.checked;
   draw();
 });
 
