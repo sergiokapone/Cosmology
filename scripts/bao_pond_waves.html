@@ -152,6 +152,7 @@ canvas {
 
 <button class="btn" onclick="randomize()">Нові центри</button>
 <button class="btn" onclick="resetSim()">Reset</button>
+<button class="btn" id="playBtn" onclick="togglePlay()">▶ Грати</button>
 <label class="check-row">
   <input type="checkbox" id="comovingCheck">
   супутні координати
@@ -184,24 +185,36 @@ const CENTER = SIZE / 2;
 let sources = []; // комовні координати відносно центру
 let nSrc = 20, tNow = 60;
 
-const T0 = 60;
+const T0 = 60;       // умовний початковий час
+const T_REC = 105;   // умовний час рекомбінації (r_s досягає 147 при t=105)
 let comovingMode = false;
 function scaleA(t) { return Math.sqrt(t / T0); }
+function scaleA_rec() { return scaleA(T_REC); }
 
-// Акустичний радіус — лінійний (швидко і наочно), як раніше
-const R_SOUND = 147; // звуковий горизонт в пікселях — заморозка кілець
+const R_SOUND = 147; // звуковий горизонт у СУПУТНІХ пікселях (= 147 Мпк)
 
-function acousticRadius(t) {
+// Супутній акустичний радіус: росте до рекомбінації, потім заморожується
+function acousticRadius_comov(t) {
   return Math.min(1.4 * t, R_SOUND);
 }
 
-function waveAmp(r_phys, t) {
-  const R = acousticRadius(t);
-  const sigma = 10;
-  return Math.exp(-0.5 * ((r_phys - R) / sigma) ** 2);
+// Фізичний акустичний радіус для ставку (фізичні координати):
+// до рек. — росте з c_s; після рек. — тягнеться розширенням: r_s_comov * a(t)/a_rec
+function acousticRadius_phys(t) {
+  const r_c = acousticRadius_comov(t);
+  if (t <= T_REC) return r_c * scaleA(t);           // до рек.: супутній * a(t)
+  return R_SOUND * scaleA(t) / scaleA_rec();         // після рек.: 147 * a(t)/a_rec
 }
 
-// Фізичні координати джерела на канві
+function waveAmp(r_px, t) {
+  // r_px — відстань у пікселях канви від центру джерела
+  // порівнюємо з радіусом у тих самих одиницях
+  const R = comovingMode ? acousticRadius_comov(t) : acousticRadius_phys(t);
+  const sigma = comovingMode ? 10 : 10 * scaleA(t);
+  return Math.exp(-0.5 * ((r_px - R) / sigma) ** 2);
+}
+
+// Координати джерела на канві
 function physPos(s, t) {
   const a = comovingMode ? 1.0 : scaleA(t);
   return { x: CENTER + s.cx * a, y: CENTER + s.cy * a };
@@ -271,24 +284,23 @@ function drawCorr() {
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, SIZE, SIZE);
 
-  // Рахуємо пари у фізичних координатах
-  const physSrcs = sources.map(s => physPos(s, tNow));
-  const a = comovingMode ? 1.0 : scaleA(tNow);
+  // Графік ЗАВЖДИ в супутніх координатах — r_s не стрибає
   const maxR = SIZE * 0.85;
   const bins = 120;
   const counts = new Array(bins).fill(0);
 
-  for (let i = 0; i < physSrcs.length; i++) {
-    for (let j = i + 1; j < physSrcs.length; j++) {
-      const r_phys = Math.sqrt((physSrcs[i].x - physSrcs[j].x) ** 2 + (physSrcs[i].y - physSrcs[j].y) ** 2);
-      if (r_phys < maxR) {
-        const b = Math.floor(r_phys / maxR * bins);
+  for (let i = 0; i < sources.length; i++) {
+    for (let j = i + 1; j < sources.length; j++) {
+      const r_c = Math.sqrt((sources[i].cx - sources[j].cx) ** 2 + (sources[i].cy - sources[j].cy) ** 2);
+      if (r_c < maxR) {
+        const b = Math.floor(r_c / maxR * bins);
         if (b < bins) counts[b]++;
       }
     }
   }
 
-  const R = acousticRadius(tNow);
+  // Супутній акустичний радіус для позиції піку на графіку
+  const R = acousticRadius_comov(tNow);
   const sigma = 10;
 
   // RR(b) ~ r (периметр кола в 2D)
@@ -374,7 +386,7 @@ function drawCorr() {
     ctx.fillStyle = '#E24B4A';
     ctx.font = '13px system-ui';
     ctx.textAlign = 'center';
-    ctx.fillText('r_s = ' + Math.round(peakR), px, padT - 8);
+    ctx.fillText('r_s = ' + Math.round(peakR) + ' Мпк', px, padT - 8);
   }
 
   // axis labels
@@ -382,11 +394,11 @@ function drawCorr() {
   ctx.font = '12px system-ui';
   ctx.textAlign = 'center';
   for (let i = 0; i <= 4; i++) {
-    const r = Math.round(i / 4 * maxR);
+    const r_mpc = Math.round(i / 4 * maxR); // 1 піксель = 1 Мпк
     const x = padL + gW * i / 4;
-    ctx.fillText(r, x, padT + gH + 18);
+    ctx.fillText(r_mpc, x, padT + gH + 18);
   }
-  ctx.fillText('r  (пікселі)', padL + gW / 2, padT + gH + 36);
+  ctx.fillText('r  (супутні Мпк)', padL + gW / 2, padT + gH + 36);
 
   ctx.textAlign = 'right';
   for (let i = 0; i <= 4; i++) {
@@ -404,7 +416,47 @@ function drawCorr() {
   ctx.restore();
 }
 
+let animId = null;
+let playing = false;
+
+function togglePlay() {
+  if (playing) {
+    pauseAnim();
+  } else {
+    startAnim();
+  }
+}
+
+function startAnim() {
+  playing = true;
+  document.getElementById('playBtn').textContent = '⏸ Пауза';
+  stepAnim();
+}
+
+function pauseAnim() {
+  playing = false;
+  document.getElementById('playBtn').textContent = '▶ Грати';
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+}
+
+function stepAnim() {
+  if (!playing) return;
+  const slider = document.getElementById('tSlider');
+  const max = +slider.max;
+  if (tNow >= max) {
+    // дійшли до кінця — зупинитись
+    pauseAnim();
+    return;
+  }
+  tNow = Math.min(tNow + 0.5, max);
+  slider.value = tNow;
+  document.getElementById('tVal').textContent = Math.round(tNow);
+  draw();
+  animId = requestAnimationFrame(stepAnim);
+}
+
 function resetSim() {
+  pauseAnim();
   tNow = 60;
   document.getElementById('tSlider').value = 60;
   document.getElementById('tVal').textContent = 60;
@@ -543,7 +595,7 @@ document.getElementById('modesCheck').addEventListener('change', function() {
 
 document.getElementById('comovingCheck').addEventListener('change', function() {
   comovingMode = this.checked;
-  resetSim();
+  draw();
 });
 
 randomize();
