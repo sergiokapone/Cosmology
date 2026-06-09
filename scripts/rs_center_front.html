@@ -1,0 +1,192 @@
+
+<style>
+canvas { display: block; width: 100%; border-radius: 6px; }
+.ctrl { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; color: var(--color-text-secondary); }
+.ctrl input { flex: 1; max-width: 400px; }
+.ctrl span { min-width: 32px; text-align: right; color: var(--color-text-primary); font-size: 13px; }
+</style>
+<h2 class="sr-only">Центр і фронт хвилі в просторі що розширюється</h2>
+<div class="ctrl">
+  <span>Час</span>
+  <input type="range" id="tSlider" min="1" max="100" value="20" step="1">
+  <span id="tVal">20</span>
+</div>
+<canvas id="c" width="680" height="340"></canvas>
+<script>
+const W = 680, H = 340;
+const cs = 1.0;
+
+function a(t) { return Math.pow(1 + t * 0.018, 0.67); }
+
+function rComov(t) {
+  let r = 0, dt = 0.5;
+  for (let ti = 0; ti < t; ti += dt) r += cs * dt / a(ti + dt/2);
+  return r;
+}
+
+function draw() {
+  const t = +document.getElementById('tSlider').value;
+  document.getElementById('tVal').textContent = t;
+
+  const canvas = document.getElementById('c');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+
+  ctx.fillStyle = dark ? '#12121e' : '#f4f2ee';
+  ctx.fillRect(0, 0, W, H);
+
+  const padL = 50, padR = 30, padT = 30, padB = 50;
+  const gW = W - padL - padR, gH = H - padT - padB;
+  const tMax = 100;
+
+  // grid
+  ctx.strokeStyle = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 5; i++) {
+    const x = padL + gW * i/5;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT+gH); ctx.stroke();
+  }
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + gH * i/4;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL+gW, y); ctx.stroke();
+  }
+
+  ctx.strokeStyle = dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(padL, padT, gW, gH);
+
+  function tx(t) { return padL + gW * t / tMax; }
+
+  // Вибираємо початкову коморбідну позицію центру — десь посередині
+  const chi0 = 40;
+  const scaleY = gH / 220;
+
+  function chiCenter(t) { return chi0 * a(t); } // фізична позиція центру
+  function chiFront(t)  { return chi0 * a(t) + rComov(t) * a(t); } // фізична позиція фронту
+
+  // коморбідні
+  function chiCenterComov(t) { return chi0; } // завжди chi0 — не рухається!
+  function chiFrontComov(t)  { return chi0 + rComov(t); }
+
+  const yBase = padT + gH * 0.85;
+
+  // --- фізичні траєкторії ---
+  ctx.strokeStyle = '#E24B4A';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  for (let ti = 0; ti <= tMax; ti += 1) {
+    const y = yBase - chiCenter(ti) * scaleY * 0.5;
+    ti === 0 ? ctx.moveTo(tx(ti), y) : ctx.lineTo(tx(ti), y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = '#378ADD';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  for (let ti = 0; ti <= tMax; ti += 1) {
+    const y = yBase - chiFront(ti) * scaleY * 0.5;
+    ti === 0 ? ctx.moveTo(tx(ti), y) : ctx.lineTo(tx(ti), y);
+  }
+  ctx.stroke();
+
+  // --- коморбідні траєкторії ---
+  ctx.strokeStyle = '#E24B4A';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath();
+  for (let ti = 0; ti <= tMax; ti += 1) {
+    const y = yBase - chiCenterComov(ti) * scaleY * 1.8;
+    ti === 0 ? ctx.moveTo(tx(ti), y) : ctx.lineTo(tx(ti), y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = '#378ADD';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath();
+  for (let ti = 0; ti <= tMax; ti += 1) {
+    const y = yBase - chiFrontComov(ti) * scaleY * 1.8;
+    ti === 0 ? ctx.moveTo(tx(ti), y) : ctx.lineTo(tx(ti), y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // --- вертикальна лінія поточного t ---
+  const xt = tx(t);
+  ctx.strokeStyle = dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.15)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(xt, padT); ctx.lineTo(xt, padT+gH); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // --- дужка r_s (коморбідна різниця) ---
+  const yFrontC = yBase - chiFrontComov(t) * scaleY * 1.8;
+  const yCentC  = yBase - chiCenterComov(t) * scaleY * 1.8;
+  const xBrace = xt + 10;
+  ctx.strokeStyle = '#EF9F27';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(xBrace, yCentC);
+  ctx.lineTo(xBrace + 8, yCentC);
+  ctx.lineTo(xBrace + 8, yFrontC);
+  ctx.lineTo(xBrace, yFrontC);
+  ctx.stroke();
+  ctx.fillStyle = '#EF9F27';
+  ctx.font = '12px system-ui';
+  ctx.textAlign = 'left';
+  ctx.fillText('r_s = ' + rComov(t).toFixed(1), xBrace + 12, (yCentC + yFrontC)/2 + 4);
+
+  // --- точки на поточному t ---
+  const yFrontPhys = yBase - chiFront(t) * scaleY * 0.5;
+  const yCentPhys  = yBase - chiCenter(t) * scaleY * 0.5;
+
+  ctx.fillStyle = '#E24B4A';
+  ctx.beginPath(); ctx.arc(xt, yCentPhys, 5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(xt, yCentC, 4, 0, Math.PI*2); ctx.fill();
+
+  ctx.fillStyle = '#378ADD';
+  ctx.beginPath(); ctx.arc(xt, yFrontPhys, 5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(xt, yFrontC, 4, 0, Math.PI*2); ctx.fill();
+
+  // --- легенда ---
+  const lx = padL + 10, ly = padT + 14;
+  ctx.font = '12px system-ui';
+  ctx.textAlign = 'left';
+
+  ctx.strokeStyle = '#E24B4A'; ctx.lineWidth = 2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx+22, ly); ctx.stroke();
+  ctx.fillStyle = dark ? '#c2c0b6' : '#3d3d3a';
+  ctx.fillText('центр (фізична)', lx+26, ly+4);
+
+  ctx.strokeStyle = '#378ADD';
+  ctx.beginPath(); ctx.moveTo(lx+160, ly); ctx.lineTo(lx+182, ly); ctx.stroke();
+  ctx.fillText('фронт (фізична)', lx+186, ly+4);
+
+  ctx.setLineDash([5,4]);
+  ctx.strokeStyle = '#E24B4A';
+  ctx.beginPath(); ctx.moveTo(lx, ly+18); ctx.lineTo(lx+22, ly+18); ctx.stroke();
+  ctx.fillText('центр (коморбідна) — пряма!', lx+26, ly+22);
+
+  ctx.strokeStyle = '#378ADD';
+  ctx.beginPath(); ctx.moveTo(lx+160, ly+18); ctx.lineTo(lx+182, ly+18); ctx.stroke();
+  ctx.fillText('фронт (коморбідна)', lx+186, ly+22);
+  ctx.setLineDash([]);
+
+  // --- осі ---
+  const textColor = dark ? '#888' : '#888';
+  ctx.fillStyle = textColor;
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 5; i++) {
+    ctx.fillText(Math.round(i/5*tMax), tx(i/5*tMax), padT+gH+16);
+  }
+  ctx.fillText('час t', padL + gW/2, padT+gH+32);
+  ctx.textAlign = 'left';
+  ctx.fillText('координата', padL, padT - 10);
+}
+
+document.getElementById('tSlider').addEventListener('input', draw);
+draw();
+</script>

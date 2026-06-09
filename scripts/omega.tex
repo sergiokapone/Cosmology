@@ -1,0 +1,86 @@
+% !TeX program = lualatex
+% !TeX encoding = utf8
+% !TeX spellcheck = uk_UA
+
+\documentclass{article}
+\usepackage[fontsize=14pt]{fontsize}
+
+\usepackage{fontsetup}
+\usepackage[english, russian, ukrainian]{babel}
+\usepackage{microtype}
+
+
+\usepackage[%
+	a4paper,%
+	footskip=1cm,%
+	headsep=0.3cm,%
+	top=2cm, %поле сверху
+	bottom=2cm, %поле снизу
+	left=2cm, %поле ліворуч
+	right=2cm, %поле праворуч
+    ]{geometry}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{floatflt}
+
+\usepackage[%colorlinks=true,
+	%urlcolor = blue, %Colour for external hyperlinks
+	%linkcolor  = malina, %Colour of internal links
+	%citecolor  = green, %Colour of citations
+	bookmarks = true,
+	bookmarksnumbered=true,
+	unicode,
+	linktoc = all,
+	hypertexnames=false,
+	pdftoolbar=false,
+	pdfpagelayout=TwoPageRight,
+	pdfauthor={Ponomarenko S.M. aka sergiokapone},
+	pdfdisplaydoctitle=true,
+	pdfencoding=auto
+	]%
+	{hyperref}
+
+
+
+\title{}
+\date{}
+
+\begin{document}
+
+
+\textbf{Модель.}
+Для плоского або не\-плоского Всесвіту з компонентами
+$(\Omega_m, \Omega_\Lambda, \Omega_k = 1 - \Omega_m - \Omega_\Lambda - \Omega_r)$
+безрозмірна функція Хаббла:
+\begin{equation}
+  E(z) = \sqrt{\Omega_r(1+z)^4 + \Omega_m(1+z)^3
+               + \Omega_k(1+z)^2 + \Omega_\Lambda}.
+\end{equation}
+Супутня відстань:
+\begin{equation}
+  d_C(z) = \frac{c}{H_0}\int_0^z \frac{dz'}{E(z')}.
+\end{equation}
+Усереднена BAO-відстань:
+\begin{equation}
+  D_V(z) \equiv \left[z\,d_C^2(z)\,\frac{c}{H(z)}\right]^{1/3},
+\end{equation}
+де $H(z) = H_0 E(z)$.
+Спостережна величина~--- відношення $D_V(z)/r_s$,
+де $r_s = 147.09$~Мпк~--- звуковий горизонт (Planck~2018).
+
+\textbf{Підбір параметрів.}
+Мінімізується:
+\begin{equation}
+  \chi^2(H_0, \Omega_m, \Omega_\Lambda)
+  = \sum_{i=1}^{N}
+    \left(\frac{D_V^{\rm obs}(z_i)/r_s
+               - D_V^{\rm th}(z_i)/r_s}{\sigma_i}\right)^2.
+\end{equation}
+Три вільні параметри: $H_0$, $\Omega_m$, $\Omega_\Lambda$.
+Параметр кривини не фіксується: $\Omega_k = 1 - \Omega_m - \Omega_\Lambda - \Omega_r$.
+
+
+\end{document}
+
+

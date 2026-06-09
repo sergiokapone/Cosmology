@@ -1,0 +1,246 @@
+
+<style>
+canvas { display: block; width: 50%; border-radius: 6px; }
+.ctrl { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; color: var(--color-text-secondary); }
+.ctrl input { flex: 1; max-width: 360px; }
+.ctrl span { min-width: 80px; color: var(--color-text-primary); font-size: 13px; }
+.info { display: flex; gap: 24px; margin: 10px 0; font-size: 13px; flex-wrap: wrap; }
+.badge { padding: 4px 12px; border-radius: 6px; font-size: 13px; }
+</style>
+
+<h2 class="sr-only">BAO дані DESI DR1: D_M/r_d vs z і МНК фіт для H0</h2>
+
+<div class="ctrl">
+  <span>H₀ (модель)</span>
+  <input type="range" id="h0slider" min="60" max="80" value="67.4" step="0.1">
+  <span id="h0val" style="min-width:60px">67.4 км/с/Мпк</span>
+</div>
+<div class="ctrl">
+  <span>Ω_m</span>
+  <input type="range" id="omslider" min="0.25" max="0.38" value="0.315" step="0.005">
+  <span id="omval" style="min-width:40px">0.315</span>
+</div>
+
+<div class="info">
+  <span>МНК χ²: <b id="chi2val">—</b></span>
+  <span class="badge" id="badge67" style="background:rgba(55,138,221,0.15);color:#185FA5">Planck: 67.4</span>
+  <span class="badge" id="badge73" style="background:rgba(226,75,74,0.15);color:#A32D2D">SH0ES: 73.0</span>
+  <span class="badge" id="badgebest" style="background:rgba(239,159,39,0.15);color:#854F0B">МНК: —</span>
+</div>
+
+<canvas id="c" width="680" height="420"></canvas>
+
+<script>
+const W = 680, H = 420;
+
+const data = [
+  { z: 0.106, DV_rd: 2.98,  eDV: 0.13,  type: 'DV', label: '6dFGS' },
+  { z: 0.15,  DV_rd: 4.47,  eDV: 0.17,  type: 'DV', label: 'SDSS MGS' },
+  { z: 0.30,  DV_rd: 7.93,  eDV: 0.15,  type: 'DV', label: 'DESI BGS' },
+  { z: 0.51,  DM_rd: 13.62, eDM: 0.25,  type: 'DM', label: 'DESI LRG1' },
+  { z: 0.71,  DM_rd: 16.85, eDM: 0.32,  type: 'DM', label: 'DESI LRG2' },
+  { z: 0.93,  DM_rd: 21.71, eDM: 0.28,  type: 'DM', label: 'DESI LRG+ELG' },
+  { z: 1.32,  DM_rd: 27.79, eDM: 0.69,  type: 'DM', label: 'DESI ELG' },
+  { z: 1.49,  DM_rd: 30.21, eDM: 0.79,  type: 'DM', label: 'DESI QSO' },
+  { z: 2.33,  DM_rd: 37.6,  eDM: 1.9,   type: 'DM', label: 'DESI Lyα' },
+];
+
+const rd = 147.09;
+
+function DM_theory(z, H0, Om) {
+  const c = 299792.458;
+  let integral = 0;
+  const N = 400;
+  const dz = z / N;
+  for (let i = 0; i < N; i++) {
+    const zi = (i + 0.5) * dz;
+    const E = Math.sqrt(Om * Math.pow(1+zi, 3) + (1 - Om));
+    integral += dz / E;
+  }
+  return (c / H0) * integral / rd;
+}
+
+function DV_theory(z, H0, Om) {
+  const c = 299792.458;
+  const DM = DM_theory(z, H0, Om) * rd;
+  const E = Math.sqrt(Om * Math.pow(1+z, 3) + (1 - Om));
+  const DH = c / (H0 * E);
+  return Math.pow(z * DM * DM * DH, 1/3) / rd;
+}
+
+function chi2(H0, Om) {
+  let s = 0;
+  for (const d of data) {
+    const th = d.type === 'DM' ? DM_theory(d.z, H0, Om) : DV_theory(d.z, H0, Om);
+    const obs = d.type === 'DM' ? d.DM_rd : d.DV_rd;
+    const err = d.type === 'DM' ? d.eDM : d.eDV;
+    s += ((obs - th) / err) ** 2;
+  }
+  return s;
+}
+
+function findBestH0(Om) {
+  let best = 60, bestChi = 1e9;
+  for (let h = 60; h <= 80; h += 0.1) {
+    const c = chi2(h, Om);
+    if (c < bestChi) { bestChi = c; best = h; }
+  }
+  return best;
+}
+
+function draw() {
+  const H0 = +document.getElementById('h0slider').value;
+  const Om = +document.getElementById('omslider').value;
+  document.getElementById('h0val').textContent = H0.toFixed(1) + ' км/с/Мпк';
+  document.getElementById('omval').textContent = Om.toFixed(3);
+
+  const c2 = chi2(H0, Om).toFixed(2);
+  document.getElementById('chi2val').textContent = c2;
+
+  const bestH0 = findBestH0(Om);
+  document.getElementById('badgebest').textContent = 'МНК: ' + bestH0.toFixed(1);
+
+  const canvas = document.getElementById('c');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+
+  ctx.fillStyle = dark ? '#12121e' : '#f7f5f1';
+  ctx.fillRect(0, 0, W, H);
+
+  const padL = 58, padR = 24, padT = 24, padB = 52;
+  const gW = W - padL - padR, gH = H - padT - padB;
+  const zMax = 2.6, yMax = 44;
+
+  function tx(z) { return padL + gW * z / zMax; }
+  function ty(y) { return padT + gH * (1 - y / yMax); }
+
+  // grid
+  ctx.strokeStyle = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 6; i++) {
+    const x = padL + gW * i/6;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT+gH); ctx.stroke();
+  }
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + gH * i/4;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL+gW, y); ctx.stroke();
+  }
+
+  // теоретичні криві
+  function drawCurve(H0c, Om, color, dash) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.setLineDash(dash || []);
+    ctx.beginPath();
+    let first = true;
+    for (let zi = 0.01; zi <= zMax; zi += 0.02) {
+      const y = DM_theory(zi, H0c, Om);
+      if (y > yMax) break;
+      const px = tx(zi), py = ty(y);
+      first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      first = false;
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  drawCurve(67.4, Om, '#378ADD');
+  drawCurve(73.0, Om, '#E24B4A', [6, 4]);
+  drawCurve(H0,   Om, '#EF9F27', []);
+
+  // осі
+  ctx.strokeStyle = dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(padL, padT, gW, gH);
+
+  const textColor = dark ? '#9a9890' : '#666';
+  ctx.fillStyle = textColor;
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 6; i++) {
+    const z = (i/6 * zMax);
+    ctx.fillText(z.toFixed(1), tx(z), padT+gH+16);
+  }
+  ctx.fillText('z', padL + gW/2, padT+gH+34);
+
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const y = Math.round(i/4 * yMax);
+    ctx.fillText(y, padL - 6, ty(y) + 4);
+  }
+  ctx.save();
+  ctx.translate(14, padT + gH/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.fillText('D_M / r_d  або  D_V / r_d', 0, 0);
+  ctx.restore();
+
+  // точки даних
+  for (const d of data) {
+    const obs = d.type === 'DM' ? d.DM_rd : d.DV_rd;
+    const err = d.type === 'DM' ? d.eDM : d.eDV;
+    const px = tx(d.z), py = ty(obs);
+    const epy = gH * err / yMax;
+
+    // error bar
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(px, py - epy); ctx.lineTo(px, py + epy);
+    ctx.moveTo(px-4, py-epy); ctx.lineTo(px+4, py-epy);
+    ctx.moveTo(px-4, py+epy); ctx.lineTo(px+4, py+epy);
+    ctx.stroke();
+
+    // точка
+    const col = d.type === 'DM' ? '#1D9E75' : '#7F77DD';
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    if (d.type === 'DM') {
+      ctx.arc(px, py, 5, 0, Math.PI*2);
+    } else {
+      ctx.rect(px-4, py-4, 8, 8);
+    }
+    ctx.fill();
+
+    // label
+    ctx.fillStyle = dark ? 'rgba(200,198,190,0.7)' : 'rgba(80,80,80,0.8)';
+    ctx.font = '10px system-ui';
+    ctx.textAlign = 'left';
+    ctx.fillText(d.label, px+7, py+3);
+  }
+
+  // легенда
+  const lx = padL + 10, ly = padT + 10;
+  ctx.font = '12px system-ui';
+
+  ctx.strokeStyle = '#378ADD'; ctx.lineWidth = 2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(lx, ly+6); ctx.lineTo(lx+22, ly+6); ctx.stroke();
+  ctx.fillStyle = dark ? '#c2c0b6' : '#3d3d3a';
+  ctx.textAlign = 'left';
+  ctx.fillText('Planck H₀=67.4', lx+26, ly+10);
+
+  ctx.strokeStyle = '#E24B4A'; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(lx+140, ly+6); ctx.lineTo(lx+162, ly+6); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillText('SH0ES H₀=73.0', lx+166, ly+10);
+
+  ctx.strokeStyle = '#EF9F27'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(lx+300, ly+6); ctx.lineTo(lx+322, ly+6); ctx.stroke();
+  ctx.fillText('ваша модель H₀=' + H0.toFixed(1), lx+326, ly+10);
+
+  ctx.fillStyle = '#1D9E75';
+  ctx.beginPath(); ctx.arc(lx+10, ly+26, 5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = dark ? '#c2c0b6' : '#3d3d3a';
+  ctx.fillText('D_M/r_d  (DESI/SDSS)', lx+20, ly+30);
+
+  ctx.fillStyle = '#7F77DD';
+  ctx.fillRect(lx+6, ly+40, 8, 8);
+  ctx.fillStyle = dark ? '#c2c0b6' : '#3d3d3a';
+  ctx.fillText('D_V/r_d  (ізотропне)', lx+20, ly+49);
+}
+
+document.getElementById('h0slider').addEventListener('input', draw);
+document.getElementById('omslider').addEventListener('input', draw);
+draw();
+</script>

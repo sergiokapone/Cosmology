@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>BAO — хвилі на ставку</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, sans-serif;
+  background: #1a1a2e;
+  color: #c2c0b6;
+  padding: 20px;
+  min-height: 100vh;
+}
+h1 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #e8e6de;
+  margin-bottom: 16px;
+}
+.ctrl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.ctrl label { width: 60px; color: #888; }
+.ctrl input[type=range] { flex: 1; max-width: 400px; accent-color: #378ADD; }
+.ctrl .val { width: 32px; text-align: right; color: #e8e6de; font-size: 13px; }
+.btn {
+  margin: 10px 0 16px;
+  padding: 6px 18px;
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #c2c0b6;
+  cursor: pointer;
+  font-size: 13px;
+}
+.btn:hover { background: #2a2a3e; }
+.panels {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.panel { flex: 1; }
+canvas {
+  display: block;
+  width:75%;
+  border-radius: 8px;
+}
+.cap {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  margin-top: 6px;
+}
+</style>
+</head>
+<body>
+<h1>BAO — аналогія з хвилями на ставку</h1>
+
+<div class="ctrl">
+  <label>Центрів</label>
+  <input type="range" id="nSrc" min="1" max="60" value="20" step="1">
+  <span class="val" id="nSrcVal">20</span>
+</div>
+<div class="ctrl">
+  <label>Час</label>
+  <input type="range" id="tSlider" min="5" max="140" value="60" step="1">
+  <span class="val" id="tVal">60</span>
+</div>
+
+<button class="btn" onclick="randomize()">Нові центри</button>
+
+<div class="panels">
+  <div class="panel">
+    <canvas id="pondCanvas"></canvas>
+    <p class="cap">ставок — вигляд зверху (червоні точки = центри флуктуацій)</p>
+  </div>
+  <div class="panel">
+    <canvas id="corrCanvas"></canvas>
+    <p class="cap">кількість пар галактик на відстані r — горб це BAO пік</p>
+  </div>
+</div>
+
+<script>
+const SIZE = 560;
+let sources = [];
+let nSrc = 20, tNow = 60;
+
+function randomize() {
+  sources = [];
+  for (let i = 0; i < nSrc; i++) {
+    sources.push({
+      x: 20 + Math.random() * (SIZE - 40),
+      y: 20 + Math.random() * (SIZE - 40)
+    });
+  }
+  draw();
+}
+
+function waveAmp(r, t) {
+  const v = 1.4;
+  const R = v * t;
+  const sigma = 10;
+  return Math.exp(-0.5 * ((r - R) / sigma) ** 2);
+}
+
+function drawPond() {
+  const canvas = document.getElementById('pondCanvas');
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(SIZE, SIZE);
+
+  for (let py = 0; py < SIZE; py++) {
+    for (let px = 0; px < SIZE; px++) {
+      let amp = 0;
+      for (const s of sources) {
+        const r = Math.sqrt((px - s.x) ** 2 + (py - s.y) ** 2);
+        amp += waveAmp(r, tNow);
+      }
+      const v = Math.min(1, amp / (sources.length * 0.28));
+      const idx = (py * SIZE + px) * 4;
+      img.data[idx]   = Math.round(10  + v * 30);
+      img.data[idx+1] = Math.round(50  + v * 140);
+      img.data[idx+2] = Math.round(110 + v * 120);
+      img.data[idx+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+
+  for (const s of sources) {
+    const r = 14;
+    const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r);
+    grad.addColorStop(0,   'rgba(0, 0, 0, 0.95)');
+    grad.addColorStop(0.35,'rgba(0, 0, 0, 0.55)');
+    grad.addColorStop(1,   'rgba(0, 0, 0, 0)');
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+}
+
+function drawCorr() {
+  const canvas = document.getElementById('corrCanvas');
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+
+  const bg = '#1a1a2e';
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, SIZE, SIZE);
+
+  const maxR = SIZE * 0.85;
+  const bins = 120;
+  const counts = new Array(bins).fill(0);
+
+  for (let i = 0; i < sources.length; i++) {
+    for (let j = i + 1; j < sources.length; j++) {
+      const r = Math.sqrt((sources[i].x - sources[j].x) ** 2 + (sources[i].y - sources[j].y) ** 2);
+      if (r < maxR) {
+        const b = Math.floor(r / maxR * bins);
+        if (b < bins) counts[b]++;
+      }
+    }
+  }
+
+  const R = tNow * 1.4;
+  const sigma = 10;
+
+  // RR(b) ~ r (периметр кола в 2D)
+  const rr = counts.map((_, b) => {
+    const r = (b + 0.5) / bins * maxR;
+    return r + 1e-6;
+  });
+  const rrMean = rr.reduce((a, v) => a + v, 0) / bins;
+
+  // DD = реальні пари + BAO boost
+  const dd = counts.map((c, b) => {
+    const r = (b + 0.5) / bins * maxR;
+    const boost = sources.length * 1.2 * Math.exp(-0.5 * ((r - R) / sigma) ** 2);
+    return c + boost;
+  });
+  const ddMean = dd.reduce((a, v) => a + v, 0) / bins;
+
+  // ξ(r) = DD/RR нормована → спадає до ~0
+  const xi = dd.map((d, b) => (d / rr[b]) / (ddMean / rrMean) - 1);
+
+  const maxVal = Math.max(...xi, 0.01);
+  const minVal = Math.min(...xi, 0);
+
+  const padL = 52, padR = 20, padT = 30, padB = 48;
+  const gW = SIZE - padL - padR;
+  const gH = SIZE - padT - padB;
+
+  // grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + gH * (1 - i / 4);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + gW, y); ctx.stroke();
+    const x = padL + gW * i / 4;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + gH); ctx.stroke();
+  }
+
+  // zero line position
+  const range = maxVal - minVal;
+  const zeroY = padT + gH * maxVal / range;
+
+  // zero axis
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(padL, zeroY); ctx.lineTo(padL + gW, zeroY); ctx.stroke();
+
+  // bars
+  const barColor = 'rgba(55,138,221,0.35)';
+  const lineCol = '#378ADD';
+  for (let b = 0; b < bins; b++) {
+    const x = padL + gW * b / bins;
+    const bw = gW / bins;
+    const yVal = padT + gH * (maxVal - xi[b]) / range;
+    ctx.fillStyle = xi[b] >= 0 ? 'rgba(55,138,221,0.3)' : 'rgba(221,100,55,0.25)';
+    ctx.fillRect(x, Math.min(yVal, zeroY), bw - 0.5, Math.abs(yVal - zeroY));
+  }
+
+  // line
+  ctx.strokeStyle = lineCol;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let b = 0; b < bins; b++) {
+    const x = padL + gW * (b + 0.5) / bins;
+    const y = padT + gH * (maxVal - xi[b]) / range;
+    b === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(padL, padT, gW, gH);
+
+  // BAO peak line
+  const peakR = R;
+  if (peakR < maxR) {
+    const px = padL + gW * peakR / maxR;
+    ctx.strokeStyle = '#E24B4A';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, padT + gH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#E24B4A';
+    ctx.font = '13px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('r_s = ' + Math.round(peakR), px, padT - 8);
+  }
+
+  // axis labels
+  ctx.fillStyle = '#888';
+  ctx.font = '12px system-ui';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const r = Math.round(i / 4 * maxR);
+    const x = padL + gW * i / 4;
+    ctx.fillText(r, x, padT + gH + 18);
+  }
+  ctx.fillText('r  (пікселі)', padL + gW / 2, padT + gH + 36);
+
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = (minVal + range * i / 4).toFixed(2);
+    const y = padT + gH * (1 - i / 4);
+    ctx.fillText(val, padL - 6, y + 4);
+  }
+
+  // y-axis label ξ(r)
+  ctx.save();
+  ctx.translate(14, padT + gH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('ξ(r)', 0, 0);
+  ctx.restore();
+}
+
+function draw() { drawPond(); drawCorr(); }
+
+document.getElementById('nSrc').addEventListener('input', function () {
+  nSrc = +this.value;
+  document.getElementById('nSrcVal').textContent = nSrc;
+  randomize();
+});
+document.getElementById('tSlider').addEventListener('input', function () {
+  tNow = +this.value;
+  document.getElementById('tVal').textContent = tNow;
+  draw();
+});
+
+randomize();
+</script>
+</body>
+</html>
