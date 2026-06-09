@@ -198,12 +198,11 @@ function acousticRadius_comov(t) {
   return Math.min(1.4 * t, R_SOUND);
 }
 
-// Фізичний акустичний радіус для ставку (фізичні координати):
-// до рек. — росте з c_s; після рек. — тягнеться розширенням: r_s_comov * a(t)/a_rec
+// Фізичний акустичний радіус = супутній * a(t) — завжди, без розриву
+// до рек.: r_c росте (c_s) і множиться на a(t) → подвійний ріст
+// після рек.: r_c=147=const, a(t) продовжує рости → чисте розширення
 function acousticRadius_phys(t) {
-  const r_c = acousticRadius_comov(t);
-  if (t <= T_REC) return r_c * scaleA(t);           // до рек.: супутній * a(t)
-  return R_SOUND * scaleA(t) / scaleA_rec();         // після рек.: 147 * a(t)/a_rec
+  return acousticRadius_comov(t) * scaleA(t);
 }
 
 function waveAmp(r_px, t) {
@@ -222,7 +221,10 @@ function physPos(s, t) {
 
 function randomize() {
   sources = [];
-  const spread = SIZE / 2 - 20; // комовний радіус, фіксований
+  // В фізичних координатах при t=200: a=1.826, тому супутній розкид
+  // обмежуємо щоб джерела не виходили за канву при будь-якому t
+  const a_max = Math.sqrt(200 / T0); // ~1.826
+  const spread = (SIZE / 2 - 30) / a_max; // ~140px супутніх
   for (let i = 0; i < nSrc; i++) {
     sources.push({
       cx: (Math.random() - 0.5) * 2 * spread,
