@@ -82,7 +82,7 @@ h1 {
 .panel { flex: 1; }
 canvas {
   display: block;
-  width: 100%;
+  width: 65%;
   border-radius: 8px;
 }
 .cap {
@@ -95,19 +95,6 @@ canvas {
 </head>
 <body>
 <h1>BAO — аналогія з хвилями на ставку</h1>
-
-<div class="ctrl">
-  <label>Центрів</label>
-  <input type="range" id="nSrc" min="1" max="60" value="20" step="1">
-  <span class="val" id="nSrcVal">20</span>
-</div>
-<div class="ctrl">
-  <label>Час</label>
-  <input type="range" id="tSlider" min="5" max="140" value="60" step="1">
-  <span class="val" id="tVal">60</span>
-</div>
-
-<button class="btn" onclick="randomize()">Нові центри</button>
 
 <div class="info">
   <h2>Що таке BAO і як рахується r<sub>s</sub>?</h2>
@@ -131,6 +118,19 @@ canvas {
     </div>
   </div>
 </div>
+
+<div class="ctrl">
+  <label>Центрів</label>
+  <input type="range" id="nSrc" min="1" max="60" value="20" step="1">
+  <span class="val" id="nSrcVal">20</span>
+</div>
+<div class="ctrl">
+  <label>Час</label>
+  <input type="range" id="tSlider" min="5" max="140" value="60" step="1">
+  <span class="val" id="tVal">60</span>
+</div>
+
+<button class="btn" onclick="randomize()">Нові центри</button>
 
 <div class="panels">
   <div class="panel">
