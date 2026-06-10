@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Нотатки з космології — С. М. Пономаренко</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --ink:       #e8e2d6;
+    --ink-dim:   #a09888;
+    --bg:        #0b0d12;
+    --bg-card:   #12151e;
+    --bg-rule:   #1e2333;
+    --gold:      #c9a84c;
+    --gold-dim:  #7a6530;
+    --accent:    #4a7fc1;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Star canvas ── */
+  #stars {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── Layout ── */
+  .page { position: relative; z-index: 1; }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem 3rem;
+    gap: 0;
+  }
+
+  .eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2rem;
+  }
+
+  .hero-title {
+    font-family: 'EB Garamond', serif;
+    font-size: clamp(2.4rem, 6vw, 4.6rem);
+    font-weight: 500;
+    line-height: 1.1;
+    color: var(--ink);
+    max-width: 820px;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-subtitle {
+    margin-top: 1.6rem;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--ink-dim);
+    max-width: 560px;
+  }
+
+  .hero-meta {
+    margin-top: 2.4rem;
+    font-size: .82rem;
+    color: var(--ink-dim);
+    letter-spacing: .05em;
+  }
+
+  .hero-meta strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .btn-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    margin-top: 3rem;
+    padding: .85rem 2.2rem;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Inter', sans-serif;
+    font-size: .85rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background .2s, color .2s;
+    border-radius: 2px;
+  }
+  .btn-pdf:hover { background: var(--gold); color: var(--bg); }
+  .btn-pdf svg { flex-shrink: 0; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    color: var(--ink-dim);
+    font-size: .7rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    animation: fadeFloat 3s ease-in-out infinite;
+  }
+  @keyframes fadeFloat {
+    0%,100% { opacity: .4; transform: translateX(-50%) translateY(0); }
+    50%      { opacity: .9; transform: translateX(-50%) translateY(4px); }
+  }
+
+  /* ── Divider ── */
+  .rule {
+    width: 100%;
+    height: 1px;
+    background: var(--bg-rule);
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ── Sections ── */
+  .section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+
+  .section-label {
+    font-size: .7rem;
+    font-weight: 500;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 2rem;
+  }
+
+  .section-heading {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.9rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 1.2rem;
+    line-height: 1.25;
+  }
+
+  .section-body {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--ink-dim);
+    max-width: 640px;
+    line-height: 1.8;
+  }
+
+  /* ── TOC ── */
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5px;
+    margin-top: 3rem;
+    background: var(--bg-rule);
+    border: 1px solid var(--bg-rule);
+  }
+
+  .toc-part {
+    background: var(--bg-card);
+    padding: 1.6rem 1.8rem;
+  }
+
+  .part-label {
+    font-size: .65rem;
+    font-weight: 500;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: .9rem;
+  }
+
+  .part-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: .7rem;
+  }
+
+  .part-chapters {
+    list-style: none;
+  }
+
+  .part-chapters li {
+    font-family: 'EB Garamond', serif;
+    font-size: .95rem;
+    color: var(--ink-dim);
+    padding: .25rem 0;
+    border-bottom: 1px solid var(--bg-rule);
+    line-height: 1.4;
+  }
+  .part-chapters li:last-child { border-bottom: none; }
+
+  .part-chapters li::before {
+    content: attr(data-n) ". ";
+    color: var(--gold-dim);
+    font-size: .8rem;
+    margin-right: .3rem;
+  }
+
+  /* ── Appendices ── */
+  .appendix-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+    margin-top: 1px;
+    background: var(--bg-rule);
+  }
+
+  .appendix-item {
+    background: var(--bg-card);
+    flex: 1 1 220px;
+    padding: 1.2rem 1.8rem;
+  }
+
+  .app-letter {
+    font-family: 'EB Garamond', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--gold-dim);
+    line-height: 1;
+    margin-bottom: .4rem;
+  }
+
+  .app-title {
+    font-family: 'EB Garamond', serif;
+    font-size: .95rem;
+    color: var(--ink-dim);
+    line-height: 1.4;
+  }
+
+  /* ── About row ── */
+  .about-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+  @media (max-width: 640px) { .about-row { grid-template-columns: 1fr; } }
+
+  /* ── Viz cards ── */
+  .viz-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5px;
+    margin-top: 2.4rem;
+    background: var(--bg-rule);
+    border: 1px solid var(--bg-rule);
+  }
+
+  .viz-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+    background: var(--bg-card);
+    padding: 1.8rem;
+    text-decoration: none;
+    transition: background .2s;
+  }
+  .viz-card:hover { background: #181c29; }
+  .viz-card:hover .viz-arrow { color: var(--gold); }
+
+  .viz-icon {
+    font-size: 1.8rem;
+    color: var(--gold-dim);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 2rem;
+    text-align: center;
+    margin-top: .1rem;
+  }
+
+  .viz-body { flex: 1; }
+
+  .viz-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: .4rem;
+  }
+
+  .viz-desc {
+    font-family: 'EB Garamond', serif;
+    font-size: .95rem;
+    color: var(--ink-dim);
+    line-height: 1.5;
+  }
+
+  .viz-arrow {
+    font-size: 1.1rem;
+    color: var(--ink-dim);
+    transition: color .2s;
+    align-self: center;
+    flex-shrink: 0;
+  }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--bg-rule);
+    padding: 2rem;
+    text-align: center;
+    font-size: .75rem;
+    color: var(--ink-dim);
+    letter-spacing: .06em;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="page">
+
+  <!-- ════ HERO ════ -->
+  <section class="hero">
+    <p class="eyebrow">Навчальний конспект · КПІ ім. Ігоря Сікорського</p>
+
+    <h1 class="hero-title">Від <em>інфлатона</em> до реліктового випромінювання</h1>
+
+    <p class="hero-subtitle">
+      Послідовний виклад сучасної космології: від рівнянь Фрідмана
+      до кутового спектра CMB і відкритих проблем ΛCDM
+    </p>
+
+    <p class="hero-meta">
+      Автор&ensp;<strong>С. М. Пономаренко</strong>
+      &ensp;·&ensp;
+      Кафедра прикладної фізики, ННФ ТІ
+    </p>
+
+    <img
+      src="https://raw.githubusercontent.com/sergiokapone/Cosmology/main/pictures/Modern_flagmarion.png"
+      alt="Сучасна гравюра Фламмаріона"
+      style="width:min(340px,80vw); margin-top:2.8rem; opacity:.88;
+             filter: drop-shadow(0 0 32px rgba(201,168,76,.18));"
+    >
+
+    <a class="btn-pdf"
+       href="https://github.com/sergiokapone/Cosmology/raw/main/Cosmology.pdf"
+       target="_blank" rel="noopener">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"
+           viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3v13M7 11l5 5 5-5"/>
+        <path d="M5 20h14"/>
+      </svg>
+      Завантажити PDF
+    </a>
+
+    <div class="scroll-hint">
+      <svg width="16" height="20" viewBox="0 0 16 20" fill="none"
+           stroke="currentColor" stroke-width="1.5">
+        <rect x="1" y="1" width="14" height="18" rx="7"/>
+        <circle cx="8" cy="6" r="1.5" fill="currentColor" stroke="none"/>
+      </svg>
+      прокрутити
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- ════ ABOUT ════ -->
+  <section class="section">
+    <p class="section-label">Про конспект</p>
+    <div class="about-row">
+      <div>
+        <h2 class="section-heading">Для фізика, знайомого із ЗТВ</h2>
+        <p class="section-body">
+          Конспект побудований як суцільний ланцюжок: від метрики FLRW і рівнянь Фрідмана —
+          через динаміку інфлятона, квантові флуктуації та розігрів —
+          до фотон-баріонної акустики, ефекту Закса–Вольфа і поляризації CMB.
+        </p>
+      </div>
+      <div>
+        <h2 class="section-heading">Теорія та практика разом</h2>
+        <p class="section-body">
+          Кожен розділ супроводжується числовими оцінками та Python-прикладами.
+          Окремі розділи присвячені пакетам CAMB і CLASS,
+          а практичний посібник проводить від «сирих» даних Planck 2018
+          до оцінки параметрів ΛCDM методом MCMC.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- ════ TOC ════ -->
+  <section class="section">
+    <p class="section-label">Зміст</p>
+    <h2 class="section-heading">Структура книги</h2>
+
+    <div class="toc-grid">
+
+      <!-- Part I -->
+      <div class="toc-part">
+        <p class="part-label">Частина I</p>
+        <p class="part-title">Фонова космологія</p>
+        <ul class="part-chapters">
+          <li data-n="1">Метрика FLRW, рівняння Фрідмана, ΛCDM</li>
+          <li data-n="2">Інфлатон та його потенціал, slow-roll</li>
+        </ul>
+      </div>
+
+      <!-- Part II -->
+      <div class="toc-part">
+        <p class="part-label">Частина II</p>
+        <p class="part-title">Збурення метрики</p>
+        <ul class="part-chapters">
+          <li data-n="3">SVT-розклад збурень метрики, калібрування</li>
+          <li data-n="4">Квантові флуктуації, спектр Муханова–Сасакі</li>
+        </ul>
+      </div>
+
+      <!-- Part III -->
+      <div class="toc-part">
+        <p class="part-label">Частина III</p>
+        <p class="part-title">Від розігріву до CMB</p>
+        <ul class="part-chapters">
+          <li data-n="5">Розігрів: параметричний резонанс, термалізація</li>
+          <li data-n="6">Гідродинаміка фотон-баріонної плазми, BAO</li>
+          <li data-n="7">Ефект Закса–Вольфа, кутовий спектр CMB</li>
+          <li data-n="8">Поляризація CMB: E- і B-моди</li>
+          <li data-n="9">Хаотична інфляція Лінде, вічна інфляція</li>
+        </ul>
+      </div>
+
+      <!-- Part IV -->
+      <div class="toc-part">
+        <p class="part-label">Частина IV</p>
+        <p class="part-title">Невирішені проблеми</p>
+        <ul class="part-chapters">
+          <li data-n="10">Перспективи: JWST, зламаний спектр, напруга Хаббла</li>
+        </ul>
+      </div>
+
+      <!-- Part V -->
+      <div class="toc-part">
+        <p class="part-label">Частина V</p>
+        <p class="part-title">Чисельні методи</p>
+        <ul class="part-chapters">
+          <li data-n="11">Python-пакети: CAMB, CLASS, Cobaya</li>
+          <li data-n="12">Від даних CMB до параметрів моделі (MCMC)</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Appendices -->
+    <div class="appendix-row">
+      <div class="appendix-item">
+        <div class="app-letter">А</div>
+        <div class="app-title">Сучасні космологічні параметри ΛCDM (Planck 2018)</div>
+      </div>
+      <div class="appendix-item">
+        <div class="app-letter">Б</div>
+        <div class="app-title">Вивід тривалості інфляції та вікна спостережень CMB</div>
+      </div>
+      <div class="appendix-item">
+        <div class="app-letter">В</div>
+        <div class="app-title">Ньютонівська космологія і закон збереження енергії</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- ════ DATA ════ -->
+  <section class="section">
+    <p class="section-label">Дані та програмний код</p>
+    <h2 class="section-heading">Відтворювані результати</h2>
+    <p class="section-body">
+      Репозиторій містить числові дані Planck 2018 TT (збіновані C<sub>ℓ</sub>
+      з похибками) та теоретичний спектр ΛCDM, розрахований через CAMB
+      з параметрами best-fit. Скрипт <code>Universe.py</code> дозволяє
+      відтворити всі графіки спектрів безпосередньо з джерела.
+    </p>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- ════ VISUALIZATIONS ════ -->
+  <section class="section">
+    <p class="section-label">Інтерактивні візуалізації</p>
+    <h2 class="section-heading">Подивитись на космологію в дії</h2>
+    <div class="viz-grid">
+
+      <a class="viz-card"
+         href="https://sergiokapone.github.io/Cosmology/bao_pond_waves.html"
+         target="_blank" rel="noopener">
+        <div class="viz-icon">&#x223C;</div>
+        <div class="viz-body">
+          <div class="viz-title">Акустичні хвилі BAO</div>
+          <div class="viz-desc">
+            Аналогія з хвилями на воді: як баріонні акустичні осциляції
+            виникають і залишають відбиток у розподілі галактик
+          </div>
+        </div>
+        <div class="viz-arrow">→</div>
+      </a>
+
+      <a class="viz-card"
+         href="https://sergiokapone.github.io/Cosmology/bao_DM_rd_H0_fit.html"
+         target="_blank" rel="noopener">
+        <div class="viz-icon">&#x25CB;</div>
+        <div class="viz-body">
+          <div class="viz-title">BAO: вимірювання H₀</div>
+          <div class="viz-desc">
+            Інтерактивна апроксимація: дані DESI DR1, повзунки
+            для D<sub>M</sub>/r<sub>d</sub> і H₀ — і напруга Хаббла наочно
+          </div>
+        </div>
+        <div class="viz-arrow">→</div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ════ FOOTER ════ -->
+  <footer>
+    <p>
+      С. М. Пономаренко · КПІ ім. Ігоря Сікорського, кафедра прикладної фізики
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sergiokapone/Cosmology" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sergiokapone/Cosmology/raw/main/Cosmology.pdf"
+         target="_blank" rel="noopener">PDF</a>
+    </p>
+  </footer>
+
+</div><!-- .page -->
+
+<script>
+/* ── Starfield ── */
+(function () {
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function seed() {
+    stars = [];
+    const n = Math.floor((W * H) / 2800);
+    for (let i = 0; i < n; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.1 + 0.15,
+        a: Math.random(),
+        da: (Math.random() - 0.5) * 0.003
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (const s of stars) {
+      s.a = Math.max(0.05, Math.min(1, s.a + s.da));
+      if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(220,210,195,${s.a * 0.7})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+
+  resize(); seed(); draw();
+  window.addEventListener('resize', () => { resize(); seed(); });
+})();
+</script>
+
+</body>
+</html>

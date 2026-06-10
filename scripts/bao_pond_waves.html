@@ -223,7 +223,7 @@ function randomize() {
   sources = [];
   // В фізичних координатах при t=200: a=1.826, тому супутній розкид
   // обмежуємо щоб джерела не виходили за канву при будь-якому t
-  const a_max = Math.sqrt(200 / T0); // ~1.826
+  const a_max = Math.sqrt(100 / T0); // ~1.826
   const spread = (SIZE / 2 - 30) / a_max; // ~140px супутніх
   for (let i = 0; i < nSrc; i++) {
     sources.push({
