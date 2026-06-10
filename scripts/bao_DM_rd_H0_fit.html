@@ -1,246 +1,631 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>BAO DESI DR1: D_M/r_d vs z | Фіт H₀ та Ωₘ</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-<style>
-canvas { display: block; width: 50%; border-radius: 6px; }
-.ctrl { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 13px; color: var(--color-text-secondary); }
-.ctrl input { flex: 1; max-width: 360px; }
-.ctrl span { min-width: 80px; color: var(--color-text-primary); font-size: 13px; }
-.info { display: flex; gap: 24px; margin: 10px 0; font-size: 13px; flex-wrap: wrap; }
-.badge { padding: 4px 12px; border-radius: 6px; font-size: 13px; }
-</style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #0b0d12;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 16px 32px;
+        }
 
-<h2 class="sr-only">BAO дані DESI DR1: D_M/r_d vs z і МНК фіт для H0</h2>
+        /* Зоряний фон */
+        #stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-<div class="ctrl">
-  <span>H₀ (модель)</span>
-  <input type="range" id="h0slider" min="60" max="80" value="67.4" step="0.1">
-  <span id="h0val" style="min-width:60px">67.4 км/с/Мпк</span>
+        /* головна картка */
+        .bao-card {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(18, 18, 30, 0.88);
+            backdrop-filter: blur(2px);
+            border-radius: 32px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            padding: 20px 20px 26px;
+            transition: all 0.2s ease;
+        }
+
+        /* контейнер для канваса з адаптивним скролом */
+        .canvas-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 18px 0 8px;
+            overflow-x: auto;
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 20px;
+        }
+
+        canvas {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.1s;
+        }
+
+        /* панель керування */
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 18px 18px 16px;
+            border-radius: 28px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(2px);
+        }
+
+        .ctrl-item {
+            flex: 1;
+            min-width: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .ctrl-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: -0.2px;
+            color: #e1dfd7;
+        }
+
+        .ctrl-label span:first-child {
+            font-weight: 600;
+            background: rgba(100, 100, 140, 0.25);
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+
+        .value-badge {
+            font-family: monospace;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 3px 10px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            color: #e1dfd7;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 5px;
+            -webkit-appearance: none;
+            background: #2c2c3a;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #f0b34b;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            border: 2px solid #1e1e2a;
+        }
+
+        /* інфо-панель */
+        .stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0 10px;
+            padding: 8px 4px;
+        }
+
+        .chi2-box {
+            background: rgba(55, 138, 221, 0.2);
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+            color: #e8e6df !important;
+        }
+
+        .chi2-box strong {
+            color: #e8e6df !important;
+        }
+
+        .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            row-gap: 8px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: 0.1s;
+            backdrop-filter: blur(2px);
+            white-space: nowrap;
+        }
+
+        @media (max-width: 580px) {
+            .badge {
+                white-space: normal;
+                word-break: keep-all;
+                font-size: 0.75rem;
+                padding: 5px 10px;
+            }
+            .stats-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .ctrl-item {
+                min-width: 140px;
+            }
+            .control-panel {
+                padding: 14px;
+                gap: 16px;
+            }
+            .bao-card {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 460px) {
+            .ctrl-label span:first-child {
+                font-size: 0.75rem;
+            }
+            .value-badge {
+                font-size: 0.75rem;
+            }
+            .badge {
+                font-size: 0.7rem;
+            }
+        }
+
+        .badge.planck {
+            background: rgba(55, 138, 221, 0.25);
+            color: #7bb3e6;
+            border-left: 3px solid #378ADD;
+        }
+        .badge.sh0es {
+            background: rgba(226, 75, 74, 0.3);
+            color: #ff8a7a;
+            border-left: 3px solid #E24B4A;
+        }
+        .badge.best-fit {
+            background: rgba(239, 159, 39, 0.28);
+            color: #f6bd60;
+            border-left: 3px solid #EF9F27;
+        }
+
+        hr {
+            margin: 12px 0 0;
+            border: none;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .footnote {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.7;
+            color: #9e9caa;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="bao-card">
+    <h2 style="font-size: 1.4rem; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: #e8e2d6;">
+        📡 BAO DESI DR1
+        <span style="font-size: 0.8rem; font-weight: normal; background: rgba(255,255,255,0.1); padding: 2px 12px; border-radius: 60px;">D<sub>M</sub>/r<sub>d</sub> + D<sub>V</sub>/r<sub>d</sub></span>
+    </h2>
+
+    <!-- панель повзунків -->
+    <div class="control-panel">
+        <div class="ctrl-item">
+            <div class="ctrl-label">
+                <span>🌌 H₀ (модель)</span>
+                <span class="value-badge" id="h0val_display">67.4 км/с/Мпк</span>
+            </div>
+            <input type="range" id="h0slider" min="60" max="80" value="67.4" step="0.1" aria-label="H₀ parameter">
+        </div>
+        <div class="ctrl-item">
+            <div class="ctrl-label">
+                <span>⚫ Ω<sub>m</sub></span>
+                <span class="value-badge" id="omval_display">0.315</span>
+            </div>
+            <input type="range" id="omslider" min="0.25" max="0.38" value="0.315" step="0.005" aria-label="Omega matter">
+        </div>
+    </div>
+
+    <!-- статистика + бейджі -->
+    <div class="stats-row">
+        <div class="chi2-box">
+            📐 МНК χ² : <strong id="chi2val">—</strong>
+        </div>
+        <div class="badge-group">
+            <span class="badge planck" id="badge67">🔵 Planck: H₀ = 67.4</span>
+            <span class="badge sh0es" id="badge73">🔴 SH0ES: H₀ = 73.0</span>
+            <span class="badge best-fit" id="badgebest">🟠 МНК: —</span>
+        </div>
+    </div>
+
+    <!-- canvas -->
+    <div class="canvas-wrapper">
+        <canvas id="baoCanvas" width="680" height="420" style="width:100%; height:auto; max-width:680px; aspect-ratio:680/420;"></canvas>
+    </div>
+    <div class="footnote">
+        ⬤ D<sub>M</sub>/r<sub>d</sub> (DESI LRG, ELG, QSO, Lyα) &nbsp;|&nbsp; ◻ D<sub>V</sub>/r<sub>d</sub> (6dFGS, SDSS MGS, DESI BGS)<br>
+        Теоретичні криві: Planck, SH0ES та ваша модель H₀ (жовтогаряча)
+    </div>
 </div>
-<div class="ctrl">
-  <span>Ω_m</span>
-  <input type="range" id="omslider" min="0.25" max="0.38" value="0.315" step="0.005">
-  <span id="omval" style="min-width:40px">0.315</span>
-</div>
-
-<div class="info">
-  <span>МНК χ²: <b id="chi2val">—</b></span>
-  <span class="badge" id="badge67" style="background:rgba(55,138,221,0.15);color:#185FA5">Planck: 67.4</span>
-  <span class="badge" id="badge73" style="background:rgba(226,75,74,0.15);color:#A32D2D">SH0ES: 73.0</span>
-  <span class="badge" id="badgebest" style="background:rgba(239,159,39,0.15);color:#854F0B">МНК: —</span>
-</div>
-
-<canvas id="c" width="680" height="420"></canvas>
 
 <script>
-const W = 680, H = 420;
+    /* ── Starfield ── */
+    (function () {
+        const canvas = document.getElementById('stars');
+        const ctx = canvas.getContext('2d');
+        let W, H, stars = [];
 
-const data = [
-  { z: 0.106, DV_rd: 2.98,  eDV: 0.13,  type: 'DV', label: '6dFGS' },
-  { z: 0.15,  DV_rd: 4.47,  eDV: 0.17,  type: 'DV', label: 'SDSS MGS' },
-  { z: 0.30,  DV_rd: 7.93,  eDV: 0.15,  type: 'DV', label: 'DESI BGS' },
-  { z: 0.51,  DM_rd: 13.62, eDM: 0.25,  type: 'DM', label: 'DESI LRG1' },
-  { z: 0.71,  DM_rd: 16.85, eDM: 0.32,  type: 'DM', label: 'DESI LRG2' },
-  { z: 0.93,  DM_rd: 21.71, eDM: 0.28,  type: 'DM', label: 'DESI LRG+ELG' },
-  { z: 1.32,  DM_rd: 27.79, eDM: 0.69,  type: 'DM', label: 'DESI ELG' },
-  { z: 1.49,  DM_rd: 30.21, eDM: 0.79,  type: 'DM', label: 'DESI QSO' },
-  { z: 2.33,  DM_rd: 37.6,  eDM: 1.9,   type: 'DM', label: 'DESI Lyα' },
-];
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
 
-const rd = 147.09;
+        function seed() {
+            stars = [];
+            const n = Math.floor((W * H) / 2800);
+            for (let i = 0; i < n; i++) {
+                stars.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    r: Math.random() * 1.1 + 0.15,
+                    a: Math.random(),
+                    da: (Math.random() - 0.5) * 0.003
+                });
+            }
+        }
 
-function DM_theory(z, H0, Om) {
-  const c = 299792.458;
-  let integral = 0;
-  const N = 400;
-  const dz = z / N;
-  for (let i = 0; i < N; i++) {
-    const zi = (i + 0.5) * dz;
-    const E = Math.sqrt(Om * Math.pow(1+zi, 3) + (1 - Om));
-    integral += dz / E;
-  }
-  return (c / H0) * integral / rd;
-}
+        function drawStars() {
+            ctx.clearRect(0, 0, W, H);
+            for (const s of stars) {
+                s.a = Math.max(0.05, Math.min(1, s.a + s.da));
+                if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(220,210,195,${s.a * 0.7})`;
+                ctx.fill();
+            }
+            requestAnimationFrame(drawStars);
+        }
 
-function DV_theory(z, H0, Om) {
-  const c = 299792.458;
-  const DM = DM_theory(z, H0, Om) * rd;
-  const E = Math.sqrt(Om * Math.pow(1+z, 3) + (1 - Om));
-  const DH = c / (H0 * E);
-  return Math.pow(z * DM * DM * DH, 1/3) / rd;
-}
+        resize();
+        seed();
+        drawStars();
+        window.addEventListener('resize', () => {
+            resize();
+            seed();
+        });
+    })();
 
-function chi2(H0, Om) {
-  let s = 0;
-  for (const d of data) {
-    const th = d.type === 'DM' ? DM_theory(d.z, H0, Om) : DV_theory(d.z, H0, Om);
-    const obs = d.type === 'DM' ? d.DM_rd : d.DV_rd;
-    const err = d.type === 'DM' ? d.eDM : d.eDV;
-    s += ((obs - th) / err) ** 2;
-  }
-  return s;
-}
+    /* ── BAO Core ── */
+    (function () {
+        // Дані BAO (DESI DR1 + інші)
+        const baoData = [
+            { z: 0.106, DV_rd: 2.98,  eDV: 0.13,  type: 'DV', label: '6dFGS' },
+            { z: 0.15,  DV_rd: 4.47,  eDV: 0.17,  type: 'DV', label: 'SDSS MGS' },
+            { z: 0.30,  DV_rd: 7.93,  eDV: 0.15,  type: 'DV', label: 'DESI BGS' },
+            { z: 0.51,  DM_rd: 13.62, eDM: 0.25,  type: 'DM', label: 'DESI LRG1' },
+            { z: 0.71,  DM_rd: 16.85, eDM: 0.32,  type: 'DM', label: 'DESI LRG2' },
+            { z: 0.93,  DM_rd: 21.71, eDM: 0.28,  type: 'DM', label: 'DESI LRG+ELG' },
+            { z: 1.32,  DM_rd: 27.79, eDM: 0.69,  type: 'DM', label: 'DESI ELG' },
+            { z: 1.49,  DM_rd: 30.21, eDM: 0.79,  type: 'DM', label: 'DESI QSO' },
+            { z: 2.33,  DM_rd: 37.6,  eDM: 1.9,   type: 'DM', label: 'DESI Lyα' }
+        ];
 
-function findBestH0(Om) {
-  let best = 60, bestChi = 1e9;
-  for (let h = 60; h <= 80; h += 0.1) {
-    const c = chi2(h, Om);
-    if (c < bestChi) { bestChi = c; best = h; }
-  }
-  return best;
-}
+        const rd_fid = 147.09;
+        const speedOfLight = 299792.458;
 
-function draw() {
-  const H0 = +document.getElementById('h0slider').value;
-  const Om = +document.getElementById('omslider').value;
-  document.getElementById('h0val').textContent = H0.toFixed(1) + ' км/с/Мпк';
-  document.getElementById('omval').textContent = Om.toFixed(3);
+        function comovingDistanceOverRd(z, H0, OmegaM) {
+            let integral = 0;
+            const steps = 500;
+            const dz = z / steps;
+            for (let i = 0; i < steps; i++) {
+                const z_mid = (i + 0.5) * dz;
+                const E = Math.sqrt(OmegaM * Math.pow(1 + z_mid, 3) + (1 - OmegaM));
+                integral += dz / E;
+            }
+            const DM_physical = (speedOfLight / H0) * integral;
+            return DM_physical / rd_fid;
+        }
 
-  const c2 = chi2(H0, Om).toFixed(2);
-  document.getElementById('chi2val').textContent = c2;
+        function dvOverRd(z, H0, OmegaM) {
+            const DM_rd = comovingDistanceOverRd(z, H0, OmegaM);
+            const DM_phys = DM_rd * rd_fid;
+            const E = Math.sqrt(OmegaM * Math.pow(1 + z, 3) + (1 - OmegaM));
+            const DH_phys = speedOfLight / (H0 * E);
+            const DV_phys = Math.pow(z * DM_phys * DM_phys * DH_phys, 1/3);
+            return DV_phys / rd_fid;
+        }
 
-  const bestH0 = findBestH0(Om);
-  document.getElementById('badgebest').textContent = 'МНК: ' + bestH0.toFixed(1);
+        function computeChi2(H0, OmegaM) {
+            let sum = 0;
+            for (const pt of baoData) {
+                let theory;
+                if (pt.type === 'DM') {
+                    theory = comovingDistanceOverRd(pt.z, H0, OmegaM);
+                    sum += ((pt.DM_rd - theory) / pt.eDM) ** 2;
+                } else {
+                    theory = dvOverRd(pt.z, H0, OmegaM);
+                    sum += ((pt.DV_rd - theory) / pt.eDV) ** 2;
+                }
+            }
+            return sum;
+        }
 
-  const canvas = document.getElementById('c');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+        function bestH0ForOmegaM(OmegaM, minH = 60, maxH = 80, step = 0.1) {
+            let bestH = 67.4;
+            let bestChi = Infinity;
+            for (let h = minH; h <= maxH + step / 2; h += step) {
+                const chi = computeChi2(h, OmegaM);
+                if (chi < bestChi) {
+                    bestChi = chi;
+                    bestH = h;
+                }
+            }
+            return bestH;
+        }
 
-  ctx.fillStyle = dark ? '#12121e' : '#f7f5f1';
-  ctx.fillRect(0, 0, W, H);
+        const canvas = document.getElementById('baoCanvas');
+        const ctx = canvas.getContext('2d');
+        const W = 680, H = 420;
 
-  const padL = 58, padR = 24, padT = 24, padB = 52;
-  const gW = W - padL - padR, gH = H - padT - padB;
-  const zMax = 2.6, yMax = 44;
+        function setCanvasSize() {
+            canvas.width = W;
+            canvas.height = H;
+            canvas.style.width = '100%';
+            canvas.style.height = 'auto';
+            canvas.style.aspectRatio = '680/420';
+        }
 
-  function tx(z) { return padL + gW * z / zMax; }
-  function ty(y) { return padT + gH * (1 - y / yMax); }
+        function draw() {
+            if (!ctx) return;
+            const H0 = parseFloat(document.getElementById('h0slider').value);
+            const Om = parseFloat(document.getElementById('omslider').value);
 
-  // grid
-  ctx.strokeStyle = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-  ctx.lineWidth = 0.5;
-  for (let i = 0; i <= 6; i++) {
-    const x = padL + gW * i/6;
-    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT+gH); ctx.stroke();
-  }
-  for (let i = 0; i <= 4; i++) {
-    const y = padT + gH * i/4;
-    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL+gW, y); ctx.stroke();
-  }
+            document.getElementById('h0val_display').innerHTML = H0.toFixed(1) + ' км/с/Мпк';
+            document.getElementById('omval_display').innerHTML = Om.toFixed(3);
+            const chi2Val = computeChi2(H0, Om);
+            document.getElementById('chi2val').innerHTML = chi2Val.toFixed(2);
 
-  // теоретичні криві
-  function drawCurve(H0c, Om, color, dash) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.setLineDash(dash || []);
-    ctx.beginPath();
-    let first = true;
-    for (let zi = 0.01; zi <= zMax; zi += 0.02) {
-      const y = DM_theory(zi, H0c, Om);
-      if (y > yMax) break;
-      const px = tx(zi), py = ty(y);
-      first ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
-      first = false;
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
+            const bestH = bestH0ForOmegaM(Om);
+            document.getElementById('badgebest').innerHTML = `🟠 МНК: H₀ = ${bestH.toFixed(1)}`;
 
-  drawCurve(67.4, Om, '#378ADD');
-  drawCurve(73.0, Om, '#E24B4A', [6, 4]);
-  drawCurve(H0,   Om, '#EF9F27', []);
+            const isDark = true;
+            const bgColor = '#12121e';
+            const gridColor = 'rgba(255,255,255,0.08)';
+            const axisColor = 'rgba(255,255,255,0.25)';
+            const textColor = '#b7b5ab';
+            const labelColor = 'rgba(210,208,200,0.7)';
 
-  // осі
-  ctx.strokeStyle = dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)';
-  ctx.lineWidth = 0.5;
-  ctx.strokeRect(padL, padT, gW, gH);
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, W, H);
 
-  const textColor = dark ? '#9a9890' : '#666';
-  ctx.fillStyle = textColor;
-  ctx.font = '11px system-ui';
-  ctx.textAlign = 'center';
-  for (let i = 0; i <= 6; i++) {
-    const z = (i/6 * zMax);
-    ctx.fillText(z.toFixed(1), tx(z), padT+gH+16);
-  }
-  ctx.fillText('z', padL + gW/2, padT+gH+34);
+            const padL = 58, padR = 24, padT = 24, padB = 52;
+            const gW = W - padL - padR;
+            const gH = H - padT - padB;
+            const zMax = 2.6;
+            const yMax = 44;
 
-  ctx.textAlign = 'right';
-  for (let i = 0; i <= 4; i++) {
-    const y = Math.round(i/4 * yMax);
-    ctx.fillText(y, padL - 6, ty(y) + 4);
-  }
-  ctx.save();
-  ctx.translate(14, padT + gH/2);
-  ctx.rotate(-Math.PI/2);
-  ctx.textAlign = 'center';
-  ctx.fillText('D_M / r_d  або  D_V / r_d', 0, 0);
-  ctx.restore();
+            const tx = (z) => padL + gW * z / zMax;
+            const ty = (y) => padT + gH * (1 - y / yMax);
 
-  // точки даних
-  for (const d of data) {
-    const obs = d.type === 'DM' ? d.DM_rd : d.DV_rd;
-    const err = d.type === 'DM' ? d.eDM : d.eDV;
-    const px = tx(d.z), py = ty(obs);
-    const epy = gH * err / yMax;
+            ctx.strokeStyle = gridColor;
+            ctx.lineWidth = 0.6;
+            for (let i = 0; i <= 6; i++) {
+                const x = padL + gW * i / 6;
+                ctx.beginPath();
+                ctx.moveTo(x, padT);
+                ctx.lineTo(x, padT + gH);
+                ctx.stroke();
+            }
+            for (let i = 0; i <= 4; i++) {
+                const y = padT + gH * i / 4;
+                ctx.beginPath();
+                ctx.moveTo(padL, y);
+                ctx.lineTo(padL + gW, y);
+                ctx.stroke();
+            }
 
-    // error bar
-    ctx.strokeStyle = dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(px, py - epy); ctx.lineTo(px, py + epy);
-    ctx.moveTo(px-4, py-epy); ctx.lineTo(px+4, py-epy);
-    ctx.moveTo(px-4, py+epy); ctx.lineTo(px+4, py+epy);
-    ctx.stroke();
+            function drawCurve(H0_val, OmegaM_val, color, dashPattern = []) {
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2.2;
+                ctx.setLineDash(dashPattern);
+                let first = true;
+                for (let zi = 0.01; zi <= zMax; zi += 0.02) {
+                    const yVal = comovingDistanceOverRd(zi, H0_val, OmegaM_val);
+                    if (yVal > yMax + 1.5) break;
+                    const xPx = tx(zi);
+                    const yPx = ty(yVal);
+                    if (first) {
+                        ctx.moveTo(xPx, yPx);
+                        first = false;
+                    } else {
+                        ctx.lineTo(xPx, yPx);
+                    }
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
 
-    // точка
-    const col = d.type === 'DM' ? '#1D9E75' : '#7F77DD';
-    ctx.fillStyle = col;
-    ctx.beginPath();
-    if (d.type === 'DM') {
-      ctx.arc(px, py, 5, 0, Math.PI*2);
-    } else {
-      ctx.rect(px-4, py-4, 8, 8);
-    }
-    ctx.fill();
+            drawCurve(67.4, Om, '#378ADD', []);
+            drawCurve(73.0, Om, '#E24B4A', [6, 5]);
+            drawCurve(H0, Om, '#EF9F27', []);
 
-    // label
-    ctx.fillStyle = dark ? 'rgba(200,198,190,0.7)' : 'rgba(80,80,80,0.8)';
-    ctx.font = '10px system-ui';
-    ctx.textAlign = 'left';
-    ctx.fillText(d.label, px+7, py+3);
-  }
+            ctx.strokeStyle = axisColor;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(padL, padT, gW, gH);
 
-  // легенда
-  const lx = padL + 10, ly = padT + 10;
-  ctx.font = '12px system-ui';
+            ctx.fillStyle = textColor;
+            ctx.font = '11px system-ui, monospace';
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 6; i++) {
+                const zVal = (i / 6) * zMax;
+                ctx.fillText(zVal.toFixed(1), tx(zVal), padT + gH + 16);
+            }
+            ctx.fillText('z (redshift)', padL + gW / 2, padT + gH + 36);
 
-  ctx.strokeStyle = '#378ADD'; ctx.lineWidth = 2; ctx.setLineDash([]);
-  ctx.beginPath(); ctx.moveTo(lx, ly+6); ctx.lineTo(lx+22, ly+6); ctx.stroke();
-  ctx.fillStyle = dark ? '#c2c0b6' : '#3d3d3a';
-  ctx.textAlign = 'left';
-  ctx.fillText('Planck H₀=67.4', lx+26, ly+10);
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 4; i++) {
+                const yVal = Math.round(i / 4 * yMax);
+                ctx.fillText(yVal, padL - 8, ty(yVal) + 4);
+            }
+            ctx.save();
+            ctx.translate(18, padT + gH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.font = '11px system-ui';
+            ctx.fillStyle = textColor;
+            ctx.fillText('Dₘ / r_d  або  Dᵥ / r_d', 0, 0);
+            ctx.restore();
 
-  ctx.strokeStyle = '#E24B4A'; ctx.setLineDash([6,4]);
-  ctx.beginPath(); ctx.moveTo(lx+140, ly+6); ctx.lineTo(lx+162, ly+6); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillText('SH0ES H₀=73.0', lx+166, ly+10);
+            for (const pt of baoData) {
+                const obs = pt.type === 'DM' ? pt.DM_rd : pt.DV_rd;
+                const errVal = pt.type === 'DM' ? pt.eDM : pt.eDV;
+                const xPx = tx(pt.z);
+                const yPx = ty(obs);
+                const errPx = gH * errVal / yMax;
 
-  ctx.strokeStyle = '#EF9F27'; ctx.lineWidth = 2.5;
-  ctx.beginPath(); ctx.moveTo(lx+300, ly+6); ctx.lineTo(lx+322, ly+6); ctx.stroke();
-  ctx.fillText('ваша модель H₀=' + H0.toFixed(1), lx+326, ly+10);
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(230,230,240,0.5)';
+                ctx.lineWidth = 1.2;
+                ctx.moveTo(xPx, yPx - errPx);
+                ctx.lineTo(xPx, yPx + errPx);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(xPx - 4, yPx - errPx);
+                ctx.lineTo(xPx + 4, yPx - errPx);
+                ctx.moveTo(xPx - 4, yPx + errPx);
+                ctx.lineTo(xPx + 4, yPx + errPx);
+                ctx.stroke();
 
-  ctx.fillStyle = '#1D9E75';
-  ctx.beginPath(); ctx.arc(lx+10, ly+26, 5, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = dark ? '#c2c0b6' : '#3d3d3a';
-  ctx.fillText('D_M/r_d  (DESI/SDSS)', lx+20, ly+30);
+                const fillColor = pt.type === 'DM' ? '#1D9E75' : '#7F77DD';
+                ctx.fillStyle = fillColor;
+                if (pt.type === 'DM') {
+                    ctx.beginPath();
+                    ctx.arc(xPx, yPx, 5, 0, 2 * Math.PI);
+                    ctx.fill();
+                } else {
+                    ctx.fillRect(xPx - 4.5, yPx - 4.5, 9, 9);
+                }
+                ctx.font = '9px system-ui';
+                ctx.fillStyle = labelColor;
+                ctx.textAlign = 'left';
+                ctx.fillText(pt.label, xPx + 7, yPx + 3);
+            }
 
-  ctx.fillStyle = '#7F77DD';
-  ctx.fillRect(lx+6, ly+40, 8, 8);
-  ctx.fillStyle = dark ? '#c2c0b6' : '#3d3d3a';
-  ctx.fillText('D_V/r_d  (ізотропне)', lx+20, ly+49);
-}
+            const legendX = padL + 8;
+            let legendY = padT + 10;
+            ctx.font = '11px system-ui';
+            ctx.fillStyle = textColor;
 
-document.getElementById('h0slider').addEventListener('input', draw);
-document.getElementById('omslider').addEventListener('input', draw);
-draw();
+            ctx.beginPath();
+            ctx.strokeStyle = '#378ADD';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([]);
+            ctx.moveTo(legendX, legendY + 5);
+            ctx.lineTo(legendX + 24, legendY + 5);
+            ctx.stroke();
+            ctx.fillText('Planck H₀=67.4', legendX + 30, legendY + 9);
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#E24B4A';
+            ctx.setLineDash([6, 4]);
+            ctx.moveTo(legendX + 165, legendY + 5);
+            ctx.lineTo(legendX + 189, legendY + 5);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillText('SH0ES H₀=73.0', legendX + 195, legendY + 9);
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#EF9F27';
+            ctx.lineWidth = 2.2;
+            ctx.moveTo(legendX + 320, legendY + 5);
+            ctx.lineTo(legendX + 344, legendY + 5);
+            ctx.stroke();
+            ctx.fillText(`модель H₀=${H0.toFixed(1)}`, legendX + 350, legendY + 9);
+            ctx.setLineDash([]);
+
+            let legY2 = legendY + 24;
+            ctx.fillStyle = '#1D9E75';
+            ctx.beginPath();
+            ctx.arc(legendX + 9, legY2 + 2, 5, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = textColor;
+            ctx.fillText('Dₘ/r_d  (DESI LRG/ELG/QSO/Lyα)', legendX + 22, legY2 + 7);
+
+            ctx.fillStyle = '#7F77DD';
+            ctx.fillRect(legendX + 6, legY2 + 18, 8, 8);
+            ctx.fillStyle = textColor;
+            ctx.fillText('Dᵥ/r_d  (ізотропний BAO)', legendX + 22, legY2 + 27);
+
+            ctx.font = '9px monospace';
+            ctx.fillStyle = '#cfcba5';
+            ctx.textAlign = 'right';
+            ctx.fillText(`⨀ МНК (Ωₘ = ${Om.toFixed(3)}) → H₀ = ${bestH.toFixed(1)}`, W - 18, H - 12);
+            ctx.textAlign = 'left';
+        }
+
+        document.getElementById('h0slider').addEventListener('input', draw);
+        document.getElementById('omslider').addEventListener('input', draw);
+        window.addEventListener('resize', () => draw());
+        setCanvasSize();
+        draw();
+    })();
 </script>
+
+</body>
+</html>

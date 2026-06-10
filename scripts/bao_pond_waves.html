@@ -1,631 +1,606 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>BAO DESI DR1: D_M/r_d vs z | Фіт H₀ та Ωₘ</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: #0b0d12;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px 16px 32px;
-        }
-
-        /* Зоряний фон */
-        #stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* головна картка */
-        .bao-card {
-            position: relative;
-            z-index: 1;
-            max-width: 1100px;
-            width: 100%;
-            background: rgba(18, 18, 30, 0.88);
-            backdrop-filter: blur(2px);
-            border-radius: 32px;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-            padding: 20px 20px 26px;
-            transition: all 0.2s ease;
-        }
-
-        /* контейнер для канваса з адаптивним скролом */
-        .canvas-wrapper {
-            display: flex;
-            justify-content: center;
-            margin: 18px 0 8px;
-            overflow-x: auto;
-            overflow-y: visible;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 20px;
-        }
-
-        canvas {
-            display: block;
-            width: auto;
-            height: auto;
-            max-width: 100%;
-            border-radius: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            transition: all 0.1s;
-        }
-
-        /* панель керування */
-        .control-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            background: rgba(255, 255, 255, 0.06);
-            padding: 18px 18px 16px;
-            border-radius: 28px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(2px);
-        }
-
-        .ctrl-item {
-            flex: 1;
-            min-width: 180px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .ctrl-label {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: -0.2px;
-            color: #e1dfd7;
-        }
-
-        .ctrl-label span:first-child {
-            font-weight: 600;
-            background: rgba(100, 100, 140, 0.25);
-            padding: 2px 10px;
-            border-radius: 40px;
-            font-size: 0.8rem;
-        }
-
-        .value-badge {
-            font-family: monospace;
-            font-weight: 500;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 3px 10px;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            color: #e1dfd7;
-        }
-
-        input[type="range"] {
-            flex: 1;
-            height: 5px;
-            -webkit-appearance: none;
-            background: #2c2c3a;
-            border-radius: 10px;
-            outline: none;
-        }
-
-        input[type="range"]:focus {
-            outline: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            background: #f0b34b;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-            border: 2px solid #1e1e2a;
-        }
-
-        /* інфо-панель */
-        .stats-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin: 8px 0 10px;
-            padding: 8px 4px;
-        }
-
-        .chi2-box {
-            background: rgba(55, 138, 221, 0.2);
-            padding: 6px 14px;
-            border-radius: 60px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: baseline;
-            gap: 8px;
-            flex-wrap: wrap;
-            color: #e8e6df !important;
-        }
-
-        .chi2-box strong {
-            color: #e8e6df !important;
-        }
-
-        .badge-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            row-gap: 8px;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 14px;
-            border-radius: 60px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: 0.1s;
-            backdrop-filter: blur(2px);
-            white-space: nowrap;
-        }
-
-        @media (max-width: 580px) {
-            .badge {
-                white-space: normal;
-                word-break: keep-all;
-                font-size: 0.75rem;
-                padding: 5px 10px;
-            }
-            .stats-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .ctrl-item {
-                min-width: 140px;
-            }
-            .control-panel {
-                padding: 14px;
-                gap: 16px;
-            }
-            .bao-card {
-                padding: 16px;
-            }
-        }
-
-        @media (max-width: 460px) {
-            .ctrl-label span:first-child {
-                font-size: 0.75rem;
-            }
-            .value-badge {
-                font-size: 0.75rem;
-            }
-            .badge {
-                font-size: 0.7rem;
-            }
-        }
-
-        .badge.planck {
-            background: rgba(55, 138, 221, 0.25);
-            color: #7bb3e6;
-            border-left: 3px solid #378ADD;
-        }
-        .badge.sh0es {
-            background: rgba(226, 75, 74, 0.3);
-            color: #ff8a7a;
-            border-left: 3px solid #E24B4A;
-        }
-        .badge.best-fit {
-            background: rgba(239, 159, 39, 0.28);
-            color: #f6bd60;
-            border-left: 3px solid #EF9F27;
-        }
-
-        hr {
-            margin: 12px 0 0;
-            border: none;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .footnote {
-            font-size: 0.7rem;
-            text-align: center;
-            margin-top: 20px;
-            opacity: 0.7;
-            color: #9e9caa;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>BAO — хвилі на ставку</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, sans-serif;
+  background: #1a1a2e;
+  color: #c2c0b6;
+  padding: 20px;
+  min-height: 100vh;
+}
+h1 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #e8e6de;
+  margin-bottom: 16px;
+}
+.ctrl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.ctrl label { width: 60px; color: #888; }
+.ctrl input[type=range] { flex: 1; max-width: 400px; accent-color: #378ADD; }
+.ctrl .val { width: 32px; text-align: right; color: #e8e6de; font-size: 13px; }
+.btn {
+  margin: 10px 0 16px;
+  padding: 6px 18px;
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #c2c0b6;
+  cursor: pointer;
+  font-size: 13px;
+}
+.btn:hover { background: #2a2a3e; }
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #c2c0b6;
+  cursor: pointer;
+  user-select: none;
+}
+.check-row input[type=checkbox] {
+  accent-color: #378ADD;
+  width: 14px; height: 14px;
+  cursor: pointer;
+}
+.check-row .hint {
+  color: #555;
+  font-size: 11px;
+  margin-left: 4px;
+}
+.info {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-left: 3px solid #378ADD;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #b0aea6;
+}
+.info h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8e6de;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+.info .formula {
+  font-family: 'Georgia', serif;
+  font-size: 14px;
+  color: #c8e4ff;
+  background: rgba(55,138,221,0.08);
+  border-radius: 5px;
+  padding: 6px 12px;
+  margin: 6px 0;
+  display: inline-block;
+}
+.info .cols {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.info .col { flex: 1; min-width: 220px; }
+.panels {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.panel { flex: 1; }
+canvas {
+  display: block;
+  width: 65%;
+  border-radius: 8px;
+}
+.cap {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  margin-top: 6px;
+}
+</style>
 </head>
 <body>
+<h1>BAO — аналогія з хвилями на ставку</h1>
 
-<canvas id="stars"></canvas>
-
-<div class="bao-card">
-    <h2 style="font-size: 1.4rem; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: #e8e2d6;">
-        📡 BAO DESI DR1
-        <span style="font-size: 0.8rem; font-weight: normal; background: rgba(255,255,255,0.1); padding: 2px 12px; border-radius: 60px;">D<sub>M</sub>/r<sub>d</sub> + D<sub>V</sub>/r<sub>d</sub></span>
-    </h2>
-
-    <!-- панель повзунків -->
-    <div class="control-panel">
-        <div class="ctrl-item">
-            <div class="ctrl-label">
-                <span>🌌 H₀ (модель)</span>
-                <span class="value-badge" id="h0val_display">67.4 км/с/Мпк</span>
-            </div>
-            <input type="range" id="h0slider" min="60" max="80" value="67.4" step="0.1" aria-label="H₀ parameter">
-        </div>
-        <div class="ctrl-item">
-            <div class="ctrl-label">
-                <span>⚫ Ω<sub>m</sub></span>
-                <span class="value-badge" id="omval_display">0.315</span>
-            </div>
-            <input type="range" id="omslider" min="0.25" max="0.38" value="0.315" step="0.005" aria-label="Omega matter">
-        </div>
+<div class="info">
+  <h2>Що таке BAO і як рахується r<sub>s</sub>?</h2>
+  <div class="cols">
+    <div class="col">
+      <b style="color:#e8e6de">Фізична ідея.</b> У ранньому Всесвіті баріонно-фотонна плазма була пов'язана тиском випромінювання. Флуктуації густини породжували акустичні хвилі зі швидкістю звуку <i>c<sub>s</sub></i>. Після рекомбінації (~380 000 років) хвилі «замерзли» на характерному радіусі — <b style="color:#c8e4ff">звуковому горизонті r<sub>s</sub></b>. Галактики й досі кластеризовані з перевагою саме на цій відстані.
     </div>
-
-    <!-- статистика + бейджі -->
-    <div class="stats-row">
-        <div class="chi2-box">
-            📐 МНК χ² : <strong id="chi2val">—</strong>
-        </div>
-        <div class="badge-group">
-            <span class="badge planck" id="badge67">🔵 Planck: H₀ = 67.4</span>
-            <span class="badge sh0es" id="badge73">🔴 SH0ES: H₀ = 73.0</span>
-            <span class="badge best-fit" id="badgebest">🟠 МНК: —</span>
-        </div>
+    <div class="col">
+      <b style="color:#e8e6de">Звуковий горизонт:</b><br>
+      <span class="formula">r<sub>s</sub> = ∫₀<sup>z*</sup> c<sub>s</sub>(z) / H(z) · dz</span><br>
+      <i>z*</i> ≈ 1090 — червоний зсув рекомбінації, <i>H(z)</i> — параметр Хаббла.<br>
+      <span class="formula">c<sub>s</sub> = c / √(3(1 + R<sub>b</sub>))</span><br>
+      <i>R<sub>b</sub></i> = 3ρ<sub>b</sub>/4ρ<sub>γ</sub> — баріони/фотони. У ΛCDM: <b style="color:#c8e4ff">r<sub>s</sub> ≈ 147 Мпк</b>.
     </div>
-
-    <!-- canvas -->
-    <div class="canvas-wrapper">
-        <canvas id="baoCanvas" width="680" height="420" style="width:100%; height:auto; max-width:680px; aspect-ratio:680/420;"></canvas>
+    <div class="col">
+      <b style="color:#e8e6de">Кореляційна функція:</b><br>
+      <span class="formula">ξ(r) = DD(r) / RR(r) − 1</span><br>
+      <i>DD(r)</i> — реальні пари на відстані <i>r</i>,<br>
+      <i>RR(r)</i> — очікувана кількість для рівномірного розподілу (~r у 2D).<br>
+      BAO пік — горб на <i>ξ(r)</i> при <i>r = r<sub>s</sub></i>.
     </div>
-    <div class="footnote">
-        ⬤ D<sub>M</sub>/r<sub>d</sub> (DESI LRG, ELG, QSO, Lyα) &nbsp;|&nbsp; ◻ D<sub>V</sub>/r<sub>d</sub> (6dFGS, SDSS MGS, DESI BGS)<br>
-        Теоретичні криві: Planck, SH0ES та ваша модель H₀ (жовтогаряча)
-    </div>
+  </div>
 </div>
 
+<div class="ctrl">
+  <label>Центрів</label>
+  <input type="range" id="nSrc" min="1" max="60" value="20" step="1">
+  <span class="val" id="nSrcVal">20</span>
+</div>
+<div class="ctrl">
+  <label>Час</label>
+  <input type="range" id="tSlider" min="5" max="200" value="60" step="1">
+  <span class="val" id="tVal">60</span>
+</div>
+
+<button class="btn" onclick="randomize()">Нові центри</button>
+<button class="btn" onclick="resetSim()">Reset</button>
+<button class="btn" id="playBtn" onclick="togglePlay()">▶ Грати</button>
+<label class="check-row">
+  <input type="checkbox" id="comovingCheck">
+  супутні координати
+  <span class="hint">(точки нерухомі, тільки кола ростуть)</span>
+</label>
+<label class="check-row">
+  <input type="checkbox" id="modesCheck">
+  показувати графік акустичних мод
+</label>
+
+<div class="panels">
+  <div class="panel">
+    <canvas id="pondCanvas"></canvas>
+    <p class="cap">ставок — вигляд зверху (червоні точки = центри флуктуацій)</p>
+  </div>
+  <div class="panel">
+    <canvas id="corrCanvas"></canvas>
+    <p class="cap">кількість пар галактик на відстані r — горб це BAO пік</p>
+  </div>
+</div>
+<div id="modesPanel" style="margin-top: 20px; display: none;">
+  <canvas id="modesCanvas" style="display:block; width:100%; border-radius:8px;"></canvas>
+  <p class="cap">еволюція акустичних мод Θ₀(η) = δ_γ/4 у конформному часі — амплітуда в момент η<sub>rec</sub> формує піки CMB</p>
+</div>
+
+
 <script>
-    /* ── Starfield ── */
-    (function () {
-        const canvas = document.getElementById('stars');
-        const ctx = canvas.getContext('2d');
-        let W, H, stars = [];
+const SIZE = 560;
+const CENTER = SIZE / 2;
+let sources = []; // комовні координати відносно центру
+let nSrc = 20, tNow = 60;
 
-        function resize() {
-            W = canvas.width = window.innerWidth;
-            H = canvas.height = window.innerHeight;
-        }
+const T0 = 60;       // умовний початковий час
+const T_REC = 105;   // умовний час рекомбінації (r_s досягає 147 при t=105)
+let comovingMode = false;
+function scaleA(t) { return Math.sqrt(t / T0); }
+function scaleA_rec() { return scaleA(T_REC); }
 
-        function seed() {
-            stars = [];
-            const n = Math.floor((W * H) / 2800);
-            for (let i = 0; i < n; i++) {
-                stars.push({
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    r: Math.random() * 1.1 + 0.15,
-                    a: Math.random(),
-                    da: (Math.random() - 0.5) * 0.003
-                });
-            }
-        }
+const R_SOUND = 147; // звуковий горизонт у СУПУТНІХ пікселях (= 147 Мпк)
 
-        function drawStars() {
-            ctx.clearRect(0, 0, W, H);
-            for (const s of stars) {
-                s.a = Math.max(0.05, Math.min(1, s.a + s.da));
-                if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(220,210,195,${s.a * 0.7})`;
-                ctx.fill();
-            }
-            requestAnimationFrame(drawStars);
-        }
+// Супутній акустичний радіус: росте до рекомбінації, потім заморожується
+function acousticRadius_comov(t) {
+  return Math.min(1.4 * t, R_SOUND);
+}
 
-        resize();
-        seed();
-        drawStars();
-        window.addEventListener('resize', () => {
-            resize();
-            seed();
-        });
-    })();
+// Фізичний акустичний радіус = супутній * a(t) — завжди, без розриву
+// до рек.: r_c росте (c_s) і множиться на a(t) → подвійний ріст
+// після рек.: r_c=147=const, a(t) продовжує рости → чисте розширення
+function acousticRadius_phys(t) {
+  return acousticRadius_comov(t) * scaleA(t);
+}
 
-    /* ── BAO Core ── */
-    (function () {
-        // Дані BAO (DESI DR1 + інші)
-        const baoData = [
-            { z: 0.106, DV_rd: 2.98,  eDV: 0.13,  type: 'DV', label: '6dFGS' },
-            { z: 0.15,  DV_rd: 4.47,  eDV: 0.17,  type: 'DV', label: 'SDSS MGS' },
-            { z: 0.30,  DV_rd: 7.93,  eDV: 0.15,  type: 'DV', label: 'DESI BGS' },
-            { z: 0.51,  DM_rd: 13.62, eDM: 0.25,  type: 'DM', label: 'DESI LRG1' },
-            { z: 0.71,  DM_rd: 16.85, eDM: 0.32,  type: 'DM', label: 'DESI LRG2' },
-            { z: 0.93,  DM_rd: 21.71, eDM: 0.28,  type: 'DM', label: 'DESI LRG+ELG' },
-            { z: 1.32,  DM_rd: 27.79, eDM: 0.69,  type: 'DM', label: 'DESI ELG' },
-            { z: 1.49,  DM_rd: 30.21, eDM: 0.79,  type: 'DM', label: 'DESI QSO' },
-            { z: 2.33,  DM_rd: 37.6,  eDM: 1.9,   type: 'DM', label: 'DESI Lyα' }
-        ];
+function waveAmp(r_px, t) {
+  // r_px — відстань у пікселях канви від центру джерела
+  // порівнюємо з радіусом у тих самих одиницях
+  const R = comovingMode ? acousticRadius_comov(t) : acousticRadius_phys(t);
+  const sigma = comovingMode ? 10 : 10 * scaleA(t);
+  return Math.exp(-0.5 * ((r_px - R) / sigma) ** 2);
+}
 
-        const rd_fid = 147.09;
-        const speedOfLight = 299792.458;
+// Координати джерела на канві
+function physPos(s, t) {
+  const a = comovingMode ? 1.0 : scaleA(t);
+  return { x: CENTER + s.cx * a, y: CENTER + s.cy * a };
+}
 
-        function comovingDistanceOverRd(z, H0, OmegaM) {
-            let integral = 0;
-            const steps = 500;
-            const dz = z / steps;
-            for (let i = 0; i < steps; i++) {
-                const z_mid = (i + 0.5) * dz;
-                const E = Math.sqrt(OmegaM * Math.pow(1 + z_mid, 3) + (1 - OmegaM));
-                integral += dz / E;
-            }
-            const DM_physical = (speedOfLight / H0) * integral;
-            return DM_physical / rd_fid;
-        }
+function randomize() {
+  sources = [];
+  // В фізичних координатах при t=200: a=1.826, тому супутній розкид
+  // обмежуємо щоб джерела не виходили за канву при будь-якому t
+  const a_max = Math.sqrt(100 / T0); // ~1.826
+  const spread = (SIZE / 2 - 30) / a_max; // ~140px супутніх
+  for (let i = 0; i < nSrc; i++) {
+    sources.push({
+      cx: (Math.random() - 0.5) * 2 * spread,
+      cy: (Math.random() - 0.5) * 2 * spread
+    });
+  }
+  draw();
+}
 
-        function dvOverRd(z, H0, OmegaM) {
-            const DM_rd = comovingDistanceOverRd(z, H0, OmegaM);
-            const DM_phys = DM_rd * rd_fid;
-            const E = Math.sqrt(OmegaM * Math.pow(1 + z, 3) + (1 - OmegaM));
-            const DH_phys = speedOfLight / (H0 * E);
-            const DV_phys = Math.pow(z * DM_phys * DM_phys * DH_phys, 1/3);
-            return DV_phys / rd_fid;
-        }
+function drawPond() {
+  const canvas = document.getElementById('pondCanvas');
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(SIZE, SIZE);
 
-        function computeChi2(H0, OmegaM) {
-            let sum = 0;
-            for (const pt of baoData) {
-                let theory;
-                if (pt.type === 'DM') {
-                    theory = comovingDistanceOverRd(pt.z, H0, OmegaM);
-                    sum += ((pt.DM_rd - theory) / pt.eDM) ** 2;
-                } else {
-                    theory = dvOverRd(pt.z, H0, OmegaM);
-                    sum += ((pt.DV_rd - theory) / pt.eDV) ** 2;
-                }
-            }
-            return sum;
-        }
+  const a = scaleA(tNow);
+  const physSources = sources.map(s => physPos(s, tNow));
 
-        function bestH0ForOmegaM(OmegaM, minH = 60, maxH = 80, step = 0.1) {
-            let bestH = 67.4;
-            let bestChi = Infinity;
-            for (let h = minH; h <= maxH + step / 2; h += step) {
-                const chi = computeChi2(h, OmegaM);
-                if (chi < bestChi) {
-                    bestChi = chi;
-                    bestH = h;
-                }
-            }
-            return bestH;
-        }
+  for (let py = 0; py < SIZE; py++) {
+    for (let px = 0; px < SIZE; px++) {
+      let amp = 0;
+      for (let si = 0; si < sources.length; si++) {
+        const ps = physSources[si];
+        const r_phys = Math.sqrt((px - ps.x) ** 2 + (py - ps.y) ** 2);
+        amp += waveAmp(r_phys, tNow);
+      }
+      const v = Math.min(1, amp / (sources.length * 0.28));
+      const idx = (py * SIZE + px) * 4;
+      img.data[idx]   = Math.round(10  + v * 30);
+      img.data[idx+1] = Math.round(50  + v * 140);
+      img.data[idx+2] = Math.round(110 + v * 120);
+      img.data[idx+3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
 
-        const canvas = document.getElementById('baoCanvas');
-        const ctx = canvas.getContext('2d');
-        const W = 680, H = 420;
+  for (let si = 0; si < sources.length; si++) {
+    const ps = physSources[si];
+    const r = 14;
+    const grad = ctx.createRadialGradient(ps.x, ps.y, 0, ps.x, ps.y, r);
+    grad.addColorStop(0,   'rgba(0, 0, 0, 0.95)');
+    grad.addColorStop(0.35,'rgba(0, 0, 0, 0.55)');
+    grad.addColorStop(1,   'rgba(0, 0, 0, 0)');
+    ctx.beginPath();
+    ctx.arc(ps.x, ps.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+}
 
-        function setCanvasSize() {
-            canvas.width = W;
-            canvas.height = H;
-            canvas.style.width = '100%';
-            canvas.style.height = 'auto';
-            canvas.style.aspectRatio = '680/420';
-        }
+function drawCorr() {
+  const canvas = document.getElementById('corrCanvas');
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
 
-        function draw() {
-            if (!ctx) return;
-            const H0 = parseFloat(document.getElementById('h0slider').value);
-            const Om = parseFloat(document.getElementById('omslider').value);
+  const bg = '#1a1a2e';
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, SIZE, SIZE);
 
-            document.getElementById('h0val_display').innerHTML = H0.toFixed(1) + ' км/с/Мпк';
-            document.getElementById('omval_display').innerHTML = Om.toFixed(3);
-            const chi2Val = computeChi2(H0, Om);
-            document.getElementById('chi2val').innerHTML = chi2Val.toFixed(2);
+  // Графік ЗАВЖДИ в супутніх координатах — r_s не стрибає
+  const maxR = SIZE * 0.85;
+  const bins = 120;
+  const counts = new Array(bins).fill(0);
 
-            const bestH = bestH0ForOmegaM(Om);
-            document.getElementById('badgebest').innerHTML = `🟠 МНК: H₀ = ${bestH.toFixed(1)}`;
+  for (let i = 0; i < sources.length; i++) {
+    for (let j = i + 1; j < sources.length; j++) {
+      const r_c = Math.sqrt((sources[i].cx - sources[j].cx) ** 2 + (sources[i].cy - sources[j].cy) ** 2);
+      if (r_c < maxR) {
+        const b = Math.floor(r_c / maxR * bins);
+        if (b < bins) counts[b]++;
+      }
+    }
+  }
 
-            const isDark = true;
-            const bgColor = '#12121e';
-            const gridColor = 'rgba(255,255,255,0.08)';
-            const axisColor = 'rgba(255,255,255,0.25)';
-            const textColor = '#b7b5ab';
-            const labelColor = 'rgba(210,208,200,0.7)';
+  // Супутній акустичний радіус для позиції піку на графіку
+  const R = acousticRadius_comov(tNow);
+  const sigma = 10;
 
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, W, H);
+  // RR(b) ~ r (периметр кола в 2D)
+  const rr = counts.map((_, b) => {
+    const r = (b + 0.5) / bins * maxR;
+    return r + 1e-6;
+  });
+  const rrMean = rr.reduce((a, v) => a + v, 0) / bins;
 
-            const padL = 58, padR = 24, padT = 24, padB = 52;
-            const gW = W - padL - padR;
-            const gH = H - padT - padB;
-            const zMax = 2.6;
-            const yMax = 44;
+  // DD = реальні пари + BAO boost
+  const dd = counts.map((c, b) => {
+    const r = (b + 0.5) / bins * maxR;
+    const boost = sources.length * 1.2 * Math.exp(-0.5 * ((r - R) / sigma) ** 2);
+    return c + boost;
+  });
+  const ddMean = dd.reduce((a, v) => a + v, 0) / bins;
 
-            const tx = (z) => padL + gW * z / zMax;
-            const ty = (y) => padT + gH * (1 - y / yMax);
+  // ξ(r) = DD/RR нормована → спадає до ~0
+  const xi = dd.map((d, b) => (d / rr[b]) / (ddMean / rrMean) - 1);
 
-            ctx.strokeStyle = gridColor;
-            ctx.lineWidth = 0.6;
-            for (let i = 0; i <= 6; i++) {
-                const x = padL + gW * i / 6;
-                ctx.beginPath();
-                ctx.moveTo(x, padT);
-                ctx.lineTo(x, padT + gH);
-                ctx.stroke();
-            }
-            for (let i = 0; i <= 4; i++) {
-                const y = padT + gH * i / 4;
-                ctx.beginPath();
-                ctx.moveTo(padL, y);
-                ctx.lineTo(padL + gW, y);
-                ctx.stroke();
-            }
+  const maxVal = Math.max(...xi, 0.01);
+  const minVal = Math.min(...xi, 0);
 
-            function drawCurve(H0_val, OmegaM_val, color, dashPattern = []) {
-                ctx.beginPath();
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 2.2;
-                ctx.setLineDash(dashPattern);
-                let first = true;
-                for (let zi = 0.01; zi <= zMax; zi += 0.02) {
-                    const yVal = comovingDistanceOverRd(zi, H0_val, OmegaM_val);
-                    if (yVal > yMax + 1.5) break;
-                    const xPx = tx(zi);
-                    const yPx = ty(yVal);
-                    if (first) {
-                        ctx.moveTo(xPx, yPx);
-                        first = false;
-                    } else {
-                        ctx.lineTo(xPx, yPx);
-                    }
-                }
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
+  const padL = 52, padR = 20, padT = 30, padB = 48;
+  const gW = SIZE - padL - padR;
+  const gH = SIZE - padT - padB;
 
-            drawCurve(67.4, Om, '#378ADD', []);
-            drawCurve(73.0, Om, '#E24B4A', [6, 5]);
-            drawCurve(H0, Om, '#EF9F27', []);
+  // grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + gH * (1 - i / 4);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + gW, y); ctx.stroke();
+    const x = padL + gW * i / 4;
+    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + gH); ctx.stroke();
+  }
 
-            ctx.strokeStyle = axisColor;
-            ctx.lineWidth = 1;
-            ctx.strokeRect(padL, padT, gW, gH);
+  // zero line position
+  const range = maxVal - minVal;
+  const zeroY = padT + gH * maxVal / range;
 
-            ctx.fillStyle = textColor;
-            ctx.font = '11px system-ui, monospace';
-            ctx.textAlign = 'center';
-            for (let i = 0; i <= 6; i++) {
-                const zVal = (i / 6) * zMax;
-                ctx.fillText(zVal.toFixed(1), tx(zVal), padT + gH + 16);
-            }
-            ctx.fillText('z (redshift)', padL + gW / 2, padT + gH + 36);
+  // zero axis
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(padL, zeroY); ctx.lineTo(padL + gW, zeroY); ctx.stroke();
 
-            ctx.textAlign = 'right';
-            for (let i = 0; i <= 4; i++) {
-                const yVal = Math.round(i / 4 * yMax);
-                ctx.fillText(yVal, padL - 8, ty(yVal) + 4);
-            }
-            ctx.save();
-            ctx.translate(18, padT + gH / 2);
-            ctx.rotate(-Math.PI / 2);
-            ctx.textAlign = 'center';
-            ctx.font = '11px system-ui';
-            ctx.fillStyle = textColor;
-            ctx.fillText('Dₘ / r_d  або  Dᵥ / r_d', 0, 0);
-            ctx.restore();
+  // bars
+  const barColor = 'rgba(55,138,221,0.35)';
+  const lineCol = '#378ADD';
+  for (let b = 0; b < bins; b++) {
+    const x = padL + gW * b / bins;
+    const bw = gW / bins;
+    const yVal = padT + gH * (maxVal - xi[b]) / range;
+    ctx.fillStyle = xi[b] >= 0 ? 'rgba(55,138,221,0.3)' : 'rgba(221,100,55,0.25)';
+    ctx.fillRect(x, Math.min(yVal, zeroY), bw - 0.5, Math.abs(yVal - zeroY));
+  }
 
-            for (const pt of baoData) {
-                const obs = pt.type === 'DM' ? pt.DM_rd : pt.DV_rd;
-                const errVal = pt.type === 'DM' ? pt.eDM : pt.eDV;
-                const xPx = tx(pt.z);
-                const yPx = ty(obs);
-                const errPx = gH * errVal / yMax;
+  // line
+  ctx.strokeStyle = lineCol;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  for (let b = 0; b < bins; b++) {
+    const x = padL + gW * (b + 0.5) / bins;
+    const y = padT + gH * (maxVal - xi[b]) / range;
+    b === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
 
-                ctx.beginPath();
-                ctx.strokeStyle = 'rgba(230,230,240,0.5)';
-                ctx.lineWidth = 1.2;
-                ctx.moveTo(xPx, yPx - errPx);
-                ctx.lineTo(xPx, yPx + errPx);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(xPx - 4, yPx - errPx);
-                ctx.lineTo(xPx + 4, yPx - errPx);
-                ctx.moveTo(xPx - 4, yPx + errPx);
-                ctx.lineTo(xPx + 4, yPx + errPx);
-                ctx.stroke();
+  // axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(padL, padT, gW, gH);
 
-                const fillColor = pt.type === 'DM' ? '#1D9E75' : '#7F77DD';
-                ctx.fillStyle = fillColor;
-                if (pt.type === 'DM') {
-                    ctx.beginPath();
-                    ctx.arc(xPx, yPx, 5, 0, 2 * Math.PI);
-                    ctx.fill();
-                } else {
-                    ctx.fillRect(xPx - 4.5, yPx - 4.5, 9, 9);
-                }
-                ctx.font = '9px system-ui';
-                ctx.fillStyle = labelColor;
-                ctx.textAlign = 'left';
-                ctx.fillText(pt.label, xPx + 7, yPx + 3);
-            }
+  // BAO peak line
+  const peakR = R;
+  if (peakR < maxR) {
+    const px = padL + gW * peakR / maxR;
+    ctx.strokeStyle = '#E24B4A';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, padT + gH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#E24B4A';
+    ctx.font = '13px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('r_s = ' + Math.round(peakR) + ' Мпк', px, padT - 8);
+  }
 
-            const legendX = padL + 8;
-            let legendY = padT + 10;
-            ctx.font = '11px system-ui';
-            ctx.fillStyle = textColor;
+  // axis labels
+  ctx.fillStyle = '#888';
+  ctx.font = '12px system-ui';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 4; i++) {
+    const r_mpc = Math.round(i / 4 * maxR); // 1 піксель = 1 Мпк
+    const x = padL + gW * i / 4;
+    ctx.fillText(r_mpc, x, padT + gH + 18);
+  }
+  ctx.fillText('r  (супутні Мпк)', padL + gW / 2, padT + gH + 36);
 
-            ctx.beginPath();
-            ctx.strokeStyle = '#378ADD';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([]);
-            ctx.moveTo(legendX, legendY + 5);
-            ctx.lineTo(legendX + 24, legendY + 5);
-            ctx.stroke();
-            ctx.fillText('Planck H₀=67.4', legendX + 30, legendY + 9);
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = (minVal + range * i / 4).toFixed(2);
+    const y = padT + gH * (1 - i / 4);
+    ctx.fillText(val, padL - 6, y + 4);
+  }
 
-            ctx.beginPath();
-            ctx.strokeStyle = '#E24B4A';
-            ctx.setLineDash([6, 4]);
-            ctx.moveTo(legendX + 165, legendY + 5);
-            ctx.lineTo(legendX + 189, legendY + 5);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillText('SH0ES H₀=73.0', legendX + 195, legendY + 9);
+  // y-axis label ξ(r)
+  ctx.save();
+  ctx.translate(14, padT + gH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('ξ(r)', 0, 0);
+  ctx.restore();
+}
 
-            ctx.beginPath();
-            ctx.strokeStyle = '#EF9F27';
-            ctx.lineWidth = 2.2;
-            ctx.moveTo(legendX + 320, legendY + 5);
-            ctx.lineTo(legendX + 344, legendY + 5);
-            ctx.stroke();
-            ctx.fillText(`модель H₀=${H0.toFixed(1)}`, legendX + 350, legendY + 9);
-            ctx.setLineDash([]);
+let animId = null;
+let playing = false;
 
-            let legY2 = legendY + 24;
-            ctx.fillStyle = '#1D9E75';
-            ctx.beginPath();
-            ctx.arc(legendX + 9, legY2 + 2, 5, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.fillStyle = textColor;
-            ctx.fillText('Dₘ/r_d  (DESI LRG/ELG/QSO/Lyα)', legendX + 22, legY2 + 7);
+function togglePlay() {
+  if (playing) {
+    pauseAnim();
+  } else {
+    startAnim();
+  }
+}
 
-            ctx.fillStyle = '#7F77DD';
-            ctx.fillRect(legendX + 6, legY2 + 18, 8, 8);
-            ctx.fillStyle = textColor;
-            ctx.fillText('Dᵥ/r_d  (ізотропний BAO)', legendX + 22, legY2 + 27);
+function startAnim() {
+  playing = true;
+  document.getElementById('playBtn').textContent = '⏸ Пауза';
+  stepAnim();
+}
 
-            ctx.font = '9px monospace';
-            ctx.fillStyle = '#cfcba5';
-            ctx.textAlign = 'right';
-            ctx.fillText(`⨀ МНК (Ωₘ = ${Om.toFixed(3)}) → H₀ = ${bestH.toFixed(1)}`, W - 18, H - 12);
-            ctx.textAlign = 'left';
-        }
+function pauseAnim() {
+  playing = false;
+  document.getElementById('playBtn').textContent = '▶ Грати';
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+}
 
-        document.getElementById('h0slider').addEventListener('input', draw);
-        document.getElementById('omslider').addEventListener('input', draw);
-        window.addEventListener('resize', () => draw());
-        setCanvasSize();
-        draw();
-    })();
+function stepAnim() {
+  if (!playing) return;
+  const slider = document.getElementById('tSlider');
+  const max = +slider.max;
+  if (tNow >= max) {
+    // дійшли до кінця — зупинитись
+    pauseAnim();
+    return;
+  }
+  tNow = Math.min(tNow + 0.5, max);
+  slider.value = tNow;
+  document.getElementById('tVal').textContent = Math.round(tNow);
+  draw();
+  animId = requestAnimationFrame(stepAnim);
+}
+
+function resetSim() {
+  pauseAnim();
+  tNow = 60;
+  document.getElementById('tSlider').value = 60;
+  document.getElementById('tVal').textContent = 60;
+  randomize();
+}
+
+
+function drawModes() {
+  const canvas = document.getElementById('modesCanvas');
+  const W = canvas.parentElement.clientWidth || 1120;
+  const H = Math.round(W * 0.22);
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, W, H);
+
+  const padL = 52, padR = 40, padT = 24, padB = 36;
+  const gW = W - padL - padR;
+  const gH = H - padT - padB;
+
+  // grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 0.5;
+  [-1, 0, 1].forEach(v => {
+    const y = padT + gH * (1 - (v + 1) / 2);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + gW, y); ctx.stroke();
+  });
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(x => {
+    const px = padL + x / 1.15 * gW;
+    ctx.beginPath(); ctx.moveTo(px, padT); ctx.lineTo(px, padT + gH); ctx.stroke();
+  });
+
+  // zero line
+  const zeroY = padT + gH * 0.5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(padL, zeroY); ctx.lineTo(padL + gW, zeroY); ctx.stroke();
+
+  // η_rec line — відповідає поточному tNow нормованому
+  const etaRec = 1.0;
+  const etaNow = Math.min(tNow / 105, 1.0); // зупиняємось на η_rec=1.0
+  const recX = padL + etaNow / 1.15 * gW;
+  ctx.strokeStyle = '#E24B4A';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(recX, padT); ctx.lineTo(recX, padT + gH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#E24B4A';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'left';
+  ctx.fillText('η = ' + etaNow.toFixed(2), recX + 4, padT + 11);
+
+  // modes
+  const modes = [
+    { n: 1, color: '#5B9CF6', label: 'k₁: 1-й пік' },
+    { n: 2, color: '#F6A35B', label: 'k₂: 2-й пік' },
+    { n: 3, color: '#6FCF8A', label: 'k₃: 3-й пік' },
+  ];
+
+  modes.forEach(m => {
+    ctx.strokeStyle = m.color;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    const steps = 300;
+    for (let i = 0; i <= steps; i++) {
+      const eta = i / steps * 1.15;
+      const val = Math.cos(m.n * Math.PI * eta);
+      const px = padL + eta / 1.15 * gW;
+      const py = padT + gH * (1 - (val + 1) / 2);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // dot at current eta
+    const valNow = Math.cos(m.n * Math.PI * etaNow);
+    const dotX = recX;
+    const dotY = padT + gH * (1 - (valNow + 1) / 2);
+    ctx.beginPath();
+    ctx.arc(dotX, dotY, 4, 0, Math.PI * 2);
+    ctx.fillStyle = m.color;
+    ctx.fill();
+  });
+
+  // axis labels
+  ctx.fillStyle = '#888';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(x => {
+    const label = x === 1.0 ? 'η_rec' : x.toString();
+    ctx.fillText(label, padL + x / 1.15 * gW, padT + gH + 14);
+  });
+  ctx.fillText('конформний час η', padL + gW / 2, padT + gH + 30);
+
+  ctx.textAlign = 'right';
+  [[-1,'−1'],[0,'0'],[1,'1']].forEach(([v, lbl]) => {
+    const y = padT + gH * (1 - (v + 1) / 2);
+    ctx.fillText(lbl, padL - 6, y + 4);
+  });
+
+  // legend
+  modes.forEach((m, i) => {
+    const lx = padL + gW - 120;
+    const ly = padT + 14 + i * 16;
+    ctx.strokeStyle = m.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 18, ly); ctx.stroke();
+    ctx.fillStyle = '#aaa';
+    ctx.font = '11px system-ui';
+    ctx.textAlign = 'left';
+    ctx.fillText(m.label, lx + 22, ly + 4);
+  });
+
+  // border
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 0.5;
+  ctx.strokeRect(padL, padT, gW, gH);
+}
+
+function draw() { drawPond(); drawCorr(); drawModes(); }
+
+document.getElementById('nSrc').addEventListener('input', function () {
+  nSrc = +this.value;
+  document.getElementById('nSrcVal').textContent = nSrc;
+  randomize();
+});
+document.getElementById('tSlider').addEventListener('input', function () {
+  tNow = +this.value;
+  document.getElementById('tVal').textContent = tNow;
+  draw();
+});
+document.getElementById('modesCheck').addEventListener('change', function() {
+  document.getElementById('modesPanel').style.display = this.checked ? 'block' : 'none';
+});
+
+document.getElementById('comovingCheck').addEventListener('change', function() {
+  comovingMode = this.checked;
+  draw();
+});
+
+randomize();
 </script>
-
 </body>
 </html>
