@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Нотатки з космології — С. М. Пономаренко</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --ink:       #e8e2d6;
+    --ink-dim:   #a09888;
+    --bg:        #0b0d12;
+    --bg-card:   #12151e;
+    --bg-rule:   #1e2333;
+    --gold:      #c9a84c;
+    --gold-dim:  #7a6530;
+    --accent:    #4a7fc1;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Star canvas ── */
+  #stars {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── Header ── */
+  .topbar {
+    position: relative; z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 2rem;
+    border-bottom: 1px solid var(--bg-rule);
+  }
+
+  .topbar-back {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    color: var(--gold);
+    text-decoration: none;
+    font-size: .78rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    transition: opacity .2s;
+  }
+  .topbar-back:hover { opacity: .7; }
+  .topbar-back svg { flex-shrink: 0; }
+
+  .topbar-divider {
+    width: 1px; height: 1.2rem;
+    background: var(--bg-rule);
+  }
+
+  .topbar-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--ink-dim);
+  }
+
+  .topbar-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  /* ── Hero strip ── */
+  .hero-strip {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 3.5rem 2rem 2.5rem;
+    border-bottom: 1px solid var(--bg-rule);
+  }
+
+  .hero-label {
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: .8rem;
+  }
+
+  .hero-title {
+    font-family: 'EB Garamond', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: .6rem;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-subtitle {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--ink-dim);
+    margin-bottom: 1rem;
+  }
+
+  .hero-meta {
+    font-size: .8rem;
+    color: var(--ink-dim);
+  }
+
+  .hero-meta strong { color: var(--ink); font-weight: 500; }
+
+  .btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    margin-top: 1.6rem;
+    padding: .7rem 1.8rem;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Inter', sans-serif;
+    font-size: .8rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background .2s, color .2s;
+    border-radius: 2px;
+  }
+  .btn-download:hover { background: var(--gold); color: var(--bg); }
+  .btn-download svg { flex-shrink: 0; }
+
+  /* ── PDF viewer ── */
+  .viewer-wrap {
+    position: relative; z-index: 1;
+    flex: 1;
+    padding: 2rem;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .viewer-frame {
+    width: 100%;
+    height: calc(100vh - 260px);
+    min-height: 500px;
+    border: 1px solid var(--bg-rule);
+    border-radius: 4px;
+    background: var(--bg-card);
+  }
+
+  /* ── Footer ── */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--bg-rule);
+    font-size: .72rem;
+    color: var(--ink-dim);
+    letter-spacing: .04em;
+  }
+
+  footer a {
+    color: var(--gold-dim);
+    text-decoration: none;
+  }
+  footer a:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<!-- Верхня панель з кнопкою назад -->
+<nav class="topbar">
+  <a class="topbar-back" href="index.html">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Назад
+  </a>
+  <div class="topbar-divider"></div>
+  <span class="topbar-title">Нотатки з <em>космології</em></span>
+</nav>
+
+<!-- Заголовок -->
+<div class="hero-strip">
+  <p class="hero-label">Навчальний посібник</p>
+  <h1 class="hero-title">Нотатки з <em>космології</em></h1>
+  <p class="hero-subtitle">від рівнянь Фрідмана до інфляції та КМФ</p>
+  <p class="hero-meta">
+    <strong>С. М. Пономаренко</strong>
+  </p>
+  <a class="btn-download"
+     href="https://sergiokapone.github.io/Cosmology/Cosmology.pdf"
+     download>
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <path d="M8 2v8m0 0l-3-3m3 3l3-3M3 13h10" stroke="currentColor"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Завантажити PDF
+  </a>
+</div>
+
+<!-- PDF iframe -->
+<div class="viewer-wrap">
+  <iframe
+    class="viewer-frame"
+    src="https://docs.google.com/gview?embedded=true&url=https://sergiokapone.github.io/Cosmology/Cosmology.pdf"
+    title="Нотатки з космології"
+  ></iframe>
+</div>
+
+<!-- Підвал -->
+<footer>
+  &copy; С. М. Пономаренко, КПІ ім. Ігоря Сікорського, 2025
+  &nbsp;·&nbsp;
+  <a href="https://github.com/sergiokapone/Cosmology" target="_blank">GitHub</a>
+</footer>
+
+<script>
+(function () {
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function seed() {
+    stars = [];
+    const n = Math.floor((W * H) / 2800);
+    for (let i = 0; i < n; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.1 + 0.15,
+        a: Math.random(),
+        da: (Math.random() - 0.5) * 0.003
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (const s of stars) {
+      s.a = Math.max(0.05, Math.min(1, s.a + s.da));
+      if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(220,210,195,${s.a * 0.7})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+
+  resize(); seed(); draw();
+  window.addEventListener('resize', () => { resize(); seed(); });
+})();
+</script>
+
+</body>
+</html>
