@@ -22,6 +22,8 @@ test.pdf
 *.vrb
 *.xdv
 books.session
+*.gnuplot
+*.table
 
 
 

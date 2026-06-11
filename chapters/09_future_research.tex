@@ -23,7 +23,112 @@
 
 Фізичний механізм вирішення цієї кризи у нашому підході спирається на те, що модифікація первинного спектра на малих масштабах неминуче зміщує найкращі фіти фонових параметрів $\Lambda$CDM при сумісному MCMC-аналізі. Додатковий ступінь свободи у вигляді зламу або первинних особливостей спектра частково руйнує жорсткі параметричні кореляції (зокрема, між оптичною товщиною реіонізації $\tau$, амплітудою $A_s$ та нахилом $n_s$). Це дозволяє статистичному алгоритму перерозподілити вагу висококутових флуктуацій CMB та зрушити фоновий прогноз для сумісного параметра $H_0$ вгору, наближаючи його до локальних спостережних значень $73\,\text{км/с/Мпк}$ без погіршення загальної якості апроксимації даних Planck.
 
-Додаткову складність вносять перші результати огляду \emph{DESI}~\cite{DESI2024}. Вимірювання BAO у семи діапазонах червоних зсувів ($z \sim 0.1$--$2.1$) у поєднанні з даними CMB та наднових демонструють статистично значуще ($2.5\sigma$--$3.9\sigma$, залежно від набору даних наднових) відхилення рівняння стану темної енергії від $w=-1$. Зокрема, у моделі $w_0 w_a$CDM найкращий фіт дає $w_0 > -1$, $w_a < 0$~--- тобто темна енергія у минулому була слабшою, ніж зараз. Якщо це підтвердиться майбутніми даними, стандартна космологічна стала $\Lambda$ виявиться лише наближенням. Це суттєво для нашого підходу: динамічна темна енергія змінює фонову еволюцію $H(z)$, а відтак і масштаб звукового горизонту під час рекомбінації~--- саме той параметр, що визначає кутовий масштаб акустичних піків і калібрує $H_0$. Повноцінний аналіз має враховувати обидва джерела свободи одночасно.
+Додаткову складність вносять перші результати огляду \emph{DESI}~\cite{DESI2024}. Вимірювання BAO у семи діапазонах червоних зсувів ($z \sim 0.1$--$2.1$, рис.~\ref{fig:bao_all}) у поєднанні з даними CMB та наднових демонструють статистично значуще ($2.5\sigma$--$3.9\sigma$, залежно від набору даних наднових) відхилення рівняння стану темної енергії від $w=-1$. Зокрема, у моделі $w_0 w_a$CDM найкращий фіт дає $w_0 > -1$, $w_a < 0$~--- тобто темна енергія у минулому була слабшою, ніж зараз. Якщо це підтвердиться майбутніми даними, стандартна космологічна стала $\Lambda$ виявиться лише наближенням. Це суттєво для нашого підходу: динамічна темна енергія змінює фонову еволюцію $H(z)$, а відтак і масштаб звукового горизонту під час рекомбінації~--- саме той параметр, що визначає кутовий масштаб акустичних піків і калібрує $H_0$. Повноцінний аналіз має враховувати обидва джерела свободи одночасно.
+
+
+\pgfplotstableread[col sep=space]{data/DV_data.dat}{\dvobs}
+\pgfplotstableread[col sep=space]{data/DM_data.dat}{\dmobs}
+
+
+% -------------------------------------------------------
+% Графік: D_M/r_d та D_V/r_d — всі точки разом
+% -------------------------------------------------------
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width  = 0.92\linewidth,
+    height = 0.58\linewidth,
+    xmin = 0.0, xmax = 2.6,
+    ymin = 0,   ymax = 44,
+    xlabel = {Червоний зсув $z$},
+    ylabel = {$D_M/r_d$ або $D_V/r_d$},
+    label style      = {font=\small},
+    tick label style = {font=\footnotesize},
+    axis lines  = left,
+    xtick       = {0, 0.5, 1.0, 1.5, 2.0, 2.5},
+    ytick       = {0, 11, 22, 33, 44},
+    grid = both,
+    grid style       = {line width=0.2pt, color=gray!20},
+    major grid style = {line width=0.4pt, color=gray!30},
+    legend style = {
+        at={(0.05,0.97)}, anchor=north west,
+        font=\scriptsize, draw=gray!50,
+        inner sep=3pt, row sep=1pt,
+        cells={anchor=west}
+    },
+    clip = true,
+]
+% Крива Planck H0=67.4
+\addplot[
+    solid, color=blue!70!black, line width=1.5pt,
+] gnuplot[raw gnuplot, id=BAO_planck]{
+    Efun(zz) = sqrt(0.315*(1+zz)**3 + 0.685);
+    DMfun(x) = (299792.458/67.4) * sum [i=1:N] (1.0/Efun((i-0.5)*x/N)) * (x/N);
+    N = 1000;
+    set samples 300;
+    plot [x=0.01:2.6] DMfun(x)/147.09
+};
+\addlegendentry{Planck: $H_0{=}67.4$, $\Omega_m{=}0.315$}
+
+% Крива SH0ES H0=73.0
+\addplot[
+    dashed, color=red!80!black, line width=1.5pt,
+] gnuplot[raw gnuplot, id=BAO_sh0es]{
+    Efun(zz) = sqrt(0.315*(1+zz)**3 + 0.685);
+    DMfun(x) = (299792.458/73.0) * sum [i=1:N] (1.0/Efun((i-0.5)*x/N)) * (x/N);
+    N = 1000;
+    set samples 300;
+    plot [x=0.01:2.6] DMfun(x)/147.09
+};
+\addlegendentry{SH0ES: $H_0{=}73.0$, $\Omega_m{=}0.315$}
+
+% D_M точки (DESI LRG, ELG, QSO, Lya) — зелені кружки
+\addplot[
+    only marks, mark=*, mark size=2.2pt,
+    color=green!60!black,
+    error bars/.cd,
+        y dir=both, y explicit,
+        error bar style={line width=0.8pt, color=green!60!black},
+        error mark options={rotate=90, mark size=3pt, line width=0.8pt},
+] table[x=z, y=DM_rd, y error=eDM] {\dmobs};
+\addlegendentry{$D_M/r_d$ (DESI LRG, ELG, QSO, Ly$\alpha$)}
+
+% D_V точки (6dFGS, SDSS MGS, DESI BGS) — сині квадрати
+\addplot[
+    only marks, mark=square*, mark size=2.0pt,
+    color=blue!60!black,
+    error bars/.cd,
+        y dir=both, y explicit,
+        error bar style={line width=0.8pt, color=blue!60!black},
+        error mark options={rotate=90, mark size=3pt, line width=0.8pt},
+] table[x=z, y=DV_rd, y error=eDV] {\dvobs};
+\addlegendentry{$D_V/r_d$ (6dFGS, SDSS MGS, DESI BGS)}
+
+% Підписи точок D_M
+\node[font=\scriptsize, anchor=west] at (axis cs:0.52,  13.62) {LRG1};
+\node[font=\scriptsize, anchor=west] at (axis cs:0.72,  16.85) {LRG2};
+\node[font=\scriptsize, anchor=west] at (axis cs:0.94,  21.71) {LRG+ELG};
+\node[font=\scriptsize, anchor=west] at (axis cs:1.33,  27.79) {ELG};
+\node[font=\scriptsize, anchor=west] at (axis cs:1.50,  30.21) {QSO};
+\node[font=\scriptsize, anchor=west] at (axis cs:2.34,  37.60) {Ly$\alpha$};
+
+% Підписи точок D_V
+\node[font=\scriptsize, anchor=west] at (axis cs:0.115, 2.98)  {6dFGS};
+\node[font=\scriptsize, anchor=west] at (axis cs:0.155, 4.47)  {SDSS MGS};
+\node[font=\scriptsize, anchor=west] at (axis cs:0.305, 7.93)  {DESI BGS};
+
+\end{axis}
+\end{tikzpicture}
+\caption{BAO відстані $D_M/r_d$ (кружки) та $D_V/r_d$ (квадрати) як функції
+червоного зсуву. Суцільна крива~--- Planck $\Lambda$CDM ($H_0 = 67.4\,\text{км/с/Мпк}$),
+пунктирна~--- SH0ES ($H_0 = 73.0\,\text{км/с/Мпк}$), $\Omega_m = 0.315$,
+$r_d = 147.09\,\text{Мпк}$. Дані DESI~DR1~\cite{DESI2024}, 6dFGS та SDSS~MGS.
+Обидві величини нормовані на $r_d$ і мають однакову розмірність та асимптотику,
+тому сумісне відображення на одній осі є коректним.}
+\label{fig:bao_all}
+\end{figure}
+
 
 \textbf{The $S_8$ tension.}
 Другою важливою розбіжністю є параметр скупченості $S_8 \equiv \sigma_8 \sqrt{\Omega_m / 0.3}$,
