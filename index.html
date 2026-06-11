@@ -575,6 +575,12 @@
 </div><!-- .page -->
 
 <script>
+  document.querySelectorAll('.btn-pdf').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.open(this.href, '_blank');
+    });
+  });
 /* ── Starfield ── */
 (function () {
   const canvas = document.getElementById('stars');
