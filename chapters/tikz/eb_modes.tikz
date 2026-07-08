@@ -1,0 +1,42 @@
+\begin{tikzpicture}[
+    line cap=round,
+    every node/.style={font=\footnotesize},
+]
+
+\definecolor{Emode}{RGB}{200,40,40}
+\definecolor{Bmode}{RGB}{40,60,180}
+
+% ---------- macro: two-ring polarization pattern with a soft central spot ----------
+% #1 = x-shift, #2 = y-shift, #3 = colour, #4 = angle offset
+%   (0 = radial -> E<0 ; 90 = tangential -> E>0 ; +45/-45 = B<0/B>0)
+% #5 = caption text (placed BELOW the panel, TikZ math mode allowed)
+\newcommand{\polfield}[5]{%
+    \begin{scope}[xshift=#1cm, yshift=#2cm]
+        % soft central spot -- just a hint of "there's a perturbation here",
+        % not tied to a specific hot/cold sign
+        \shade[ball color=#3!12, opacity=0.55] (0,0) circle (0.42);
+        % inner ring
+        \foreach \ang in {0,45,...,315}{
+            \draw[#3, line width=1.05pt]
+                ({0.28*cos(\ang+#4)+0.62*cos(\ang)},{0.28*sin(\ang+#4)+0.62*sin(\ang)})
+                --
+                ({-0.28*cos(\ang+#4)+0.62*cos(\ang)},{-0.28*sin(\ang+#4)+0.62*sin(\ang)});
+        }
+        % outer ring, staggered by 22.5 deg, slightly longer sticks
+        \foreach \ang in {22.5,67.5,...,337.5}{
+            \draw[#3, line width=1.05pt]
+                ({0.34*cos(\ang+#4)+1.15*cos(\ang)},{0.34*sin(\ang+#4)+1.15*sin(\ang)})
+                --
+                ({-0.34*cos(\ang+#4)+1.15*cos(\ang)},{-0.34*sin(\ang+#4)+1.15*sin(\ang)});
+        }
+        % caption below the panel, outside the pattern
+        \node at (0,-1.75) {#5};
+    \end{scope}
+}
+
+\polfield{0}{4.2}{Bmode}{0}{$E<0$}
+\polfield{6}{4.2}{Emode}{90}{$E>0$}
+\polfield{0}{0}{Bmode}{45}{$B<0$}
+\polfield{6}{0}{Emode}{-45}{$B>0$}
+
+\end{tikzpicture}
