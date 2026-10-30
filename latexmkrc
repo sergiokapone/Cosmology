@@ -1,5 +1,5 @@
 # ============================================================
-#  .latexmkrc — LuaLaTeX + Biber + upmendex
+#  .latexmkrc — XeLaTeX + Biber + upmendex
 #  Положи этот файл в корень проекта (рядом с main.tex)
 # ============================================================
 
@@ -10,10 +10,10 @@ $force_mode = 1;
 $silent = 1;
 $silence_logfile_warnings = 1;
 
-# --- Движок: LuaLaTeX ------------------------------------
-$pdf_mode = 4;   # 1=pdflatex, 4=lualatex, 5=xelatex
+# --- Движок: XeLaTeX ------------------------------------
+$pdf_mode = 5;   # 1=pdflatex, 4=lualatex, 5=xelatex
 
-$lualatex = 'xelatex -shell-escape -synctex=1 -interaction=nonstopmode -file-line-error %O %S';
+$xelatex = 'xelatex -shell-escape -synctex=1 -interaction=nonstopmode -file-line-error %O %S';
 
 # --- Пути поиска файлов ----------------------------------
 $ENV{'TEXINPUTS'} = '.;./Additions;' . ($ENV{'TEXINPUTS'} // '');

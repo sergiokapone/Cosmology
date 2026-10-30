@@ -14,8 +14,10 @@
 ```
 ├── chapters/                        # Розділи конспекту
 │   ├── tikz/
-│   │   └── fig_newton_sphere.tikz   # TikZ-діаграма ньютонівської кулі
+│   │   ├── fig_newton_sphere.tikz   # TikZ-діаграма ньютонівської кулі
+│   │   └── eb_modes.tikz            # TikZ-діаграма E/B-мод поляризації
 │   ├── 01_friedmann.tex             # Фонова космологія: метрика FLRW, рівняння Фрідмана, ΛCDM
+│   ├── 01_inflation_kinematics.tex  # Кінематика інфляції: проблема горизонту і плоскості
 │   ├── 02_inflaton.tex              # Інфлатон і його потенціал, slow-roll
 │   ├── 03_metric_perturbations.tex  # SVT-розклад збурень метрики, калібрування
 │   ├── 04_quantum_fluctuations.tex  # Квантові флуктуації, спектр Муханова-Сасакі
@@ -23,10 +25,9 @@
 │   ├── 06_plasma_acoustics.tex      # Гідродинаміка фотон-баріонної плазми, BAO
 │   ├── 07_sachs_wolfe.tex           # Ефект Закса-Вольфа, кутовий спектр CMB
 │   ├── 08_cmb_polarisation.tex      # Поляризація CMB, E- і B-моди
-│   ├── 09_chaotic_inflation.tex     # Хаотична інфляція Лінде, вічна інфляція
-│   ├── 10_future_research.tex       # Перспективи: JWST, зламаний спектр, MCMC
-│   ├── 11_software.tex              # Огляд Python-пакетів (CAMB, CLASS, Cobaya)
-│   ├── 12_practical_guide.tex       # Практичний посібник: від даних CMB до параметрів моделі
+│   ├── 09_future_research.tex       # Перспективи: JWST, зламаний спектр, MCMC
+│   ├── 10_software.tex              # Огляд Python-пакетів (CAMB, CLASS, Cobaya)
+│   ├── 11_practical_guide.tex       # Практичний посібник: від даних CMB до параметрів моделі
 │   ├── app_a_data.tex               # Додаток А: сучасні космологічні параметри ΛCDM
 │   ├── app_b_efolds.tex             # Додаток Б: вивід тривалості інфляції та вікна CMB
 │   └── appendix_newton_energy.tex   # Додаток В: ньютонівська космологія і збереження енергії
@@ -51,8 +52,8 @@
 ├── scripts/
 │   └── Universe.py                  # Python-скрипт для генерації графіків спектрів
 │
-├── cosmology_summary.tex            # Головний файл (підключає всі розділи)
-└── cosmology_summary.pdf            # Скомпільований PDF
+├── Cosmology.tex                    # Головний файл (підключає всі розділи)
+└── Cosmology.pdf                    # Скомпільований PDF
 ```
 
 ---
@@ -90,26 +91,26 @@
 
 ## Компіляція
 
-Проект використовує **LuaLaTeX** і шрифти Bookman Old Style.
+Проект використовує **XeLaTeX** і шрифти Bookman Old Style.
 
 ```bash
-lualatex cosmology_summary.tex
-biber cosmology_summary
-lualatex cosmology_summary.tex
-lualatex cosmology_summary.tex
+xelatex Cosmology.tex
+biber Cosmology
+xelatex Cosmology.tex
+xelatex Cosmology.tex
 ```
 
 Або через latexmk:
 
 ```bash
-latexmk -lualatex cosmology_summary.tex
+latexmk Cosmology.tex
 ```
 
 ---
 
 ## Залежності
 
-- LuaLaTeX (TeX Live 2023+)
+- XeLaTeX (TeX Live 2023+)
 - Пакети: `fontspec`, `tikz`, `pgfplots`, `amsmath`, `tcolorbox`, `biblatex`
 - Python 3.x з пакетами `camb`, `numpy`, `matplotlib` (для `scripts/Universe.py`)
 

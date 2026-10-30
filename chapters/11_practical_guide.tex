@@ -140,7 +140,7 @@ def chi2(params):
 # Стартова точка --- значення Planck 2018
 x0 = [67.36, 0.02237, 0.1200, 0.0544, np.log(21.0), 0.9649]
 result = minimize(chi2, x0, method='Nelder-Mead',
-                  options={'maxiter': 500, 'xatol': 1e-3})
+                  options={'maxiter': 500, 'xatol': 1e-5, 'fatol': 1e-2})
 print("Best-fit params:", result.x)
 print("chi2_min / N_dof:", result.fun / len(ell_data))
 \end{minted}
@@ -202,7 +202,7 @@ params:
     ref:   {mean: 0.1200, std: 0.001}
     latex: \Omega_c h^2
   tau:
-    prior: {min: 0.01, max: 0.12}
+    prior: {dist: norm, loc: 0.0544, scale: 0.0073}   # без low-ell EE tau не обмежене
     ref:   {mean: 0.0544, std: 0.007}
     latex: \tau
   logA:
@@ -251,12 +251,11 @@ from getdist import plots, MCSamples
 import getdist.plots as gdplt
 
 # Зчитуємо chain
-samples = MCSamples(
-    root='chains/lcdm',
-    settings={'ignore_rows': 0.3}   # відкидаємо burn-in
-)
+from getdist import loadMCSamples
+samples = loadMCSamples('chains/lcdm',
+                        settings={'ignore_rows': 0.3})  # відкидаємо burn-in
 
-# Трикутний графік для двох параметрів
+# Трикутний графік для трьох параметрів
 g = gdplt.get_subplot_plotter()
 g.triangle_plot(
     [samples],
@@ -391,15 +390,16 @@ params:
         $\hat{R}-1$ в лог~--- він має бути $< 0.01$.
 
   \item \textbf{Неправильні одиниці в CAMB.} За замовчуванням
-        CAMB повертає $C_\ell$, не $\mathcal{D}_\ell$. Завжди
-        передавайте \texttt{CMB\_unit='muK'} і перевіряйте
-        чи ділите на $2\pi/(\ell(\ell+1))$ якщо потрібно.
+        \texttt{get\_cmb\_power\_spectra} повертає $\mathcal{D}_\ell=\ell(\ell+1)C_\ell/2\pi$
+        (для сирих $C_\ell$ потрібен \texttt{raw\_cl=True}). Завжди
+        передавайте \texttt{CMB\_unit='muK'} і перевіряйте,
+        в яких одиницях порівнюєте теорію з даними.
 
   \item \textbf{Порівнювати $\chi^2$, а не $\Delta\chi^2$.}
         Абсолютне значення $\chi^2$ залежить від нормування
         даних. Для порівняння двох моделей важливий
         $\Delta\chi^2 = \chi^2_{\rm model} - \chi^2_{\Lambda CDM}$
-        і критерій AIC/BIC для penalізації зайвих параметрів.
+        і критерій AIC/BIC для штрафування зайвих параметрів.
 \end{enumerate}
 
 %% --------------------------------------------------------

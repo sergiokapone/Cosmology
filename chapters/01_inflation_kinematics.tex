@@ -60,9 +60,8 @@ $a(t) = a_i e^{H_{\text{Inf}} t}$ при $H_{\text{Inf}} \approx \mathrm{const}$
 обмінятись сигналами.
 
 На рисунку~\ref{fig:conformal_inflation} та в подальших викладках
-ми позначаємо $\eta_{\text{Init}}$ конформний час у момент,
-коли найбільший спостережуваний сьогодні масштаб перетнув горизонт.
-Це скінченне число, яке і визначає $\Delta\eta_{\text{Inf}}$.
+ми позначаємо $\eta_{\text{Init}}$ конформний час початку інфляції (у ідеалізованому де-Сіттерівському розширенні $\eta_{\text{Init}}\to-\infty$;
+фізично достатньо, щоб $|\eta_{\text{Init}}|$ було багато більшим за $\Delta\eta_{\text{Bb}}$).
 
 Введемо позначення для ключових моментів конформного часу (рис.~\ref{fig:conformal_inflation}):
 \begin{align*}
@@ -281,35 +280,32 @@ $e^{-H_{\text{Inf}}t_{\text{End}}} = e^{-N} e^{-H_{\text{Inf}}t_{\text{Init}}} \
 	N \gg \ln \left( \frac{T_0}{H_0} \right) + \ln \left( \frac{H_{\text{Inf}}}{T_{\text{reh}}} \right).
 \end{equation*}
 
-Щоб отримати числову оцінку, потрібно знати $H_{\text{Inf}}$.
-За порядком величини природно вважати, що максимально можливий
-масштаб інфляції --- планківський: $H_{\text{Inf}} \lesssim M_{\text{Pl}}$.
-Це не сувора межа, а розумна верхня оцінка: якби $H_{\text{Inf}}$ було
-набагато меншим, то й $N$ було б більшим, що лише посилює виконання
-умов. Тому для оцінки мінімально необхідного $N$ ми можемо взяти
-$H_{\text{Inf}} \sim M_{\text{Pl}}$.
-
-Тоді:
+Щоб отримати числову оцінку, потрібно пов'язати $H_{\text{Inf}}$ з $T_{\text{reh}}$.
+У наближенні швидкого розігріву вся енергія інфляції переходить у випромінювання:
+$3M_{\text{Pl}}^2H_{\text{Inf}}^2 \simeq \frac{\pi^2}{30}g_*T_{\text{reh}}^4$, звідки
+$H_{\text{Inf}} \sim T_{\text{reh}}^2/M_{\text{Pl}}$ (з точністю до числового множника ${\sim}1$;
+тут $M_{\text{Pl}} = 2.4\times10^{18}$~GeV~--- редукована маса Планка, див.\ додаток~\ref{sec:appendix_efolds}). Тоді
+$\ln(H_{\text{Inf}}/T_{\text{reh}}) \approx \ln(T_{\text{reh}}/M_{\text{Pl}})$, і з $\ln(T_0/H_0)\approx 67$:
 \begin{equation*}
-	N \gg 67 + \ln\left(\frac{M_{\text{Pl}}}{T_{\text{reh}}}\right).
+	N \gg 67 + \ln\left(\frac{T_{\text{reh}}}{M_{\text{Pl}}}\right).
 \end{equation*}
 
-Для типових значень $T_{\text{reh}} \sim 10^{15}$~GeV маємо
-$\ln(M_{\text{Pl}}/T_{\text{reh}}) \approx -4.6$, звідки $N \gg 62.4$,
+Для $T_{\text{reh}} \sim 10^{15}$~GeV маємо
+$\ln(T_{\text{reh}}/M_{\text{Pl}}) \approx -7.8$, звідки $N \gtrsim 59$,
 тобто $N \gtrsim 60$.
 
 \begin{keybox}{Залежність від температури розігріву}
 	Оцінка $N$ чутливо залежить від $T_{\text{reh}}$:
 	\begin{itemize}
 		\item Високий розігрів ($T_{\text{reh}} \sim 10^{15}$~GeV):
-		      $\ln(M_{\text{Pl}}/T_{\text{reh}}) \approx -4.6$,
-		      $N \gtrsim 62$.
-		\item Типовий діапазон ($T_{\text{reh}} \sim 10^{13}$~GeV):
-		      $\ln(M_{\text{Pl}}/T_{\text{reh}}) \approx -7.8$,
+		      $\ln(T_{\text{reh}}/M_{\text{Pl}}) \approx -7.8$,
 		      $N \gtrsim 59$.
+		\item Нижчий розігрів ($T_{\text{reh}} \sim 10^{13}$~GeV):
+		      $\ln(T_{\text{reh}}/M_{\text{Pl}}) \approx -12.4$,
+		      $N \gtrsim 55$.
 		\item Низький розігрів ($T_{\text{reh}} \sim 10^3$~GeV):
-		      $\ln(M_{\text{Pl}}/T_{\text{reh}}) \approx -34.5$,
-		      $N \gtrsim 33$.
+		      $\ln(T_{\text{reh}}/M_{\text{Pl}}) \approx -35.4$,
+		      $N \gtrsim 32$.
 	\end{itemize}
 	Оскільки більшість реалістичних моделей тяжіють до високих
 	масштабів енергій ($10^{13}$--$10^{15}$~GeV),
@@ -336,22 +332,22 @@ $\ln(M_{\text{Pl}}/T_{\text{reh}}) \approx -4.6$, звідки $N \gg 62.4$,
 	|\Omega_{\text{tot}} - 1|_{\text{End}} \approx e^{-2N}.
 \end{equation*}
 Щоб сьогодні мати $|\Omega_k| < 0.005$, враховуючи, що після інфляції
-відхилення \emph{зростає} як $a^2$ (§\,\ref{subsec:flatness_paradox}),
-отримуємо умову:
+відхилення \emph{зростає} як $a^2$ у радіаційну епоху і як $a$ у матеріальну
+(§\,\ref{subsec:flatness_paradox}), отримуємо умову:
 \begin{equation}\label{eq:flatness_efolds}
-	e^{-2N} \cdot \left(\frac{a_0}{a_{\text{End}}}\right)^2 \lesssim 0.005.
+	e^{-2N} \cdot \left(\frac{a_{\text{eq}}}{a_{\text{End}}}\right)^2\frac{a_0}{a_{\text{eq}}} \lesssim 0.005.
 \end{equation}
-Підставляючи $a_0/a_{\text{End}} = T_{\text{reh}}/T_0$
-(із закону збереження ентропії $a \propto 1/T$) і
-$T_{\text{reh}} \sim 10^{15}$~GeV, $T_0 \sim 10^{-4}$~eV, знаходимо:
+Підставляючи $a_{\text{eq}}/a_{\text{End}} = T_{\text{reh}}/T_{\text{eq}}$
+(із закону збереження ентропії $a \propto 1/T$), $a_0/a_{\text{eq}} \approx 3400$ і
+$T_{\text{reh}} \sim 10^{15}$~GeV, $T_{\text{eq}} \sim 0.8$~eV, знаходимо:
 \begin{equation*}
-	\frac{a_0}{a_{\text{End}}} \sim \frac{10^{15}\,\text{GeV}}{10^{-13}\,\text{GeV}}
-	= 10^{28} \approx e^{64},
+	\left(\frac{T_{\text{reh}}}{T_{\text{eq}}}\right)^2\cdot 3400 \sim 5\times 10^{51} \approx e^{120},
 \end{equation*}
-тому умова~\eqref{eq:flatness_efolds} дає:
+тому умова~\eqref{eq:flatness_efolds} дає $2N \gtrsim 120 + 5$, тобто:
 \begin{equation}\label{eq:N_min}
-	\boxed{N \gtrsim 60.}
+	\boxed{N \gtrsim 60\text{--}62.}
 \end{equation}
+(Якщо грубо вважати, що відхилення росте як $a^2$ аж до сьогодні, вийде завищена оцінка $N\gtrsim66$.)
 
 %% --------------------------------------------------------
 \section{Проблема первинних збурень}
@@ -442,10 +438,10 @@ $V(\phi)$, яке при повільному скоченні вздовж по
 	\textit{Вказівка:} фізичний розмір горизонту на рекомбінації
 	$l_H(z_*) \approx c/H(z_*)$, де $H(z_*) \approx H_0\,\Omega_m^{1/2}(1+z_*)^{3/2}$.
 	Кутовий розмір~--- це $\theta \approx l_H(z_*)/d_A(z_*)$,
-	де $d_A(z_*) \approx c/H_0 \cdot 2/(1+z_*)^{1/2}$.
+	де $d_A(z_*) \approx (c/H_0)\cdot 2/(1+z_*)$ (Всесвіт Ейнштейна--де-Сіттера при великих $z$).
 
-	\textit{Відповідь:} $\theta \approx \Omega_m^{1/2}/(1+z_*)^{1/2} \approx 1.7^\circ$~---
-	саме стільки охоплює один причинно-зв'язаний патч на карті CMB.
+	\textit{Відповідь:} $\theta \approx 1/\bigl(2\,\Omega_m^{1/2}(1+z_*)^{1/2}\bigr) \approx 0.027\ \text{рад} \approx 1.5^\circ$~---
+	саме стільки (за порядком величини) охоплює один причинно-зв'язаний патч на карті CMB.
 	Оскільки таких патчів $\sim (180^\circ/1.7^\circ)^2 \sim 10^4$,
 	виникає питання: чому всі вони мають однакову температуру?
 \end{problem}
@@ -458,5 +454,5 @@ $V(\phi)$, яке при повільному скоченні вздовж по
 	отримайте умову на $N$ з вимоги $|\Omega_k(t_0)| < 0.005$.
 	Оцініть мінімальне $N$ для $T_{\text{reh}} = 10^{15}$~GeV та $T_{\text{reh}} = 10^3$~GeV.
 	\textit{Відповідь:} $N \gtrsim 60$ для високого розігріву,
-	$N \gtrsim 30$ для низького.
+	$N \gtrsim 35$ для низького.
 \end{problem}

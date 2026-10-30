@@ -61,7 +61,7 @@ Write-Host
 $now = Get-Date
 Write-Host "  ${GRAY}Started : ${WHITE}$($now.ToString('yyyy-MM-dd  HH:mm'))${R}"
 Write-Host "  ${GRAY}Target  : ${WHITE}${TEXFILE}${R}"
-Write-Host "  ${GRAY}Engine  : ${WHITE}LuaLaTeX  (latexmk -f -g)${R}"
+Write-Host "  ${GRAY}Engine  : ${WHITE}XeLaTeX  (latexmk -f -g)${R}"
 Write-Host "  ${GRAY}Output  : ${WHITE}$FOLDER.pdf${R}"
 Write-Host
 Write-Host $SEP
